@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Civic Loop</title>
+  <rect width="1200" height="800" fill="#dff7e8"/>
+  <g fill="none" stroke="#154f3b" stroke-width="16"><path d="M180 190h400l220 210h220M180 610h400l220-210"/><circle cx="180" cy="190" r="55"/><circle cx="180" cy="610" r="55"/><circle cx="580" cy="400" r="70"/><circle cx="1020" cy="400" r="55"/></g>
+</svg>

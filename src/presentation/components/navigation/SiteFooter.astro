@@ -1,0 +1,23 @@
+---
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+
+interface Props {
+  siteName: string;
+  tagline: string;
+}
+
+const { siteName, tagline } = Astro.props;
+---
+
+<footer class="site-footer">
+  <ResponsiveContainer class="site-footer__inner">
+    <div class="flow">
+      <p class="eyebrow">{siteName}</p>
+      <p class="site-footer__title">{tagline}</p>
+    </div>
+    <div class="flow">
+      <p><a href="/catalog/">Catalogo</a> · <a href="/about/">Profilo</a></p>
+      <p class="muted">© {new Date().getFullYear()} · Costruito static-first con Astro.</p>
+    </div>
+  </ResponsiveContainer>
+</footer>

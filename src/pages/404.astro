@@ -1,0 +1,18 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import Button from '@presentation/components/shared/Button.astro';
+import Section from '@presentation/components/shared/Section.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().getStaticPage.execute('not-found');
+---
+
+<BaseLayout {model} page="not-found" experience="none">
+  <Section narrow eyebrow="Errore 404">
+    <div class="flow" style="--flow-space: var(--space-l)">
+      <h1>Articolo<br />fuori catalogo.</h1>
+      <p class="lead">La pagina richiesta non esiste o è stata spostata.</p>
+      <Button href="/catalog/">Torna al catalogo</Button>
+    </div>
+  </Section>
+</BaseLayout>

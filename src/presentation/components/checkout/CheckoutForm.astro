@@ -1,0 +1,109 @@
+---
+import type { CheckoutPageModel } from '@application/models/page-models';
+import Button from '@presentation/components/shared/Button.astro';
+
+interface Props {
+  model: CheckoutPageModel;
+}
+
+const { model } = Astro.props;
+---
+
+<div class="checkout-layout">
+  <form
+    class="checkout-form"
+    name={model.formName}
+    method="POST"
+    action="/order-confirmation/"
+    data-netlify="true"
+    netlify-honeypot="company-website"
+    data-checkout-form
+  >
+    <input type="hidden" name="form-name" value={model.formName} />
+    <input type="hidden" name="cart-summary" value="" data-checkout-cart />
+    <p class="sr-only">
+      <label
+        >Non compilare questo campo: <input
+          name="company-website"
+          tabindex="-1"
+          autocomplete="off"
+        /></label
+      >
+    </p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="full-name">Nome e cognome</label>
+        <input id="full-name" name="full-name" autocomplete="name" maxlength="120" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="company">Azienda <span class="muted">(opzionale)</span></label>
+        <input id="company" name="company" autocomplete="organization" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="budget">Budget indicativo <span class="muted">(opzionale)</span></label>
+        <input
+          id="budget"
+          name="budget"
+          inputmode="decimal"
+          maxlength="40"
+          placeholder="es. 2.500 €"
+        />
+      </div>
+      <div class="field">
+        <label for="deadline">Scadenza desiderata <span class="muted">(opzionale)</span></label>
+        <input id="deadline" name="deadline" type="date" />
+      </div>
+      <div class="field field--full">
+        <label for="project-details">Dettagli della richiesta</label>
+        <textarea
+          id="project-details"
+          name="project-details"
+          maxlength="5000"
+          required
+          placeholder="Contesto, obiettivi e vincoli principali."></textarea>
+      </div>
+      <div class="field field--full">
+        <label for="message">Messaggio aggiuntivo <span class="muted">(opzionale)</span></label>
+        <textarea id="message" name="message" maxlength="2000"></textarea>
+      </div>
+    </div>
+
+    <label class="checkbox" for="privacy-consent">
+      <input
+        id="privacy-consent"
+        name="privacy-consent"
+        type="checkbox"
+        value="accepted"
+        required
+      />
+      <span>
+        Acconsento all’uso dei dati inseriti esclusivamente per rispondere a questa richiesta.
+        Nessun dato di pagamento viene raccolto.
+      </span>
+    </label>
+
+    <p class="notice">
+      Questo checkout invia una richiesta tramite Netlify Forms. Non effettua pagamenti, donazioni o
+      addebiti.
+    </p>
+    <div><Button type="submit">Invia la richiesta</Button></div>
+  </form>
+
+  <aside class="summary-card" aria-labelledby="checkout-summary-title">
+    <p class="eyebrow">Il tuo ordine metaforico</p>
+    <h2 id="checkout-summary-title">Riepilogo</h2>
+    <div data-checkout-summary>
+      <p class="muted">Il riepilogo viene caricato dal carrello locale.</p>
+    </div>
+    <div class="summary-card__row">
+      <span>Totale noto</span>
+      <strong data-checkout-total>—</strong>
+    </div>
+    <a href="/cart/">Modifica il carrello</a>
+  </aside>
+</div>

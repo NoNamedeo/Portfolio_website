@@ -1,0 +1,54 @@
+---
+import type { SiteShellModel } from '@application/models/page-models';
+import SiteFooter from '@presentation/components/navigation/SiteFooter.astro';
+import SiteHeader from '@presentation/components/navigation/SiteHeader.astro';
+import SeoHead from '@presentation/components/shared/SeoHead.astro';
+import '@styles/global.css';
+
+interface Props {
+  model: SiteShellModel;
+  page: string;
+  theme?: string;
+  experience?: string;
+  transition?: string;
+}
+
+const {
+  model,
+  page,
+  theme = 'store-neutral',
+  experience = 'none',
+  transition = 'none'
+} = Astro.props;
+const lang = model.locale.split('-')[0] ?? 'it';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f3f0e8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <SeoHead seo={model.seo} />
+  </head>
+  <body
+    data-page={page}
+    data-theme={theme}
+    data-experience={experience}
+    data-transition={transition}
+  >
+    <a class="skip-link" href="#main-content">Vai al contenuto</a>
+    <SiteHeader siteName={model.name} currentPath={Astro.url.pathname} />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter siteName={model.name} tagline={model.tagline} />
+    <p class="sr-only" data-app-announcer aria-live="polite" aria-atomic="true"></p>
+    <script>
+      import '@presentation/client/main';
+    </script>
+  </body>
+</html>

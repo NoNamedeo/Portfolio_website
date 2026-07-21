@@ -1,0 +1,30 @@
+---
+import type { CartLineModel } from '@application/models/page-models';
+
+interface Props {
+  line: CartLineModel;
+}
+
+const { line } = Astro.props;
+---
+
+<li class="cart-line" data-cart-line={line.catalogItemId}>
+  <div class="flow" style="--flow-space: var(--space-xs)">
+    <p class="eyebrow">{line.pricingLabel}</p>
+    <h2 class="cart-line__title">
+      <a href={'/catalog/' + line.slug + '/'}>{line.title}</a>
+    </h2>
+  </div>
+  <div class="field">
+    <label for={'quantity-' + line.catalogItemId}>Quantità</label>
+    <input
+      id={'quantity-' + line.catalogItemId}
+      type="number"
+      min="1"
+      max="99"
+      value={line.quantity}
+      data-cart-quantity
+    />
+  </div>
+  <button class="button button--quiet" type="button" data-cart-remove>Rimuovi</button>
+</li>

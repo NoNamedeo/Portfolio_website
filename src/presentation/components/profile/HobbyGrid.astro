@@ -1,0 +1,20 @@
+---
+interface Props {
+  hobbies: readonly string[];
+}
+
+const { hobbies } = Astro.props;
+---
+
+<ul class="hobby-grid">
+  {
+    hobbies.map((hobby, index) => (
+      <li>
+        <>
+          <span class="eyebrow">0{index + 1}</span>
+          <h3>{hobby}</h3>
+        </>
+      </li>
+    ))
+  }
+</ul>

@@ -1,0 +1,118 @@
+---
+import type { CatalogItemPageModel } from '@application/models/page-models';
+import { createCompositionRoot } from '@app/composition-root';
+import AcquisitionButton from '@presentation/components/catalog/AcquisitionButton.astro';
+import Breadcrumbs from '@presentation/components/catalog/Breadcrumbs.astro';
+import CatalogItemContent from '@presentation/components/catalog/CatalogItemContent.astro';
+import PricingLabel from '@presentation/components/catalog/PricingLabel.astro';
+import ProductMetadata from '@presentation/components/catalog/ProductMetadata.astro';
+import RelatedItems from '@presentation/components/catalog/RelatedItems.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+import Section from '@presentation/components/shared/Section.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const root = createCompositionRoot();
+  const slugs = await root.getPublishedCatalogItemSlugs.execute();
+  return Promise.all(
+    slugs.map(async (slug) => ({
+      params: { slug },
+      props: { model: await root.getCatalogItemPage.execute(slug) }
+    }))
+  );
+}
+
+interface Props {
+  model: CatalogItemPageModel;
+}
+
+const { model } = Astro.props;
+const { item } = model;
+---
+
+<BaseLayout
+  {model}
+  page="catalog-item"
+  theme={item.themeKey}
+  experience={item.experienceKey}
+  transition={item.transitionKey}
+>
+  <Section tight>
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Catalogo', href: '/catalog/' },
+        { label: item.title }
+      ]}
+    />
+  </Section>
+
+  <ResponsiveContainer>
+    <article class="product-hero" data-catalog-item={item.id} data-theme={item.themeKey}>
+      <figure class="product-hero__media" data-animate="item-media">
+        <img
+          src={item.media.src}
+          alt={item.media.alt}
+          width={item.media.width}
+          height={item.media.height}
+          decoding="async"
+        />
+      </figure>
+      <div class="product-hero__details">
+        <div class="flow">
+          <p class="eyebrow">{item.typeLabel} · {item.year}</p>
+          <h1 data-animate="item-title">{item.title}</h1>
+          <p class="lead">{item.shortDescription}</p>
+        </div>
+        <div class="cluster">
+          <PricingLabel label={item.pricingLabel} />
+          <span class="tag">{item.availabilityLabel}</span>
+        </div>
+        <ProductMetadata {item} />
+        <ul class="tags" aria-label="Tecnologie">
+          {item.technologies.map((technology) => <li class="tag">{technology}</li>)}
+        </ul>
+        <AcquisitionButton {item} full />
+        {
+          item.links.length > 0 && (
+            <ul class="flow">
+              {item.links.map((link) => (
+                <li>
+                  <a href={link.href} rel="noreferrer">
+                    {link.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </article>
+  </ResponsiveContainer>
+
+  <Section narrow eyebrow="Dettagli dell’articolo">
+    <CatalogItemContent contentId={model.contentId} />
+    <nav class="adjacent-navigation" aria-label="Articoli precedente e successivo">
+      {
+        model.previous ? (
+          <a href={'/catalog/' + model.previous.slug + '/'}>
+            <span class="eyebrow">← Precedente</span>
+            <strong>{model.previous.title}</strong>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        model.next && (
+          <a href={'/catalog/' + model.next.slug + '/'}>
+            <span class="eyebrow">Successivo →</span>
+            <strong>{model.next.title}</strong>
+          </a>
+        )
+      }
+    </nav>
+  </Section>
+
+  <RelatedItems items={model.relatedItems} />
+</BaseLayout>

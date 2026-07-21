@@ -1,0 +1,16 @@
+---
+import type { CatalogItemPageModel } from '@application/models/page-models';
+
+interface Props {
+  item: CatalogItemPageModel['item'];
+}
+
+const { item } = Astro.props;
+---
+
+<dl class="product-meta">
+  <div><dt>Tipo</dt><dd>{item.typeLabel}</dd></div>
+  <div><dt>Anno</dt><dd>{item.year}</dd></div>
+  <div><dt>Disponibilità</dt><dd>{item.availabilityLabel}</dd></div>
+  <div><dt>Modalità</dt><dd>{item.pricingLabel}</dd></div>
+</dl>

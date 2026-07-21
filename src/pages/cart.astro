@@ -1,0 +1,24 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import CartSummary from '@presentation/components/cart/CartSummary.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().getCart.execute();
+---
+
+<BaseLayout {model} page="cart" experience="cart-summary">
+  <section class="section">
+    <ResponsiveContainer>
+      <header class="section-heading">
+        <p class="eyebrow">Carrello locale</p>
+        <h1 data-animate="page-title">La tua selezione.</h1>
+        <p class="lead">
+          Combina servizi, download e richieste. Il carrello resta in questo browser e non contiene
+          dati di pagamento.
+        </p>
+      </header>
+      <CartSummary {model} />
+    </ResponsiveContainer>
+  </section>
+</BaseLayout>

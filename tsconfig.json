@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "paths": {
+      "@core/*": ["./src/core/*"],
+      "@application/*": ["./src/core/application/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@presentation/*": ["./src/presentation/*"],
+      "@experience/*": ["./src/experience/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@app/*": ["./src/app/*"]
+    },
+    "types": ["node"]
+  }
+}

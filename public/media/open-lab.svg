@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Open Lab</title>
+  <rect width="1200" height="800" fill="#241634"/>
+  <rect x="150" y="140" width="480" height="480" rx="80" fill="#9e74ff"/>
+  <rect x="520" y="230" width="520" height="360" rx="180" fill="#f4d6ff" opacity=".84"/>
+</svg>

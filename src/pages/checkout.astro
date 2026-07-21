@@ -1,0 +1,24 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import CheckoutForm from '@presentation/components/checkout/CheckoutForm.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().startCheckout.execute();
+---
+
+<BaseLayout {model} page="checkout" experience="checkout-form">
+  <section class="section">
+    <ResponsiveContainer>
+      <header class="section-heading">
+        <p class="eyebrow">Checkout / richiesta</p>
+        <h1 data-animate="page-title">Diamo forma<br />al prossimo passo.</h1>
+        <p class="lead">
+          Racconta il contesto della richiesta. Riceverai una risposta prima di qualsiasi accordo
+          economico.
+        </p>
+      </header>
+      <CheckoutForm {model} />
+    </ResponsiveContainer>
+  </section>
+</BaseLayout>

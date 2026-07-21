@@ -1,0 +1,24 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import Button from '@presentation/components/shared/Button.astro';
+import Section from '@presentation/components/shared/Section.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().getStaticPage.execute('order-confirmation');
+---
+
+<BaseLayout {model} page="order-confirmation" experience="confirmation">
+  <Section narrow eyebrow="Richiesta ricevuta">
+    <div class="flow" style="--flow-space: var(--space-l)">
+      <h1 data-animate="page-title">Grazie.<br />Il prossimo passo è umano.</h1>
+      <p class="lead">
+        La richiesta è stata inviata. Verrà letta e seguita con un contatto diretto: nessun
+        pagamento è stato elaborato.
+      </p>
+      <div class="cluster">
+        <Button href="/catalog/">Continua a esplorare</Button>
+        <Button href="/" variant="secondary">Torna alla home</Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

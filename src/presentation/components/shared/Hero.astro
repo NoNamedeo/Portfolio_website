@@ -1,0 +1,31 @@
+---
+import Button from './Button.astro';
+import ResponsiveContainer from './ResponsiveContainer.astro';
+
+interface Props {
+  title: string;
+  accent: string;
+  description: string;
+}
+
+const { title, accent, description } = Astro.props;
+---
+
+<ResponsiveContainer>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="flow" style="--flow-space: var(--space-l)">
+      <p class="eyebrow" data-animate="hero-kicker">Portfolio commerce · Edizione 01</p>
+      <h1 id="hero-title" class="hero__title" data-animate="hero-title">
+        {title}
+        <span class="hero__accent">{accent}</span>
+      </h1>
+    </div>
+    <div class="hero__aside">
+      <div class="hero__index" aria-hidden="true" data-animate="hero-index">01</div>
+      <p class="lead">{description}</p>
+      <div>
+        <Button href="/catalog/">Esplora il catalogo <span aria-hidden="true">↗</span></Button>
+      </div>
+    </div>
+  </section>
+</ResponsiveContainer>

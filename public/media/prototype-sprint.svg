@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Product Prototype Sprint</title>
+  <rect width="1200" height="800" fill="#171713"/>
+  <g fill="#f4d84a"><rect x="140" y="500" width="180" height="150"/><rect x="390" y="390" width="180" height="260"/><rect x="640" y="280" width="180" height="370"/><rect x="890" y="150" width="180" height="500"/></g>
+</svg>

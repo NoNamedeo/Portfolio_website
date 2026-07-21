@@ -1,0 +1,34 @@
+---
+import type { CatalogPageModel } from '@application/models/page-models';
+import CatalogSearch from './CatalogSearch.astro';
+import CatalogSort from './CatalogSort.astro';
+
+interface Props {
+  model: CatalogPageModel;
+}
+
+const { model } = Astro.props;
+---
+
+<form class="catalog-toolbar" data-catalog-controls>
+  <CatalogSearch />
+  <div class="field">
+    <label for="catalog-type">Tipo</label>
+    <select id="catalog-type" name="type" data-catalog-type>
+      <option value="">Tutti i tipi</option>
+      {model.types.map((type) => <option value={type.value}>{type.label}</option>)}
+    </select>
+  </div>
+  <div class="field">
+    <label for="catalog-category">Categoria</label>
+    <select id="catalog-category" name="category" data-catalog-category>
+      <option value="">Tutte le categorie</option>
+      {
+        model.categories.map((category) => (
+          <option value={category.toLocaleLowerCase('it')}>{category}</option>
+        ))
+      }
+    </select>
+  </div>
+  <CatalogSort />
+</form>

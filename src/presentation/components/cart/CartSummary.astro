@@ -1,0 +1,66 @@
+---
+import type { CartPageModel } from '@application/models/page-models';
+import { messages } from '@app/config/messages';
+import CartLine from './CartLine.astro';
+import EmptyState from '@presentation/components/shared/EmptyState.astro';
+
+interface Props {
+  model: CartPageModel;
+}
+
+const { model } = Astro.props;
+---
+
+<div class="cart-layout" data-cart-page>
+  <div>
+    <div data-cart-empty hidden={model.itemCount > 0}>
+      <EmptyState
+        title={messages.cart.emptyTitle}
+        description={messages.cart.emptyDescription}
+        href="/catalog/"
+        actionLabel={messages.actions.exploreCatalog}
+      />
+    </div>
+    <ul class="cart-lines" data-cart-lines hidden={model.itemCount === 0}>
+      {model.lines.map((line) => <CartLine {line} />)}
+    </ul>
+  </div>
+  <aside class="summary-card" aria-labelledby="cart-summary-title">
+    <p class="eyebrow">Riepilogo</p>
+    <h2 id="cart-summary-title">La tua selezione</h2>
+    <div class="summary-card__row">
+      <span>Articoli</span>
+      <strong data-cart-summary-count>{model.itemCount}</strong>
+    </div>
+    <div class="summary-card__row">
+      <span>Totale noto</span>
+      <strong data-cart-summary-total>{model.knownTotalLabel}</strong>
+    </div>
+    <p class="notice" data-cart-quote-note hidden={!model.hasQuote}>
+      Alcuni articoli richiedono un preventivo: il totale finale verrà concordato.
+    </p>
+    <p class="notice" data-cart-donation-note hidden={!model.hasDonation}>
+      Gli importi delle donazioni possono essere scelti prima dell’invio.
+    </p>
+    <p class="notice" data-cart-currency-note hidden={!model.hasCurrencyConflict}>
+      Il checkout richiede articoli espressi nella stessa valuta.
+    </p>
+    <a
+      class="button"
+      href="/checkout/"
+      data-cart-checkout
+      aria-disabled={model.itemCount === 0 || model.hasCurrencyConflict ? 'true' : 'false'}
+      tabindex={model.itemCount === 0 || model.hasCurrencyConflict ? -1 : undefined}
+    >
+      {messages.actions.checkout}
+    </a>
+    <button
+      class="button button--quiet"
+      type="button"
+      data-cart-clear
+      disabled={model.itemCount === 0}
+    >
+      {messages.actions.clearCart}
+    </button>
+  </aside>
+</div>

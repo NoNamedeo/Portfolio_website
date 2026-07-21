@@ -1,0 +1,22 @@
+---
+import type { CatalogItemCardModel } from '@application/models/page-models';
+import CatalogItemCard from './CatalogItemCard.astro';
+
+interface Props {
+  items: readonly CatalogItemCardModel[];
+  id?: string;
+  eagerFirst?: boolean;
+}
+
+const { items, id, eagerFirst = false } = Astro.props;
+---
+
+<ul class="catalog-grid" {id} data-catalog-grid>
+  {
+    items.map((item, index) => (
+      <li data-catalog-entry={item.id}>
+        <CatalogItemCard {item} priority={eagerFirst && index === 0} />
+      </li>
+    ))
+  }
+</ul>

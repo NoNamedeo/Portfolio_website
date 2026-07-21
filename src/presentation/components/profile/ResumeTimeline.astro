@@ -1,0 +1,27 @@
+---
+import type { ResumeItemModel } from '@application/models/page-models';
+
+interface Props {
+  items: readonly ResumeItemModel[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="timeline">
+  {
+    items.map((item) => (
+      <li class="timeline__item">
+        <div>
+          <p class="eyebrow">{item.period}</p>
+          {item.current && <span class="tag">In corso</span>}
+        </div>
+        <div class="flow" style="--flow-space: var(--space-xs)">
+          <h3>{item.title}</h3>
+          <p class="muted">{item.subtitle}</p>
+          <p>{item.description}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>

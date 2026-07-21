@@ -1,0 +1,19 @@
+---
+import type { CatalogItemCardModel } from '@application/models/page-models';
+import CatalogGrid from './CatalogGrid.astro';
+import Section from '@presentation/components/shared/Section.astro';
+
+interface Props {
+  items: readonly CatalogItemCardModel[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <Section eyebrow="Continua a esplorare" title="Articoli correlati">
+      <CatalogGrid items={items} />
+    </Section>
+  )
+}

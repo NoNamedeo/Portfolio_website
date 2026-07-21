@@ -1,0 +1,19 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  href?: string;
+  actionLabel?: string;
+}
+
+const { title, description, href, actionLabel } = Astro.props;
+---
+
+<div class="empty-state">
+  <p class="eyebrow">Stato vuoto</p>
+  <h2>{title}</h2>
+  <p class="muted">{description}</p>
+  {href && actionLabel && <Button {href}>{actionLabel}</Button>}
+</div>

@@ -1,0 +1,8 @@
+{
+  "name": "Studio Prisma",
+  "tagline": "Portfolio da esplorare. Idee da mettere in moto.",
+  "description": "Un portfolio personale strutturato come uno store: progetti, competenze e servizi diventano articoli da conoscere e combinare.",
+  "locale": "it-IT",
+  "canonicalUrl": "https://portfolio.example.com",
+  "socialPreview": "/social-preview.svg"
+}

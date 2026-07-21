@@ -1,0 +1,27 @@
+---
+import ResponsiveContainer from './ResponsiveContainer.astro';
+
+interface Props {
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  tight?: boolean;
+  narrow?: boolean;
+}
+
+const { id, eyebrow, title, tight = false, narrow = false } = Astro.props;
+---
+
+<section id={id} class:list={['section', { 'section--tight': tight }]}>
+  <ResponsiveContainer {narrow}>
+    {
+      (eyebrow || title) && (
+        <header class="section-heading">
+          {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+          {title && <h2>{title}</h2>}
+        </header>
+      )
+    }
+    <slot />
+  </ResponsiveContainer>
+</section>

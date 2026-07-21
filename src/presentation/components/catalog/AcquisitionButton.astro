@@ -1,0 +1,29 @@
+---
+import type { CatalogItemCardModel } from '@application/models/page-models';
+import Button from '@presentation/components/shared/Button.astro';
+
+interface Props {
+  item: CatalogItemCardModel;
+  full?: boolean;
+}
+
+const { item, full = false } = Astro.props;
+---
+
+{
+  item.acquisitionMode === 'showcase' ? (
+    <Button href={'/catalog/' + item.slug + '/'} variant="secondary">
+      {item.acquisitionLabel}
+    </Button>
+  ) : (
+    <button
+      class:list={['button', { 'button--full': full }]}
+      type="button"
+      data-cart-add
+      data-item-id={item.id}
+      disabled={!item.canAddToCart}
+    >
+      {item.acquisitionLabel}
+    </button>
+  )
+}

@@ -1,0 +1,60 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import CatalogGrid from '@presentation/components/catalog/CatalogGrid.astro';
+import Button from '@presentation/components/shared/Button.astro';
+import Hero from '@presentation/components/shared/Hero.astro';
+import Section from '@presentation/components/shared/Section.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().getHomePage.execute();
+---
+
+<BaseLayout {model} page="home" experience="store-front">
+  <Hero
+    title="Competenze in vetrina."
+    accent="Idee in movimento."
+    description={model.introduction}
+  />
+
+  <Section eyebrow="Selezione editoriale" title="In evidenza">
+    <CatalogGrid items={model.featuredItems} eagerFirst />
+  </Section>
+
+  <Section eyebrow="Reparti" title="Esplora per categoria" tight>
+    <ul class="category-list">
+      {
+        model.categories.map((category, index) => (
+          <li>
+            <a
+              href={
+                '/catalog/?category=' + encodeURIComponent(category.name.toLocaleLowerCase('it'))
+              }
+            >
+              <span class="eyebrow">0{index + 1}</span>
+              <span>
+                <>
+                  <strong>{category.name}</strong>
+                  <br />
+                </>
+                <span class="muted">{category.count} articoli</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Section narrow eyebrow="Il concetto" title="Un acquisto che apre una conversazione">
+    <div class="flow" style="--flow-space: var(--space-l)">
+      <p class="lead">
+        Qui il linguaggio dell’e-commerce rende esplorabile un percorso professionale. Il checkout
+        raccoglie una richiesta: nessun pagamento viene elaborato.
+      </p>
+      <div class="cluster">
+        <Button href="/catalog/">Sfoglia tutto</Button>
+        <Button href="/about/" variant="secondary">Conosci il profilo</Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
