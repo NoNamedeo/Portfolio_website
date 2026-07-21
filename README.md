@@ -187,7 +187,7 @@ residuo, è in [docs/review-phase-2.md](docs/review-phase-2.md).
 
 ## Deploy su Netlify
 
-1. Sostituisci identità e dominio placeholder in <code>site.config.json</code>.
+1. Verifica identità e dominio pubblico in <code>site.config.json</code>.
 2. Collega il repository Git a Netlify.
 3. Netlify leggerà <code>netlify.toml</code>:
    - build: <code>pnpm build</code>;

@@ -128,8 +128,8 @@ Vitest, build di 13 pagine e 8 test Playwright tutti completati con successo.
 
 ## Debito residuo e rischi
 
-1. `site.config.json`, profilo, link esterni e contenuti sono dimostrativi: il dominio
-   `portfolio.example.com` blocca una release pubblica corretta.
+1. Profilo, link esterni e contenuti sono ancora dimostrativi e devono essere sostituiti prima della
+   release pubblica definitiva.
 2. L’integrazione Netlify Forms è valida nel markup, ma deve essere provata end-to-end su un deploy.
 3. La verifica accessibilità è strutturale e browser-based; manca ancora un audit WCAG 2.2 AA con
    tecnologie assistive e revisione manuale.
@@ -141,7 +141,7 @@ Vitest, build di 13 pagine e 8 test Playwright tutti completati con successo.
 
 ## Raccomandazioni prima della fase successiva
 
-1. Sostituire tutti i dati demo e configurare il canonical reale.
+1. Sostituire tutti i dati demo e verificare il canonical già configurato sul deploy pubblico.
 2. Eseguire un deploy preview Netlify e verificare ricezione, honeypot, redirect e trattamento dati.
 3. Aggiungere audit axe/Lighthouse e test manuali tastiera, screen reader e zoom 200%.
 4. Estendere Playwright a Firefox e WebKit prima di introdurre transizioni.

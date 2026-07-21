@@ -87,7 +87,7 @@ test('mantiene struttura accessibile e metadata SEO nella build', async ({ page 
 
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    'https://portfolio.example.com/catalog/signal-archive/'
+    'https://alejandro-innocenzi.netlify.app/catalog/signal-archive/'
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     'content',
