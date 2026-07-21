@@ -20,7 +20,7 @@ const model = await createCompositionRoot().getHomePage.execute();
     <CatalogGrid items={model.featuredItems} eagerFirst />
   </Section>
 
-  <Section eyebrow="Reparti" title="Esplora per categoria" tight>
+  <Section eyebrow="Sezioni" title="Esplora per categoria" tight>
     <ul class="category-list">
       {
         model.categories.map((category, index) => (
