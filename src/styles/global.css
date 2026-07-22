@@ -2,6 +2,8 @@
 @import './tokens.css';
 @import './typography.css';
 @import './utilities.css';
+@import './home-showcase.css';
+@import './catalog-showcase.css';
 
 @layer reset, tokens, base, components, utilities;
 
@@ -149,43 +151,6 @@
     font-size: 0.75rem;
   }
 
-  .hero {
-    display: grid;
-    min-height: min(52rem, calc(100vh - 4.8rem));
-    grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.5fr);
-    gap: var(--space-xl);
-    align-items: end;
-    padding-block: var(--space-2xl);
-  }
-
-  .hero__title {
-    max-width: 12ch;
-    text-transform: uppercase;
-  }
-
-  .hero__accent {
-    color: var(--color-accent);
-  }
-
-  .hero__aside {
-    display: grid;
-    gap: var(--space-l);
-    align-self: center;
-  }
-
-  .hero__index {
-    display: grid;
-    width: clamp(8rem, 18vw, 15rem);
-    aspect-ratio: 1;
-    place-items: center;
-    justify-self: end;
-    border: 1px solid var(--color-border-strong);
-    border-radius: 50%;
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-weight: 700;
-  }
-
   .button {
     display: inline-flex;
     min-height: 3rem;
@@ -245,6 +210,10 @@
     grid-template-columns: repeat(4, 1fr);
     border-top: 1px solid var(--color-border-strong);
     list-style: none;
+  }
+
+  .catalog-categories {
+    margin-block: var(--space-xl);
   }
 
   .category-list a {
@@ -704,20 +673,11 @@
       justify-content: start;
     }
 
-    .hero,
     .product-hero,
     .cart-layout,
     .checkout-layout,
     .profile-intro {
       grid-template-columns: 1fr;
-    }
-
-    .hero {
-      min-height: auto;
-    }
-
-    .hero__index {
-      justify-self: start;
     }
 
     .catalog-grid > li {

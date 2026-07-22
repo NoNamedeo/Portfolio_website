@@ -1,49 +1,22 @@
 ---
 import { createCompositionRoot } from '@app/composition-root';
-import CatalogGrid from '@presentation/components/catalog/CatalogGrid.astro';
+import CatalogShowcase from '@presentation/components/home/CatalogShowcase.astro';
+import HomeShowcase from '@presentation/components/home/HomeShowcase.astro';
 import Button from '@presentation/components/shared/Button.astro';
-import Hero from '@presentation/components/shared/Hero.astro';
 import Section from '@presentation/components/shared/Section.astro';
 import BaseLayout from '@presentation/layouts/BaseLayout.astro';
 
 const model = await createCompositionRoot().getHomePage.execute();
 ---
 
-<BaseLayout {model} page="home" experience="store-front">
-  <Hero
-    title="Competenze in vetrina."
-    accent="Idee in movimento."
+<BaseLayout {model} page="home" experience="home-showcase">
+  <HomeShowcase
+    title="Competenze in vetrina"
+    accent="Idee in movimento"
     description={model.introduction}
   />
 
-  <Section eyebrow="Selezione editoriale" title="In evidenza">
-    <CatalogGrid items={model.featuredItems} eagerFirst />
-  </Section>
-
-  <Section eyebrow="Sezioni" title="Esplora per categoria" tight>
-    <ul class="category-list">
-      {
-        model.categories.map((category, index) => (
-          <li>
-            <a
-              href={
-                '/catalog/?category=' + encodeURIComponent(category.name.toLocaleLowerCase('it'))
-              }
-            >
-              <span class="eyebrow">0{index + 1}</span>
-              <span>
-                <>
-                  <strong>{category.name}</strong>
-                  <br />
-                </>
-                <span class="muted">{category.count} articoli</span>
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
+  <CatalogShowcase items={model.featuredItems} />
 
   <Section narrow eyebrow="Il concetto" title="Un acquisto che apre una conversazione">
     <div class="flow" style="--flow-space: var(--space-l)">

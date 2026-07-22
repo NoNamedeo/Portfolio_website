@@ -6,10 +6,28 @@ import type { Cart } from '@core/domain/cart/cart';
 import type { CartLine } from '@core/domain/cart/cart-line';
 import type { CatalogSort } from '@core/domain/catalog/catalog';
 import type { CatalogItem, CatalogItemType } from '@core/domain/catalog/catalog-item';
-import { MotionPreferences } from '@experience/core/experience';
+import {
+  ExperienceRegistry,
+  MotionPreferences,
+  type Experience
+} from '@experience/core/experience';
 import { CART_CHANGED_EVENT, dispatchCartChanged } from './cart-events';
 
 const client = createClientCompositionRoot();
+const experienceRegistry = new ExperienceRegistry();
+experienceRegistry.register('home-showcase', async () => {
+  const { HomeShowcaseExperience } = await import('@experience/home/home-showcase-experience');
+  return new HomeShowcaseExperience();
+});
+experienceRegistry.register('catalog-showcase', async () => {
+  const { CatalogShowcaseExperience } =
+    await import('@experience/home/catalog-showcase-experience');
+  return new CatalogShowcaseExperience();
+});
+
+let activeExperiences: Experience[] = [];
+let experienceSetup: Promise<void> | undefined;
+let experienceGeneration = 0;
 
 const query = <ElementType extends Element>(selector: string): ElementType | null =>
   document.querySelector<ElementType>(selector);
@@ -356,15 +374,71 @@ const setupCheckout = (): void => {
   }
 };
 
+const setupPageExperience = (reducedMotion: boolean): Promise<void> => {
+  if (activeExperiences.length > 0) return Promise.resolve();
+  if (experienceSetup) return experienceSetup;
+  const roots = [
+    ...document.querySelectorAll<HTMLElement>('[data-page-experience][data-experience]')
+  ];
+  if (roots.length === 0) return Promise.resolve();
+  const generation = ++experienceGeneration;
+
+  experienceSetup = (async () => {
+    const created = await Promise.all(
+      roots.map(async (root): Promise<Experience | undefined> => {
+        const key = root.dataset.experience;
+        if (!key) return undefined;
+        try {
+          const experience = await experienceRegistry.create(key);
+          if (!experience || generation !== experienceGeneration || !root.isConnected) return;
+          await experience.mount({
+            root,
+            page: document.body.dataset.page ?? 'unknown',
+            reducedMotion
+          });
+          if (generation !== experienceGeneration) {
+            experience.destroy();
+            return undefined;
+          }
+          return experience;
+        } catch (error) {
+          announce(errorMessage(error));
+          return undefined;
+        }
+      })
+    );
+    try {
+      const experiences = created.filter(
+        (experience): experience is Experience => experience !== undefined
+      );
+      if (generation !== experienceGeneration) {
+        experiences.forEach((experience) => experience.destroy());
+        return;
+      }
+      activeExperiences = experiences;
+      activeExperiences.forEach((experience) => experience.play());
+    } finally {
+      experienceSetup = undefined;
+    }
+  })();
+  return experienceSetup;
+};
+
+const destroyPageExperience = (): void => {
+  experienceGeneration += 1;
+  activeExperiences.forEach((experience) => experience.destroy());
+  activeExperiences = [];
+};
+
 const initialize = (): void => {
   if (document.documentElement.dataset.portfolioClient === 'ready') return;
   document.documentElement.dataset.portfolioClient = 'ready';
-  document.documentElement.dataset.motion = new MotionPreferences().isReduced()
-    ? 'reduced'
-    : 'full';
+  const reducedMotion = new MotionPreferences().isReduced();
+  document.documentElement.dataset.motion = reducedMotion ? 'reduced' : 'full';
   setupCatalogControls();
   setupCartActions();
   setupCheckout();
+  void setupPageExperience(reducedMotion);
   void updateClientViews();
 
   window.addEventListener(CART_CHANGED_EVENT, (event) => {
@@ -374,6 +448,10 @@ const initialize = (): void => {
   });
   window.addEventListener('storage', (event) => {
     if (event.key === client.cartStorageKey) void updateClientViews();
+  });
+  window.addEventListener('pagehide', destroyPageExperience);
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) void setupPageExperience(new MotionPreferences().isReduced());
   });
 };
 

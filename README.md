@@ -74,7 +74,7 @@ src/
 ├── core/
 │   ├── domain/             regole di catalogo, carrello, checkout e profilo
 │   └── application/        porte, page model, mapper e casi d’uso
-├── experience/             contratti per esperienze creative future
+├── experience/             lifecycle ed esperienze creative progressive
 ├── infrastructure/         Astro Content, HTTP, configurazione e storage
 ├── pages/                  route Astro statiche
 ├── presentation/           layout, componenti e unico entry point client
@@ -204,7 +204,8 @@ server-side dedicato e conforme al provider scelto.
 - nessun pagamento, donazione reale, autenticazione o CMS remoto;
 - il form richiede un deploy Netlify per la ricezione effettiva;
 - i download non sono ancora collegati a file consegnabili;
-- gli hook creativi esistono, ma non ci sono scene, transizioni complesse, GSAP o WebGL;
+- la homepage include esperienze creative CSS/TypeScript per vetrina e catalogo in movimento; non
+  ci sono ancora transizioni tra route, GSAP o WebGL;
 - non è ancora presente una suite di visual regression.
 
 ## Prossimi passi

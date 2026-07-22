@@ -1,0 +1,36 @@
+---
+import type { CatalogItemCardModel } from '@application/models/page-models';
+
+interface Props {
+  item: CatalogItemCardModel;
+  decorative?: boolean;
+}
+
+const { item, decorative = false } = Astro.props;
+---
+
+<a
+  class="moving-catalog-card"
+  href={'/catalog/' + item.slug + '/'}
+  tabindex={decorative ? -1 : undefined}
+  data-marquee-item-link
+>
+  <span class="moving-catalog-card__media">
+    <img
+      src={item.media.src}
+      alt={decorative ? '' : item.media.alt}
+      width={item.media.width}
+      height={item.media.height}
+      loading="lazy"
+      decoding="async"
+    />
+  </span>
+  <span class="moving-catalog-card__body">
+    <span class="eyebrow">{item.typeLabel} · {item.year}</span>
+    <span class="moving-catalog-card__title">{item.title}</span>
+    <span class="moving-catalog-card__meta">
+      <span>{item.categories[0]}</span>
+      <span>{item.pricingLabel}</span>
+    </span>
+  </span>
+</a>

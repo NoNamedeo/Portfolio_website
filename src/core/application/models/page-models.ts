@@ -52,12 +52,12 @@ export interface CatalogItemCardModel {
 export interface HomePageModel extends SiteShellModel {
   readonly introduction: string;
   readonly featuredItems: readonly CatalogItemCardModel[];
-  readonly categories: readonly { readonly name: string; readonly count: number }[];
 }
 
 export interface CatalogPageModel extends SiteShellModel {
   readonly items: readonly CatalogItemCardModel[];
   readonly categories: readonly string[];
+  readonly categorySummaries: readonly { readonly name: string; readonly count: number }[];
   readonly types: readonly { readonly value: CatalogItemType; readonly label: string }[];
   readonly resultCount: number;
 }

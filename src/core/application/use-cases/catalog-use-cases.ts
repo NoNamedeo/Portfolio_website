@@ -43,13 +43,6 @@ export class GetHomePage {
   async execute(): Promise<HomePageModel> {
     const catalog = new Catalog(await this.catalogRepository.getAll());
     const identity = await this.identityRepository.getSiteIdentity();
-    const published = catalog.published();
-    const categoryCounts = new Map<string, number>();
-    for (const item of published) {
-      for (const category of item.categories) {
-        categoryCounts.set(category, (categoryCounts.get(category) ?? 0) + 1);
-      }
-    }
     return {
       name: identity.name,
       tagline: identity.tagline,
@@ -65,13 +58,7 @@ export class GetHomePage {
       }),
       introduction:
         'Progetti, competenze e collaborazioni diventano articoli da esplorare, combinare e trasformare in una conversazione concreta.',
-      featuredItems: catalog.featured().slice(0, 4).map(mapCatalogItemToCard),
-      categories: [...categoryCounts.entries()]
-        .map(([name, count]) => ({ name, count }))
-        .sort(
-          (first, second) =>
-            second.count - first.count || first.name.localeCompare(second.name, 'it')
-        )
+      featuredItems: catalog.featured().slice(0, 4).map(mapCatalogItemToCard)
     };
   }
 }
@@ -85,9 +72,13 @@ export class GetCatalogPage {
   async execute(): Promise<CatalogPageModel> {
     const catalog = new Catalog(await this.catalogRepository.getAll());
     const items = catalog.sort(catalog.published(), 'manual');
-    const categories = [...new Set(items.flatMap((item) => item.categories))].sort((a, b) =>
-      a.localeCompare(b, 'it')
-    );
+    const categoryCounts = new Map<string, number>();
+    for (const item of items) {
+      for (const category of item.categories) {
+        categoryCounts.set(category, (categoryCounts.get(category) ?? 0) + 1);
+      }
+    }
+    const categories = [...categoryCounts.keys()].sort((a, b) => a.localeCompare(b, 'it'));
     return {
       ...(await shell(this.identityRepository, {
         title: 'Catalogo',
@@ -96,6 +87,12 @@ export class GetCatalogPage {
       })),
       items: items.map(mapCatalogItemToCard),
       categories,
+      categorySummaries: [...categoryCounts.entries()]
+        .map(([name, count]) => ({ name, count }))
+        .sort(
+          (first, second) =>
+            second.count - first.count || first.name.localeCompare(second.name, 'it')
+        ),
       types: [
         { value: 'project', label: 'Progetti' },
         { value: 'knowledge', label: 'Conoscenze' },

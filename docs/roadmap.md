@@ -50,7 +50,7 @@ media.
 
 ## 6. Creative engine
 
-- connettere ExperienceRegistry ai valori ArtDirection;
+- estendere ExperienceRegistry alle future esperienze dichiarate da ArtDirection;
 - definire lifecycle, preload e cleanup;
 - aggiungere telemetria prestazionale locale;
 - documentare il contratto fra markup, modelli e scene.

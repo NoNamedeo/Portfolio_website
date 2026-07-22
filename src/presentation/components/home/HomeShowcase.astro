@@ -1,0 +1,49 @@
+---
+import Button from '@presentation/components/shared/Button.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+
+interface Props {
+  title: string;
+  accent: string;
+  description: string;
+}
+
+const { title, accent, description } = Astro.props;
+---
+
+<ResponsiveContainer>
+  <section
+    class="home-showcase"
+    aria-labelledby="home-showcase-title"
+    data-page-experience
+    data-experience="home-showcase"
+    data-showcase-root
+  >
+    <header class="home-showcase__header">
+      <p class="eyebrow">Portfolio commerce · Edizione 01</p>
+      <p class="home-showcase__edition" aria-hidden="true">01 / Showcase</p>
+    </header>
+
+    <div class="home-showcase__stage" data-showcase-stage>
+      <div class="home-showcase__ambience" aria-hidden="true"></div>
+
+      <h1 id="home-showcase-title" class="home-showcase__title">
+        <span class="home-showcase__back-text" data-showcase-back-text>{title}</span>
+        <span class="home-showcase__front-text" data-showcase-front-text>{accent}</span>
+      </h1>
+
+      <div class="home-showcase__glass" data-showcase-glass aria-hidden="true">
+        <span class="home-showcase__glass-depth"></span>
+        <span class="home-showcase__glass-sheen" data-showcase-sheen></span>
+      </div>
+
+      <div class="home-showcase__pointer-light" data-showcase-pointer-light aria-hidden="true">
+      </div>
+    </div>
+
+    <footer class="home-showcase__footer">
+      <p class="lead">{description}</p>
+      <Button href="/catalog/">Esplora il catalogo <span aria-hidden="true">↗</span></Button>
+    </footer>
+  </section>
+</ResponsiveContainer>

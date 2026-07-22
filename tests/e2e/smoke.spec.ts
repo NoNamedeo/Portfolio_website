@@ -14,7 +14,7 @@ test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', a
   await expect(page.locator('[data-catalog-entry]:visible')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Product Prototype Sprint' })).toBeVisible();
 
-  await page.getByLabel('Categoria').selectOption('');
+  await page.getByLabel('Categoria', { exact: true }).selectOption('');
   await page.getByLabel('Cerca nel catalogo').fill('Astro TypeScript');
   await expect(page.locator('[data-catalog-result-count]')).toHaveText('3');
   await page.getByLabel('Ordina').selectOption('title');
@@ -38,6 +38,7 @@ test('apre una scheda articolo e usa il carrello locale', async ({ page }) => {
 test('naviga dal carrello al checkout', async ({ page }) => {
   await page.goto('/catalog/product-prototype-sprint/');
   await page.getByRole('button', { name: /Aggiungi la commissione/ }).click();
+  await expect(page.locator('[data-cart-count]')).toHaveText('1');
   await page.goto('/cart/');
   await page.getByRole('link', { name: 'Vai al checkout' }).click();
   await expect(page).toHaveURL(/\/checkout\/$/);

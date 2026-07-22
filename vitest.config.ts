@@ -9,6 +9,7 @@ export default defineConfig({
       '@core': source + '/core',
       '@application': source + '/core/application',
       '@infrastructure': source + '/infrastructure',
+      '@experience': source + '/experience',
       '@app': source + '/app'
     }
   },

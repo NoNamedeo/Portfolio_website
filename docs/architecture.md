@@ -43,7 +43,7 @@ Queste regole sono anche codificate in ESLint.
 - `src/infrastructure/configuration`: adapter dell’identità globale;
 - `src/presentation`: HTML, componenti Astro e progressive enhancement client;
 - `src/pages`: route statiche sottili;
-- `src/experience`: lifecycle e preferenze di movimento, senza scene concrete;
+- `src/experience`: lifecycle, preferenze di movimento ed esperienze creative isolate;
 - `src/app`: composition root server/build e client, messaggi e configurazione UI;
 - `src/content`: contenuti MDX validati;
 - `src/styles`: token, base, componenti e utility.
@@ -161,5 +161,7 @@ ritorna un carrello vuoto perché il browser non è disponibile.
 
 `Experience` definisce `mount`, `play`, `pause`, `resize` e `destroy`.
 `MotionPreferences` rispetta `prefers-reduced-motion`. Gli attributi `data-page`, `data-theme`,
-`data-experience`, `data-transition` e `data-animate` sono hook stabili; non sono state introdotte
-scene, transizioni complesse o librerie creative in questa fase.
+`data-experience`, `data-transition` e `data-animate` sono hook stabili. La homepage coordina
+`HomeShowcaseExperience` e `CatalogShowcaseExperience`: entrambe sono caricate dinamicamente dal
+registry, condividono il lifecycle di pagina e usano CSS e API browser. Non sono state introdotte
+transizioni tra route o librerie creative.

@@ -2,6 +2,7 @@
 import { createCompositionRoot } from '@app/composition-root';
 import CatalogFilters from '@presentation/components/catalog/CatalogFilters.astro';
 import CatalogGrid from '@presentation/components/catalog/CatalogGrid.astro';
+import CategoryLinks from '@presentation/components/catalog/CategoryLinks.astro';
 import EmptyState from '@presentation/components/shared/EmptyState.astro';
 import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
 import BaseLayout from '@presentation/layouts/BaseLayout.astro';
@@ -21,6 +22,7 @@ const model = await createCompositionRoot().getCatalogPage.execute();
         </p>
       </header>
 
+      <CategoryLinks categories={model.categorySummaries} />
       <CatalogFilters {model} />
       <div class="catalog-status" aria-live="polite">
         <p><strong data-catalog-result-count>{model.resultCount}</strong> risultati</p>

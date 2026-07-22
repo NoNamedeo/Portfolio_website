@@ -1,0 +1,68 @@
+---
+import type { CatalogItemCardModel } from '@application/models/page-models';
+import MovingCatalogCard from '@presentation/components/catalog/MovingCatalogCard.astro';
+import Button from '@presentation/components/shared/Button.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+
+interface Props {
+  items: readonly CatalogItemCardModel[];
+}
+
+const { items } = Astro.props;
+---
+
+<section
+  class="catalog-showcase"
+  aria-labelledby="catalog-showcase-title"
+  data-page-experience
+  data-experience="catalog-showcase"
+  data-home-catalog-showcase
+>
+  <ResponsiveContainer>
+    <header class="catalog-showcase__header">
+      <div>
+        <p class="eyebrow">Selezione in movimento</p>
+        <h2 id="catalog-showcase-title" class="sr-only">Articoli in evidenza</h2>
+      </div>
+      <button
+        class="catalog-showcase__toggle"
+        type="button"
+        aria-label="Metti in pausa il movimento"
+        aria-pressed="false"
+        data-marquee-toggle
+      >
+        <span class="catalog-showcase__toggle-icon" aria-hidden="true"></span>
+        <span data-marquee-toggle-label>Pausa movimento</span>
+      </button>
+    </header>
+  </ResponsiveContainer>
+
+  <div class="catalog-showcase__viewport" data-product-marquee-viewport>
+    <div class="catalog-showcase__track" data-product-marquee-track>
+      <ul class="catalog-showcase__group" data-product-marquee-original>
+        {
+          items.map((item) => (
+            <li>
+              <MovingCatalogCard {item} />
+            </li>
+          ))
+        }
+      </ul>
+      <ul class="catalog-showcase__group" data-product-marquee-copy aria-hidden="true">
+        {
+          items.map((item) => (
+            <li>
+              <MovingCatalogCard {item} decorative />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <ResponsiveContainer>
+    <footer class="catalog-showcase__footer">
+      <Button href="/catalog/">Vai al catalogo <span aria-hidden="true">↗</span></Button>
+    </footer>
+  </ResponsiveContainer>
+</section>

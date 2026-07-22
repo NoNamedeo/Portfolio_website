@@ -61,6 +61,7 @@ describe('catalog use cases', () => {
       new IdentityRepository()
     ).execute();
     expect(model.items.map((item) => item.slug)).toEqual(['two', 'one']);
+    expect(model.categorySummaries).toEqual([{ name: 'Software', count: 2 }]);
     expect(model.seo.canonical).toBe('https://example.com/catalog/');
   });
 
