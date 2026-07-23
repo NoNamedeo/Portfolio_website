@@ -37,21 +37,23 @@ export const normalizePointerSpeed = (
 export const calculatePointerAttraction = (
   textCenter: Point,
   pointer: Point,
-  radius: number,
+  falloffDistance: number,
   maximumOffset: number
 ): Point => {
   const deltaX = pointer.x - textCenter.x;
   const deltaY = pointer.y - textCenter.y;
   const distance = Math.hypot(deltaX, deltaY);
-  if (distance === 0 || distance >= radius || radius <= 0 || maximumOffset <= 0) {
+  if (falloffDistance <= 0 || maximumOffset <= 0) {
     return { x: 0, y: 0 };
   }
-  const proximity = 1 - distance / radius;
-  const easedProximity = proximity * proximity * (3 - 2 * proximity);
-  const offset = maximumOffset * easedProximity;
+  const normalizedDistance = distance / falloffDistance;
+  const falloff = 1 / (1 + 2.5 * normalizedDistance * normalizedDistance);
+  const softeningDistance = Math.max(12, falloffDistance * 0.06);
+  const directionScale = 1 / Math.hypot(distance, softeningDistance);
+  const offsetScale = maximumOffset * falloff * directionScale;
   return {
-    x: (deltaX / distance) * offset,
-    y: (deltaY / distance) * offset
+    x: deltaX * offsetScale,
+    y: deltaY * offsetScale
   };
 };
 
@@ -208,30 +210,38 @@ export class HomeShowcaseExperience implements Experience {
   }
 
   private readonly handlePointerEnter = (event: PointerEvent): void => {
-    if (!this.interactionEnabled) return;
     this.pointerInside = true;
     this.updatePointerTarget(event);
     this.lastPointer = { x: event.pageX, y: event.pageY };
     this.lastPointerTime = event.timeStamp;
-    this.scheduleFrame();
+    if (this.interactionEnabled) this.scheduleFrame();
   };
 
   private readonly handlePointerMove = (event: PointerEvent): void => {
-    if (!this.interactionEnabled || !this.pointerInside) return;
+    const wasInside = this.pointerInside;
+    this.pointerInside = true;
     this.updatePointerTarget(event);
-    const elapsed = event.timeStamp - this.lastPointerTime;
-    const distance = Math.hypot(event.pageX - this.lastPointer.x, event.pageY - this.lastPointer.y);
-    this.targetSpeed = normalizePointerSpeed(distance, elapsed);
+
+    if (this.interactionEnabled && wasInside && this.lastPointerTime > 0) {
+      const elapsed = event.timeStamp - this.lastPointerTime;
+      const distance = Math.hypot(
+        event.pageX - this.lastPointer.x,
+        event.pageY - this.lastPointer.y
+      );
+      this.targetSpeed = normalizePointerSpeed(distance, elapsed);
+    } else {
+      this.targetSpeed = 0;
+    }
+
     this.lastPointer = { x: event.pageX, y: event.pageY };
     this.lastPointerTime = event.timeStamp;
-    this.scheduleFrame();
+    if (this.interactionEnabled) this.scheduleFrame();
   };
 
   private readonly handlePointerLeave = (): void => {
-    if (!this.interactionEnabled) return;
     this.pointerInside = false;
     this.targetSpeed = 0;
-    this.scheduleFrame();
+    if (this.interactionEnabled) this.scheduleFrame();
   };
 
   private readonly handleResize = (): void => {
@@ -271,12 +281,12 @@ export class HomeShowcaseExperience implements Experience {
       ? calculatePointerAttraction(
           this.textCenter,
           pointerPage,
-          compact ? 250 : 300,
-          compact ? 14 : 24
+          compact ? 320 : 420,
+          compact ? 10 : 16
         )
       : { x: 0, y: 0 };
-    this.currentAttraction.x = damp(this.currentAttraction.x, targetAttraction.x, 11, deltaSeconds);
-    this.currentAttraction.y = damp(this.currentAttraction.y, targetAttraction.y, 11, deltaSeconds);
+    this.currentAttraction.x = damp(this.currentAttraction.x, targetAttraction.x, 9, deltaSeconds);
+    this.currentAttraction.y = damp(this.currentAttraction.y, targetAttraction.y, 9, deltaSeconds);
 
     const normalizedX = (this.currentPointer.x / this.bounds.width - 0.5) * 2;
     const normalizedY = (this.currentPointer.y / this.bounds.height - 0.5) * 2;
@@ -311,7 +321,7 @@ export class HomeShowcaseExperience implements Experience {
       this.backText.animate(
         [
           { opacity: 0, transform: 'translate3d(0, 16px, 0)', filter: 'blur(5px)' },
-          { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0.35px)' }
+          { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0.2px)' }
         ],
         {
           duration: 850,
@@ -356,6 +366,7 @@ export class HomeShowcaseExperience implements Experience {
     if (!this.root) return;
     this.interactionEnabled = this.pointerCapable;
     this.root.dataset.showcaseState = this.pointerCapable ? 'interactive' : 'static';
+    if (this.interactionEnabled && this.pointerInside) this.scheduleFrame();
   }
 
   private updatePointerTarget(event: PointerEvent): void {

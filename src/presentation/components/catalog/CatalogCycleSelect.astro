@@ -1,0 +1,89 @@
+---
+interface SelectOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  hook: string;
+  options: readonly SelectOption[];
+  value?: string;
+}
+
+const { id, name, label, hook, options, value = options[0]?.value ?? '' } = Astro.props;
+const hookAttribute = { [`data-${hook}`]: '' };
+const panelId = `${id}-panel`;
+const labelId = `${id}-label`;
+---
+
+<div class="field catalog-cycle-field" data-cycle-control data-cycle-state="closed">
+  <label id={labelId} for={id}>{label}</label>
+  <div class="catalog-cycle-control">
+    <button
+      class="catalog-cycle-control__trigger"
+      type="button"
+      aria-controls={panelId}
+      aria-expanded="false"
+      aria-label={`Apri ${label}. Selezione corrente: ${options.find((option) => option.value === value)?.label ?? ''}`}
+      data-cycle-trigger
+    >
+      <span class="catalog-cycle-control__viewport" aria-hidden="true" data-cycle-viewport>
+        {
+          options.map((option, index) => (
+            <span
+              class="catalog-cycle-control__value"
+              data-cycle-item
+              data-cycle-value={option.value}
+              hidden={index !== 0}
+            >
+              {option.label}
+            </span>
+          ))
+        }
+      </span>
+      <span class="catalog-cycle-control__icon" aria-hidden="true">↕</span>
+    </button>
+
+    <div class="catalog-cycle-control__panel" id={panelId} data-cycle-panel>
+      <select id={id} name={name} {...hookAttribute} data-cycle-select>
+        {
+          options.map((option) => (
+            <option value={option.value} selected={option.value === value}>
+              {option.label}
+            </option>
+          ))
+        }
+      </select>
+      <ul
+        class="catalog-cycle-control__options"
+        role="listbox"
+        aria-labelledby={labelId}
+        data-cycle-options-list
+      >
+        {
+          options.map((option) => (
+            <li role="presentation">
+              <button
+                class="catalog-cycle-control__option"
+                type="button"
+                role="option"
+                aria-selected={option.value === value ? 'true' : 'false'}
+                tabindex="-1"
+                data-cycle-option
+                data-cycle-value={option.value}
+              >
+                <span>{option.label}</span>
+                <span class="catalog-cycle-control__option-mark" aria-hidden="true">
+                  ↗
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</div>

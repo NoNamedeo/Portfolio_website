@@ -11,9 +11,9 @@
     --glass-rotate-x: 0deg;
     --glass-rotate-y: 0deg;
     display: grid;
-    min-height: min(56rem, calc(100svh - 4.5rem));
+    min-height: 100svh;
     gap: clamp(1rem, 2vw, 1.8rem);
-    align-content: center;
+    align-content: start;
     padding-block: clamp(2.2rem, 5vw, 5rem);
     isolation: isolate;
   }
@@ -35,10 +35,11 @@
 
   .home-showcase__stage {
     position: relative;
-    min-height: clamp(27rem, 61vh, 43rem);
+    width: 100%;
+    min-height: 100svh;
     overflow: hidden;
     border: 1px solid rgb(255 255 255 / 14%);
-    border-radius: clamp(1.25rem, 2.5vw, 2.25rem);
+    border-inline: 0;
     background:
       radial-gradient(circle at 20% 18%, rgb(255 90 61 / 18%), transparent 28%),
       radial-gradient(circle at 82% 76%, rgb(80 112 255 / 14%), transparent 30%),
@@ -86,14 +87,14 @@
     font-size: clamp(3.1rem, 7.6vw, 7.6rem);
     font-weight: 760;
     letter-spacing: -0.065em;
-    filter: blur(0.35px) saturate(82%);
+    filter: blur(0.2px) saturate(88%);
     text-shadow: 0 0.45rem 2.2rem rgb(0 0 0 / 20%);
   }
 
   .home-showcase__front-text {
     z-index: 4;
     right: clamp(1.4rem, 5vw, 5rem);
-    bottom: clamp(2.3rem, 9%, 4.2rem);
+    bottom: clamp(8rem, 25%, 15rem);
     color: #fffaf0;
     font-size: clamp(3rem, 7vw, 7rem);
     font-weight: 780;
@@ -142,7 +143,7 @@
       inset 0 -1px 0 rgb(255 255 255 / 9%),
       inset 1px 0 0 rgb(255 255 255 / 12%),
       0 1.4rem 4rem rgb(0 0 0 / 10%);
-    backdrop-filter: blur(2.4px) saturate(114%) contrast(103%);
+    backdrop-filter: blur(1.7px) saturate(114%) contrast(103%);
     transform: rotateX(var(--glass-rotate-x)) rotateY(var(--glass-rotate-y));
     transform-style: preserve-3d;
     will-change: transform;
@@ -244,12 +245,12 @@
 @media (max-width: 64rem) {
   @layer components {
     .home-showcase {
-      min-height: auto;
+      min-height: 100svh;
       padding-block: var(--space-xl);
     }
 
     .home-showcase__stage {
-      min-height: clamp(30rem, 64vw, 38rem);
+      min-height: 100svh;
     }
 
     .home-showcase__back-text,
@@ -259,14 +260,6 @@
 
     .home-showcase__pointer-light {
       width: clamp(10rem, 22vw, 13rem);
-    }
-  }
-}
-
-@media (min-width: 46.01rem) and (max-height: 48rem) {
-  @layer components {
-    .home-showcase__stage {
-      min-height: clamp(24rem, 55vh, 27rem);
     }
   }
 }
@@ -288,8 +281,7 @@
     }
 
     .home-showcase__stage {
-      min-height: clamp(28rem, 126vw, 34rem);
-      border-radius: var(--radius-l);
+      min-height: 100svh;
     }
 
     .home-showcase__back-text {
@@ -302,7 +294,7 @@
 
     .home-showcase__front-text {
       right: 1.25rem;
-      bottom: 2.6rem;
+      bottom: 27%;
       width: max-content;
       max-width: calc(100% - 2.5rem);
       font-size: clamp(2.7rem, 12vw, 4.3rem);
@@ -312,7 +304,7 @@
     .home-showcase__glass {
       inset: 0.55rem;
       border-radius: 1rem;
-      backdrop-filter: blur(1.8px) saturate(110%);
+      backdrop-filter: blur(1.25px) saturate(110%);
       transform: none;
     }
 

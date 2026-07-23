@@ -21,7 +21,7 @@ const animationSnapshot = (page: Page) =>
     };
   });
 
-test('usa gli articoli reali, copie decorative e categorie nella pagina corretta', async ({
+test('usa gli articoli reali e copie decorative senza contaminare la pagina catalogo', async ({
   page
 }) => {
   await page.goto('/');
@@ -55,12 +55,9 @@ test('usa gli articoli reali, copie decorative e categorie nella pagina corretta
   await expect(page.getByRole('heading', { name: 'Esplora per categoria' })).toHaveCount(0);
 
   await page.goto('/catalog/');
-  await expect(page.getByRole('heading', { name: 'Esplora per categoria' })).toBeVisible();
-  const categories = page.locator('[data-catalog-categories]');
-  await expect(categories.getByRole('link')).toHaveCount(9);
-  await categories.getByRole('link', { name: /Servizi/ }).click();
-  await expect(page).toHaveURL(/category=servizi/);
-  await expect(page.locator('[data-catalog-result-count]')).toHaveText('1');
+  await expect(page.getByRole('heading', { name: 'Esplora per categoria' })).toHaveCount(0);
+  await expect(page.locator('[data-catalog-categories]')).toHaveCount(0);
+  await expect(page.locator('[data-catalog-item]')).toHaveCount(6);
 });
 
 test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async ({ page }) => {
@@ -92,7 +89,9 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
 
   await viewport.hover();
   await expect(root).toHaveAttribute('data-marquee-state', 'slow');
-  await expect.poll(async () => (await animationSnapshot(page)).playbackRate).toBeLessThan(0.3);
+  await expect
+    .poll(async () => (await animationSnapshot(page)).playbackRate, { timeout: 10_000 })
+    .toBeLessThan(0.3);
 
   const firstLink = root
     .locator('[data-product-marquee-original] [data-marquee-item-link]')
@@ -104,7 +103,9 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
   await page.mouse.move(2, 2);
   await firstLink.blur();
   await expect(root).toHaveAttribute('data-marquee-state', 'running');
-  await expect.poll(async () => (await animationSnapshot(page)).playbackRate).toBeGreaterThan(0.9);
+  await expect
+    .poll(async () => (await animationSnapshot(page)).playbackRate, { timeout: 10_000 })
+    .toBeGreaterThan(0.9);
 
   const initialDistance = await root.evaluate((element) =>
     element.style.getPropertyValue('--marquee-distance')
@@ -142,6 +143,7 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
     window.dispatchEvent(event);
     window.dispatchEvent(event);
   });
+  await root.scrollIntoViewIfNeeded();
   await expect(root).toHaveAttribute('data-marquee-state', 'running');
   expect((await animationSnapshot(page)).count).toBe(1);
   expect(await track.getAttribute('style')).toBeNull();

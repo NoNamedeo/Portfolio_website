@@ -14,15 +14,19 @@ test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', a
   await expect(page.locator('[data-catalog-entry]:visible')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Product Prototype Sprint' })).toBeVisible();
 
-  await page.getByLabel('Categoria', { exact: true }).selectOption('');
+  await page.getByRole('button', { name: /Apri Categoria/ }).click();
+  await page.getByRole('option', { name: 'Tutte le categorie' }).click();
   await page.getByLabel('Cerca nel catalogo').fill('Astro TypeScript');
   await expect(page.locator('[data-catalog-result-count]')).toHaveText('3');
-  await page.getByLabel('Ordina').selectOption('title');
-  await expect(page.locator('[data-catalog-entry]:visible h3')).toHaveText([
-    'Frontend Architecture',
-    'Product Prototype Sprint',
-    'Signal Archive'
-  ]);
+  await page.getByRole('button', { name: /Apri Ordina/ }).click();
+  await page.getByRole('option', { name: 'Titolo A–Z' }).click();
+  await expect
+    .poll(() =>
+      page
+        .locator('[data-catalog-entry]:visible [data-catalog-title]')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('aria-label')))
+    )
+    .toEqual(['Frontend Architecture', 'Product Prototype Sprint', 'Signal Archive']);
 });
 
 test('apre una scheda articolo e usa il carrello locale', async ({ page }) => {

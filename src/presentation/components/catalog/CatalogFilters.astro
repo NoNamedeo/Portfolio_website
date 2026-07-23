@@ -1,34 +1,58 @@
 ---
 import type { CatalogPageModel } from '@application/models/page-models';
+import CatalogCycleSelect from './CatalogCycleSelect.astro';
 import CatalogSearch from './CatalogSearch.astro';
-import CatalogSort from './CatalogSort.astro';
 
 interface Props {
   model: CatalogPageModel;
 }
 
 const { model } = Astro.props;
+const typeOptions = [{ value: '', label: 'Tutti i tipi' }, ...model.types];
+const categoryOptions = [
+  { value: '', label: 'Tutte le categorie' },
+  ...model.categories.map((category) => ({
+    value: category.toLocaleLowerCase('it'),
+    label: category
+  }))
+];
+const sortOptions = [
+  { value: 'manual', label: 'Selezione editoriale' },
+  { value: 'featured', label: 'Prima in evidenza' },
+  { value: 'newest', label: 'Più recenti' },
+  { value: 'oldest', label: 'Meno recenti' },
+  { value: 'title', label: 'Titolo A–Z' }
+];
+const searchSuggestions = [
+  'Cerca un progetto…',
+  ...model.items.slice(0, 2).map((item) => `Prova “${item.title}”`),
+  'Cerca una competenza…',
+  ...(model.categories[0] ? [`Prova “${model.categories[0]}”`] : [])
+];
 ---
 
 <form class="catalog-toolbar" data-catalog-controls>
-  <CatalogSearch />
-  <div class="field">
-    <label for="catalog-type">Tipo</label>
-    <select id="catalog-type" name="type" data-catalog-type>
-      <option value="">Tutti i tipi</option>
-      {model.types.map((type) => <option value={type.value}>{type.label}</option>)}
-    </select>
-  </div>
-  <div class="field">
-    <label for="catalog-category">Categoria</label>
-    <select id="catalog-category" name="category" data-catalog-category>
-      <option value="">Tutte le categorie</option>
-      {
-        model.categories.map((category) => (
-          <option value={category.toLocaleLowerCase('it')}>{category}</option>
-        ))
-      }
-    </select>
-  </div>
-  <CatalogSort />
+  <CatalogSearch suggestions={searchSuggestions} />
+  <CatalogCycleSelect
+    id="catalog-type"
+    name="type"
+    label="Tipo"
+    hook="catalog-type"
+    options={typeOptions}
+  />
+  <CatalogCycleSelect
+    id="catalog-category"
+    name="category"
+    label="Categoria"
+    hook="catalog-category"
+    options={categoryOptions}
+  />
+  <CatalogCycleSelect
+    id="catalog-sort"
+    name="sort"
+    label="Ordina"
+    hook="catalog-sort"
+    options={sortOptions}
+    value="manual"
+  />
 </form>

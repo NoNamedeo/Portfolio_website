@@ -1,11 +1,30 @@
-<div class="field">
+---
+interface Props {
+  suggestions: readonly string[];
+}
+
+const { suggestions } = Astro.props;
+---
+
+<div class="field catalog-search-field" data-search-cycle data-search-state="idle">
   <label for="catalog-search">Cerca nel catalogo</label>
-  <input
-    id="catalog-search"
-    type="search"
-    name="query"
-    placeholder="Titolo, tecnologia, categoria…"
-    autocomplete="off"
-    data-catalog-search
-  />
+  <div class="catalog-search-field__surface">
+    <input
+      id="catalog-search"
+      type="search"
+      name="query"
+      placeholder="Titolo, tecnologia, categoria…"
+      autocomplete="off"
+      data-catalog-search
+    />
+    <span class="catalog-search-field__suggestions" aria-hidden="true" data-cycle-viewport>
+      {
+        suggestions.map((suggestion, index) => (
+          <span class="catalog-search-field__suggestion" data-cycle-item hidden={index !== 0}>
+            {suggestion}
+          </span>
+        ))
+      }
+    </span>
+  </div>
 </div>

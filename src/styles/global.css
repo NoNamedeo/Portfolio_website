@@ -4,6 +4,7 @@
 @import './utilities.css';
 @import './home-showcase.css';
 @import './catalog-showcase.css';
+@import './catalog-index.css';
 
 @layer reset, tokens, base, components, utilities;
 
@@ -210,10 +211,6 @@
     grid-template-columns: repeat(4, 1fr);
     border-top: 1px solid var(--color-border-strong);
     list-style: none;
-  }
-
-  .catalog-categories {
-    margin-block: var(--space-xl);
   }
 
   .category-list a {

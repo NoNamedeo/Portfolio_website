@@ -4,8 +4,7 @@ import { formatPricingLabel } from '@application/mappers/catalog-item-mapper';
 import type { CartState } from '@application/use-cases/cart-use-cases';
 import type { Cart } from '@core/domain/cart/cart';
 import type { CartLine } from '@core/domain/cart/cart-line';
-import type { CatalogSort } from '@core/domain/catalog/catalog';
-import type { CatalogItem, CatalogItemType } from '@core/domain/catalog/catalog-item';
+import type { CatalogItem } from '@core/domain/catalog/catalog-item';
 import {
   ExperienceRegistry,
   MotionPreferences,
@@ -23,6 +22,10 @@ experienceRegistry.register('catalog-showcase', async () => {
   const { CatalogShowcaseExperience } =
     await import('@experience/home/catalog-showcase-experience');
   return new CatalogShowcaseExperience();
+});
+experienceRegistry.register('catalog-index', async () => {
+  const { CatalogIndexExperience } = await import('@experience/catalog/catalog-index-experience');
+  return new CatalogIndexExperience();
 });
 
 let activeExperiences: Experience[] = [];
@@ -299,56 +302,6 @@ const setupCartActions = (): void => {
   });
 };
 
-const setupCatalogControls = (): void => {
-  const controls = query<HTMLFormElement>('[data-catalog-controls]');
-  const grid = query<HTMLElement>('[data-catalog-grid]');
-  if (!controls || !grid) return;
-  controls.addEventListener('submit', (event) => event.preventDefault());
-  const entries = new Map(
-    [...grid.querySelectorAll<HTMLElement>('[data-catalog-entry]')].flatMap((entry) =>
-      entry.dataset.catalogEntry ? [[entry.dataset.catalogEntry, entry] as const] : []
-    )
-  );
-  const search = controls.querySelector<HTMLInputElement>('[data-catalog-search]');
-  const type = controls.querySelector<HTMLSelectElement>('[data-catalog-type]');
-  const category = controls.querySelector<HTMLSelectElement>('[data-catalog-category]');
-  const sort = controls.querySelector<HTMLSelectElement>('[data-catalog-sort]');
-  const resultCount = query<HTMLElement>('[data-catalog-result-count]');
-  const noResults = query<HTMLElement>('[data-catalog-no-results]');
-  const parameters = new URLSearchParams(window.location.search);
-  if (search && parameters.has('query')) search.value = parameters.get('query') ?? '';
-  if (type && parameters.has('type')) type.value = parameters.get('type') ?? '';
-  if (category && parameters.has('category')) category.value = parameters.get('category') ?? '';
-  let requestSequence = 0;
-
-  const update = async (): Promise<void> => {
-    const sequence = ++requestSequence;
-    try {
-      const result = await client.queryCatalog.execute({
-        ...(search?.value.trim() ? { search: search.value.trim() } : {}),
-        ...(type?.value ? { type: type.value as CatalogItemType } : {}),
-        ...(category?.value ? { category: category.value } : {}),
-        sort: (sort?.value ?? 'manual') as CatalogSort
-      });
-      if (sequence !== requestSequence) return;
-      const visibleIds = new Set(result.map((item) => item.id.value));
-      for (const [id, entry] of entries) entry.hidden = !visibleIds.has(id);
-      for (const item of result) {
-        const entry = entries.get(item.id.value);
-        if (entry) grid.append(entry);
-      }
-      if (resultCount) resultCount.textContent = String(result.length);
-      if (noResults) noResults.hidden = result.length !== 0;
-    } catch (error) {
-      announce(errorMessage(error));
-    }
-  };
-
-  controls.addEventListener('input', () => void update());
-  controls.addEventListener('change', () => void update());
-  void update();
-};
-
 const setupCheckout = (): void => {
   const form = query<HTMLFormElement>('[data-checkout-form]');
   form?.addEventListener('submit', () => {
@@ -435,7 +388,6 @@ const initialize = (): void => {
   document.documentElement.dataset.portfolioClient = 'ready';
   const reducedMotion = new MotionPreferences().isReduced();
   document.documentElement.dataset.motion = reducedMotion ? 'reduced' : 'full';
-  setupCatalogControls();
   setupCartActions();
   setupCheckout();
   void setupPageExperience(reducedMotion);

@@ -46,7 +46,7 @@ const { item, priority = false } = Astro.props;
       <PricingLabel label={item.pricingLabel} />
     </div>
     <h3 class="catalog-card__title">
-      <a href={'/catalog/' + item.slug + '/'}>{item.title}</a>
+      <a href={'/catalog/' + item.slug + '/'} data-catalog-title>{item.title}</a>
     </h3>
     <p class="catalog-card__description">{item.shortDescription}</p>
     <ul class="tags" aria-label="Categorie">

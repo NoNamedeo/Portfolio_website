@@ -15,6 +15,56 @@ const waitForTwoFrames = (page: Page) =>
       })
   );
 
+test('attiva il tracking se il puntatore è già sulla vetrina durante l’ingresso', async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.mouse.move(720, 450);
+  await page.goto('/');
+
+  const root = page.locator('[data-showcase-root]');
+  const stage = page.locator('[data-showcase-stage]');
+  await expect(root).toHaveAttribute('data-showcase-state', 'entering');
+
+  const stageBox = await stage.boundingBox();
+  expect(stageBox).not.toBeNull();
+  if (!stageBox) return;
+  const initialPoint = {
+    x: stageBox.x + stageBox.width * 0.5,
+    y: stageBox.y + stageBox.height * 0.42
+  };
+  await stage.dispatchEvent('pointerenter', {
+    pointerType: 'mouse',
+    clientX: initialPoint.x,
+    clientY: initialPoint.y
+  });
+
+  await expect(root).toHaveAttribute('data-showcase-state', 'interactive');
+  await stage.dispatchEvent('pointermove', {
+    pointerType: 'mouse',
+    clientX: initialPoint.x + 90,
+    clientY: initialPoint.y + 45
+  });
+
+  await expect
+    .poll(() => readNumber('[data-showcase-root]', '--light-opacity', page))
+    .toBeGreaterThan(0.1);
+  await expect
+    .poll(async () => {
+      const x = await readNumber('[data-showcase-root]', '--attract-x', page);
+      const y = await readNumber('[data-showcase-root]', '--attract-y', page);
+      return Math.hypot(x, y);
+    })
+    .toBeGreaterThan(0.1);
+  await expect
+    .poll(async () => {
+      const x = await readNumber('[data-showcase-root]', '--glass-rotate-x', page);
+      const y = await readNumber('[data-showcase-root]', '--glass-rotate-y', page);
+      return Math.hypot(x, y);
+    })
+    .toBeGreaterThan(0.05);
+});
+
 test('illumina il vetro, limita l’attrazione e completa il cleanup', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
@@ -23,6 +73,14 @@ test('illumina il vetro, limita l’attrazione e completa il cleanup', async ({ 
   const frontText = page.locator('[data-showcase-front-text]');
 
   await expect(root).toHaveAttribute('data-showcase-state', 'interactive');
+  const stageSize = await stage.evaluate((element) => ({
+    width: element.getBoundingClientRect().width,
+    height: element.getBoundingClientRect().height,
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight
+  }));
+  expect(Math.abs(stageSize.width - stageSize.viewportWidth)).toBeLessThanOrEqual(1);
+  expect(stageSize.height).toBeGreaterThanOrEqual(stageSize.viewportHeight);
   expect(await stage.evaluate((element) => getComputedStyle(element).cursor)).not.toBe('none');
   await expect(page.locator('[data-showcase-pointer-light]')).toHaveAttribute(
     'aria-hidden',
@@ -53,7 +111,26 @@ test('illumina il vetro, limita l’attrazione e completa il cleanup', async ({ 
     await readNumber('[data-showcase-root]', '--attract-x', page),
     await readNumber('[data-showcase-root]', '--attract-y', page)
   );
-  expect(attraction).toBeLessThanOrEqual(24.1);
+  expect(attraction).toBeLessThanOrEqual(16.1);
+
+  const stageBox = await stage.boundingBox();
+  expect(stageBox).not.toBeNull();
+  if (!stageBox) return;
+  await page.mouse.move(stageBox.x + 100, stageBox.y + 120);
+  await expect
+    .poll(async () => {
+      const x = await readNumber('[data-showcase-root]', '--attract-x', page);
+      const y = await readNumber('[data-showcase-root]', '--attract-y', page);
+      return Math.hypot(x, y);
+    })
+    .toBeGreaterThan(0.1);
+  await expect
+    .poll(async () => {
+      const x = await readNumber('[data-showcase-root]', '--attract-x', page);
+      const y = await readNumber('[data-showcase-root]', '--attract-y', page);
+      return Math.hypot(x, y);
+    })
+    .toBeLessThan(2);
 
   await page.mouse.move(2, 2);
   await expect
@@ -108,7 +185,7 @@ test('ricalcola la scena al resize e resta navigabile da tastiera e cronologia',
       await readNumber('[data-showcase-root]', '--attract-x', page),
       await readNumber('[data-showcase-root]', '--attract-y', page)
     )
-  ).toBeLessThanOrEqual(14.1);
+  ).toBeLessThanOrEqual(10.1);
 
   const catalogLink = page.getByRole('link', { name: /Esplora il catalogo/ });
   for (
@@ -195,6 +272,14 @@ test('senza JavaScript conserva testi e layout ai breakpoint richiesti', async (
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
       ).toBe(true);
+      const stageSize = await page.locator('[data-showcase-stage]').evaluate((element) => ({
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight
+      }));
+      expect(Math.abs(stageSize.width - stageSize.viewportWidth)).toBeLessThanOrEqual(1);
+      expect(stageSize.height).toBeGreaterThanOrEqual(stageSize.viewportHeight);
       expect(
         await page
           .locator('[data-showcase-front-text]')
