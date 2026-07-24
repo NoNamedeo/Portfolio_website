@@ -15,6 +15,7 @@ const animationSnapshot = (page: Page) =>
     const duration = animation?.effect?.getTiming().duration;
     return {
       count: track.getAnimations().length,
+      currentTime: typeof animation?.currentTime === 'number' ? animation.currentTime : 0,
       duration: typeof duration === 'number' ? duration : 0,
       playbackRate: animation?.playbackRate ?? 0,
       playState: animation?.playState ?? 'missing'
@@ -149,6 +150,54 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
   expect(await track.getAttribute('style')).toBeNull();
 });
 
+test('supporta grab con il mouse e scorrimento orizzontale da touchpad', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const root = page.locator('[data-home-catalog-showcase]');
+  const viewport = root.locator('[data-product-marquee-viewport]');
+  const firstLink = root
+    .locator('[data-product-marquee-original] [data-marquee-item-link]')
+    .first();
+  await root.scrollIntoViewIfNeeded();
+  await expect(root).toHaveAttribute('data-marquee-state', 'running');
+  expect(await viewport.evaluate((element) => getComputedStyle(element).cursor)).toBe('grab');
+
+  const linkBox = await firstLink.boundingBox();
+  expect(linkBox).not.toBeNull();
+  if (!linkBox) return;
+  const dragStart = {
+    x: linkBox.x + linkBox.width * 0.55,
+    y: linkBox.y + linkBox.height * 0.5
+  };
+  const beforeDrag = await animationSnapshot(page);
+  await page.mouse.move(dragStart.x, dragStart.y);
+  await page.mouse.down();
+  await expect(root).toHaveAttribute('data-marquee-state', 'dragging');
+  await expect(viewport).toHaveAttribute('data-marquee-dragging', 'true');
+  await page.mouse.move(dragStart.x + 170, dragStart.y + 8, { steps: 4 });
+  const duringDrag = await animationSnapshot(page);
+  expect(duringDrag.playState).toBe('paused');
+  expect(Math.abs(duringDrag.currentTime - beforeDrag.currentTime)).toBeGreaterThan(500);
+  expect(await viewport.evaluate((element) => getComputedStyle(element).cursor)).toBe('grabbing');
+  await page.mouse.up();
+
+  await expect(viewport).not.toHaveAttribute('data-marquee-dragging', /.+/);
+  await expect(page).toHaveURL('http://127.0.0.1:4321/');
+  await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
+
+  const beforeWheel = await animationSnapshot(page);
+  await viewport.dispatchEvent('wheel', {
+    deltaMode: 0,
+    deltaX: 180,
+    deltaY: 0
+  });
+  await expect(root).toHaveAttribute('data-marquee-state', 'scrolling');
+  const duringWheel = await animationSnapshot(page);
+  expect(duringWheel.playState).toBe('paused');
+  expect(Math.abs(duringWheel.currentTime - beforeWheel.currentTime)).toBeGreaterThan(500);
+  await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
+});
+
 test('reduced motion usa una fascia statica completa', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
@@ -166,10 +215,34 @@ test('reduced motion usa una fascia statica completa', async ({ page }) => {
       .locator('[data-product-marquee-viewport]')
       .evaluate((element) => getComputedStyle(element).overflowX)
   ).toBe('auto');
+  const viewport = root.locator('[data-product-marquee-viewport]');
+  await root.scrollIntoViewIfNeeded();
+  const viewportBox = await viewport.boundingBox();
+  expect(viewportBox).not.toBeNull();
+  if (!viewportBox) return;
+  expect(
+    await viewport.evaluate((element) => element.scrollWidth - element.clientWidth)
+  ).toBeGreaterThan(100);
+  await page.mouse.move(
+    viewportBox.x + viewportBox.width * 0.7,
+    viewportBox.y + viewportBox.height * 0.5
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    viewportBox.x + viewportBox.width * 0.35,
+    viewportBox.y + viewportBox.height * 0.5,
+    { steps: 3 }
+  );
+  await expect(root).toHaveAttribute('data-marquee-state', 'dragging');
+  await page.mouse.up();
+  await expect(root).toHaveAttribute('data-marquee-state', 'static');
+  expect(await viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(50);
   await expect(root.getByRole('link', { name: /Vai al catalogo/ })).toBeVisible();
 });
 
-test('touch mantiene il loop lento senza intercettare il tap', async ({ browser }) => {
+test('touch consente lo swipe, mantiene il loop lento e non intercetta il tap', async ({
+  browser
+}) => {
   const context = await browser.newContext({
     baseURL: 'http://127.0.0.1:4321',
     viewport: { width: 390, height: 844 },
@@ -187,6 +260,49 @@ test('touch mantiene il loop lento senza intercettare il tap', async ({ browser 
     await waitForTwoFrames(page);
     expect((await animationSnapshot(page)).playbackRate).toBe(initialRate);
     expect((await animationSnapshot(page)).duration).toBeGreaterThanOrEqual(25_000);
+
+    const viewport = root.locator('[data-product-marquee-viewport]');
+    const viewportBox = await viewport.boundingBox();
+    expect(viewportBox).not.toBeNull();
+    if (!viewportBox) return;
+    const touchStart = {
+      x: viewportBox.x + viewportBox.width * 0.72,
+      y: viewportBox.y + viewportBox.height * 0.5
+    };
+    const beforeSwipe = await animationSnapshot(page);
+    await viewport.dispatchEvent('pointerdown', {
+      button: 0,
+      buttons: 1,
+      clientX: touchStart.x,
+      clientY: touchStart.y,
+      isPrimary: true,
+      pointerId: 7,
+      pointerType: 'touch'
+    });
+    await expect(root).toHaveAttribute('data-marquee-state', 'dragging');
+    await viewport.dispatchEvent('pointermove', {
+      button: 0,
+      buttons: 1,
+      clientX: touchStart.x - 120,
+      clientY: touchStart.y + 4,
+      isPrimary: true,
+      pointerId: 7,
+      pointerType: 'touch'
+    });
+    const duringSwipe = await animationSnapshot(page);
+    expect(duringSwipe.playState).toBe('paused');
+    expect(Math.abs(duringSwipe.currentTime - beforeSwipe.currentTime)).toBeGreaterThan(500);
+    await viewport.dispatchEvent('pointerup', {
+      button: 0,
+      buttons: 0,
+      clientX: touchStart.x - 120,
+      clientY: touchStart.y + 4,
+      isPrimary: true,
+      pointerId: 7,
+      pointerType: 'touch'
+    });
+    await expect(root).toHaveAttribute('data-marquee-state', 'running');
+    await expect(page).toHaveURL('http://127.0.0.1:4321/');
 
     const firstLink = root
       .locator('[data-product-marquee-original] [data-marquee-item-link]')

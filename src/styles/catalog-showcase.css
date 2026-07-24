@@ -81,6 +81,16 @@
     mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
   }
 
+  .catalog-showcase[data-marquee-mode] .catalog-showcase__viewport {
+    cursor: grab;
+    overscroll-behavior-inline: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .catalog-showcase[data-marquee-state='dragging'] .catalog-showcase__viewport {
+    cursor: grabbing;
+  }
+
   .catalog-showcase__track,
   .catalog-showcase__group {
     display: flex;
@@ -96,6 +106,11 @@
 
   .catalog-showcase[data-marquee-mode='interactive'] .catalog-showcase__track {
     will-change: transform;
+  }
+
+  .catalog-showcase[data-marquee-mode] .catalog-showcase__track,
+  .catalog-showcase[data-marquee-mode] .moving-catalog-card {
+    user-select: none;
   }
 
   .catalog-showcase__group {
@@ -151,7 +166,9 @@
   .moving-catalog-card__media img {
     width: 100%;
     height: 100%;
+    -webkit-user-drag: none;
     object-fit: cover;
+    user-select: none;
     transition: transform 600ms var(--ease-out);
   }
 
