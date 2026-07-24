@@ -1,0 +1,43 @@
+---
+import Button from '@presentation/components/shared/Button.astro';
+import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
+---
+
+<section
+  class="glass-concept"
+  aria-labelledby="glass-concept-title"
+  data-page-experience
+  data-experience="glass-human"
+  data-glass-human-root
+>
+  <ResponsiveContainer>
+    <div class="glass-concept__layout">
+      <div class="glass-concept__copy">
+        <p class="eyebrow">Il concetto</p>
+        <h2 id="glass-concept-title">Un acquisto che apre una conversazione</h2>
+        <p class="lead">
+          Qui il linguaggio dell’e-commerce rende esplorabile un percorso professionale. Il checkout
+          raccoglie una richiesta: nessun pagamento viene elaborato.
+        </p>
+        <div class="cluster">
+          <Button href="/catalog/">Sfoglia tutto</Button>
+          <Button href="/about/" variant="secondary">Conosci il profilo</Button>
+        </div>
+      </div>
+
+      <div class="glass-concept__scene" data-glass-human-stage aria-hidden="true">
+        <canvas class="glass-concept__canvas" data-glass-human-canvas></canvas>
+        <div class="glass-human-fallback">
+          <span class="glass-human-fallback__head"></span>
+          <span class="glass-human-fallback__torso"></span>
+          <span class="glass-human-fallback__arm glass-human-fallback__arm--left"></span>
+          <span class="glass-human-fallback__arm glass-human-fallback__arm--right"></span>
+          <span class="glass-human-fallback__leg glass-human-fallback__leg--left"></span>
+          <span class="glass-human-fallback__leg glass-human-fallback__leg--right"></span>
+          <span class="glass-human-fallback__idea"></span>
+        </div>
+        <p class="glass-concept__scene-caption">Un’idea offerta diventa uno spazio condiviso.</p>
+      </div>
+    </div>
+  </ResponsiveContainer>
+</section>

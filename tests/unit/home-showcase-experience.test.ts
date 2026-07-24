@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   calculatePointerAttraction,
+  calculateShowcaseScrollProgress,
   normalizePointerSpeed
 } from '@experience/home/home-showcase-experience';
 
@@ -39,5 +40,16 @@ describe('HomeShowcaseExperience', () => {
       x: 0,
       y: 0
     });
+  });
+
+  it('normalizza la dispersione lungo la corsa sticky della scena', () => {
+    expect(calculateShowcaseScrollProgress(120, 2100, 900)).toBe(0);
+    expect(calculateShowcaseScrollProgress(-600, 2100, 900)).toBeCloseTo(0.5);
+    expect(calculateShowcaseScrollProgress(-1800, 2100, 900)).toBe(1);
+  });
+
+  it('disabilita la progressione quando la scena non supera la viewport', () => {
+    expect(calculateShowcaseScrollProgress(-200, 900, 900)).toBe(0);
+    expect(calculateShowcaseScrollProgress(-200, 700, 900)).toBe(0);
   });
 });

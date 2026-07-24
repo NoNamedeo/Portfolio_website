@@ -1,13 +1,15 @@
 @layer components {
   .catalog-showcase {
-    --marquee-gap: clamp(1rem, 2vw, 1.5rem);
+    --marquee-gap: clamp(2rem, 5vw, 5rem);
     position: relative;
     overflow: clip;
-    padding-block: clamp(2.5rem, 5vw, 4.5rem);
-    border-block: 1px solid rgb(119 114 105 / 24%);
+    padding-block: clamp(3.5rem, 7vw, 7rem);
+    border-block: 1px solid rgb(255 255 255 / 8%);
     background:
-      radial-gradient(circle at 8% 20%, rgb(255 90 61 / 8%), transparent 22rem),
-      linear-gradient(180deg, rgb(255 253 247 / 58%), rgb(231 226 214 / 38%));
+      radial-gradient(circle at 12% 18%, rgb(255 99 75 / 9%), transparent 24rem),
+      radial-gradient(circle at 82% 72%, rgb(84 127 255 / 12%), transparent 29rem),
+      linear-gradient(180deg, #101210, #171a18 58%, #0d0f0e);
+    color: #f7f4e9;
     isolation: isolate;
   }
 
@@ -17,32 +19,36 @@
     inset: 0;
     background: repeating-linear-gradient(
       112deg,
-      rgb(255 255 255 / 0%) 0 12px,
-      rgb(255 255 255 / 18%) 12px 13px
+      rgb(255 255 255 / 0%) 0 16px,
+      rgb(255 255 255 / 3%) 16px 17px
     );
-    opacity: 0.24;
+    opacity: 0.4;
     content: '';
   }
 
   .catalog-showcase__header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     min-height: 2.75rem;
     gap: var(--space-m);
-    margin-block-end: var(--space-m);
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--space-l);
+  }
+
+  .catalog-showcase__header .eyebrow {
+    color: rgb(247 244 233 / 55%);
   }
 
   .catalog-showcase__toggle {
     display: none;
     min-height: 2.75rem;
-    align-items: center;
     gap: var(--space-xs);
+    align-items: center;
     padding: 0.65rem 0.95rem;
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid rgb(255 255 255 / 24%);
     border-radius: var(--radius-pill);
-    background: rgb(255 253 247 / 72%);
-    color: var(--color-ink);
+    background: rgb(255 255 255 / 5%);
+    color: #f7f4e9;
     font: inherit;
     font-size: var(--step--1);
     font-weight: 700;
@@ -69,10 +75,12 @@
   }
 
   .catalog-showcase__viewport {
+    position: relative;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-block: 0.7rem 1.1rem;
+    padding-block: 0.7rem 1.6rem;
+    scrollbar-color: rgb(255 255 255 / 25%) transparent;
     scrollbar-width: thin;
   }
 
@@ -91,6 +99,22 @@
     cursor: grabbing;
   }
 
+  .catalog-showcase__cube-canvas {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 260ms var(--ease-out);
+  }
+
+  .catalog-showcase[data-catalog-cube-renderer='webgl'] .catalog-showcase__cube-canvas {
+    opacity: 1;
+  }
+
   .catalog-showcase__track,
   .catalog-showcase__group {
     display: flex;
@@ -99,6 +123,8 @@
   }
 
   .catalog-showcase__track {
+    position: relative;
+    z-index: 2;
     padding-inline: var(--gutter);
     transform: translate3d(0, 0, 0);
     will-change: auto;
@@ -128,85 +154,127 @@
   }
 
   .moving-catalog-card {
-    display: grid;
-    width: clamp(18rem, 26vw, 22rem);
-    height: clamp(11.5rem, 16vw, 13.5rem);
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    overflow: hidden;
-    border: 1px solid rgb(119 114 105 / 42%);
-    border-radius: clamp(1rem, 1.7vw, 1.45rem);
-    background: rgb(255 253 247 / 88%);
-    box-shadow:
-      0 1.2rem 2.8rem rgb(40 35 24 / 10%),
-      inset 0 1px rgb(255 255 255 / 80%);
-    color: var(--color-ink);
-    text-decoration: none;
-    transform: translate3d(0, 0, 0);
-    transition:
-      transform var(--duration-base) var(--ease-out),
-      border-color var(--duration-base) var(--ease-out),
-      box-shadow var(--duration-base) var(--ease-out);
-  }
-
-  .moving-catalog-card__media {
     position: relative;
-    min-width: 0;
-    overflow: hidden;
-    background: var(--color-surface-strong);
+    display: grid;
+    width: clamp(14rem, 22vw, 20rem);
+    height: clamp(20rem, 27vw, 25rem);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: clamp(1rem, 2vw, 1.6rem);
+    color: #f7f4e9;
+    text-align: center;
+    text-decoration: none;
   }
 
-  .moving-catalog-card__media::after {
+  .moving-catalog-card:focus-visible {
+    border-radius: 1.2rem;
+    outline-color: var(--cube-accent);
+  }
+
+  .moving-catalog-card__cube-stage {
+    position: relative;
+    display: grid;
+    min-height: 0;
+    place-items: center;
+    perspective: 900px;
+  }
+
+  .moving-catalog-card__cube-fallback {
+    position: relative;
+    display: block;
+    width: clamp(7.6rem, 11vw, 10.5rem);
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in srgb, var(--cube-accent) 56%, white);
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 24%), transparent 42%),
+      color-mix(in srgb, var(--cube-accent) 13%, transparent);
+    box-shadow:
+      inset 1.2rem 1.1rem 2.3rem rgb(255 255 255 / 6%),
+      inset -1rem -1.2rem 2rem rgb(0 0 0 / 16%),
+      0 0 2.7rem color-mix(in srgb, var(--cube-accent) 24%, transparent);
+    transform: rotateX(-14deg) rotateY(32deg);
+    transform-style: preserve-3d;
+    transition:
+      transform 480ms var(--ease-out),
+      filter 480ms var(--ease-out);
+  }
+
+  .moving-catalog-card__cube-fallback::before,
+  .moving-catalog-card__cube-fallback::after {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(125deg, rgb(255 255 255 / 22%), transparent 42%);
+    inset: -1px;
+    border: 1px solid color-mix(in srgb, var(--cube-accent) 42%, white);
+    background: color-mix(in srgb, var(--cube-accent) 7%, transparent);
     content: '';
-    pointer-events: none;
   }
 
-  .moving-catalog-card__media img {
-    width: 100%;
-    height: 100%;
-    -webkit-user-drag: none;
-    object-fit: cover;
-    user-select: none;
-    transition: transform 600ms var(--ease-out);
+  .moving-catalog-card__cube-fallback::before {
+    transform: translateZ(-2rem);
+  }
+
+  .moving-catalog-card__cube-fallback::after {
+    transform: translate3d(1rem, -1rem, -1rem);
+  }
+
+  .moving-catalog-card__cube-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 28%;
+    aspect-ratio: 1;
+    border-radius: 35%;
+    background: var(--cube-accent);
+    box-shadow:
+      0 0 1rem var(--cube-accent),
+      0 0 3rem var(--cube-accent);
+    transform: translate3d(-50%, -50%, 1rem);
+  }
+
+  .catalog-showcase[data-catalog-cube-renderer='webgl'] .moving-catalog-card__cube-fallback {
+    opacity: 0;
   }
 
   .moving-catalog-card__body {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: var(--space-s);
-    padding: clamp(1rem, 1.7vw, 1.35rem);
+    display: grid;
+    min-height: 4rem;
+    place-items: start center;
   }
 
   .moving-catalog-card__title {
+    max-width: 12ch;
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 2.1vw, 2rem);
-    font-weight: 750;
+    font-size: clamp(1.6rem, 2.4vw, 2.35rem);
+    font-weight: 740;
     letter-spacing: -0.045em;
     line-height: 0.96;
     text-wrap: balance;
+    transition:
+      color 320ms var(--ease-out),
+      opacity 320ms var(--ease-out),
+      transform 420ms var(--ease-out);
   }
 
-  .moving-catalog-card__meta {
-    display: grid;
-    gap: 0.25rem;
-    color: var(--color-ink-soft);
-    font-size: var(--step--1);
-    line-height: 1.25;
+  .moving-catalog-card:is(:hover, :focus-visible, [data-cube-active]) .moving-catalog-card__title {
+    color: color-mix(in srgb, var(--cube-accent) 68%, white);
+    opacity: 0.92;
+    transform: translate3d(0, 0.28rem, 0);
   }
 
-  .moving-catalog-card__meta > :last-child {
-    color: var(--color-ink);
-    font-weight: 700;
+  .moving-catalog-card:is(:hover, :focus-visible) .moving-catalog-card__cube-fallback {
+    filter: brightness(1.24) saturate(1.08);
+    transform: translate3d(0, -0.5rem, 1rem) rotateX(-24deg) rotateY(45deg);
   }
 
   .catalog-showcase__footer {
     display: flex;
     justify-content: center;
-    margin-block-start: var(--space-m);
+    margin-block-start: var(--space-l);
+  }
+
+  .catalog-showcase__footer .button {
+    border-color: #fffaf0;
+    background: #fffaf0;
+    color: #151714;
   }
 
   .catalog-showcase[data-marquee-entered='true'] .catalog-showcase__viewport {
@@ -225,31 +293,15 @@
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
-  @layer components {
-    .moving-catalog-card:hover {
-      border-color: rgb(255 90 61 / 62%);
-      box-shadow:
-        0 1.6rem 3.5rem rgb(40 35 24 / 15%),
-        inset 0 1px rgb(255 255 255 / 90%);
-      transform: translate3d(0, -0.22rem, 0) scale(1.006);
-    }
-
-    .moving-catalog-card:hover .moving-catalog-card__media img {
-      transform: scale(1.025);
-    }
-  }
-}
-
 @media (max-width: 64rem) {
   @layer components {
     .moving-catalog-card {
-      width: clamp(15rem, 36vw, 19rem);
-      height: clamp(10.8rem, 23vw, 12.5rem);
+      width: clamp(13.5rem, 29vw, 16rem);
+      height: clamp(19rem, 39vw, 22rem);
     }
 
     .moving-catalog-card__title {
-      font-size: clamp(1.35rem, 3vw, 1.75rem);
+      font-size: clamp(1.45rem, 3.2vw, 2rem);
     }
   }
 }
@@ -257,7 +309,7 @@
 @media (max-width: 46rem) {
   @layer components {
     .catalog-showcase {
-      --marquee-gap: 0.9rem;
+      --marquee-gap: 1.5rem;
       padding-block: var(--space-xl);
     }
 
@@ -285,17 +337,12 @@
     }
 
     .moving-catalog-card {
-      width: clamp(13.5rem, 64vw, 16.5rem);
-      height: clamp(10.5rem, 46vw, 11.5rem);
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    }
-
-    .moving-catalog-card__body {
-      padding: 0.9rem;
+      width: clamp(12rem, 55vw, 14rem);
+      height: clamp(17.5rem, 78vw, 20rem);
     }
 
     .moving-catalog-card__title {
-      font-size: clamp(1.25rem, 5.4vw, 1.55rem);
+      font-size: clamp(1.35rem, 6vw, 1.7rem);
     }
   }
 }
@@ -304,7 +351,8 @@
   @layer components {
     .catalog-showcase__track,
     .moving-catalog-card,
-    .moving-catalog-card__media img {
+    .moving-catalog-card__cube-fallback,
+    .moving-catalog-card__title {
       transform: none !important;
       transition: none !important;
       will-change: auto !important;

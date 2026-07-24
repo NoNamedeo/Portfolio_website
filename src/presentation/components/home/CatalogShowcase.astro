@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { items } = Astro.props;
+const cubeAccents = ['#72d8ff', '#ff735f', '#ffd166', '#b899ff', '#70e1a5', '#ff98c8'] as const;
 ---
 
 <section
@@ -38,21 +39,32 @@ const { items } = Astro.props;
   </ResponsiveContainer>
 
   <div class="catalog-showcase__viewport" data-product-marquee-viewport>
+    <canvas class="catalog-showcase__cube-canvas" data-catalog-cube-canvas aria-hidden="true">
+    </canvas>
     <div class="catalog-showcase__track" data-product-marquee-track>
       <ul class="catalog-showcase__group" data-product-marquee-original>
         {
-          items.map((item) => (
+          items.map((item, index) => (
             <li>
-              <MovingCatalogCard {item} />
+              <MovingCatalogCard
+                {item}
+                visualIndex={index}
+                accent={cubeAccents[index % cubeAccents.length] ?? cubeAccents[0]}
+              />
             </li>
           ))
         }
       </ul>
       <ul class="catalog-showcase__group" data-product-marquee-copy aria-hidden="true">
         {
-          items.map((item) => (
+          items.map((item, index) => (
             <li>
-              <MovingCatalogCard {item} decorative />
+              <MovingCatalogCard
+                {item}
+                visualIndex={index}
+                accent={cubeAccents[index % cubeAccents.length] ?? cubeAccents[0]}
+                decorative
+              />
             </li>
           ))
         }

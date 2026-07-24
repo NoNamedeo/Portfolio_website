@@ -1,4 +1,5 @@
 import type { Experience, ExperienceContext } from '@experience/core/experience';
+import type { CatalogCubeRenderer } from './glass-ideas/catalog-cube-renderer';
 
 const clamp = (value: number, minimum: number, maximum: number): number =>
   Math.min(Math.max(value, minimum), maximum);
@@ -7,7 +8,7 @@ const damp = (current: number, target: number, lambda: number, deltaSeconds: num
   target + (current - target) * Math.exp(-lambda * deltaSeconds);
 
 const DRAG_THRESHOLD = 6;
-const WHEEL_RELEASE_DELAY = 160;
+const WHEEL_RELEASE_DELAY = 320;
 
 export const calculateMarqueeDuration = (distance: number, viewportWidth: number): number => {
   if (distance <= 0) return 0;
@@ -26,6 +27,7 @@ export class CatalogShowcaseExperience implements Experience {
   private listenerController?: AbortController;
   private intersectionObserver?: IntersectionObserver;
   private loopAnimation?: Animation;
+  private cubeRenderer?: CatalogCubeRenderer;
   private frameId?: number;
   private wheelReleaseTimerId?: number;
   private clickResetTimerId?: number;
@@ -39,6 +41,7 @@ export class CatalogShowcaseExperience implements Experience {
   private currentRate = 1;
   private targetRate = 1;
   private mounted = false;
+  private playRequested = false;
   private paused = false;
   private visible = false;
   private pointerOver = false;
@@ -62,7 +65,16 @@ export class CatalogShowcaseExperience implements Experience {
     const copyGroup = context.root.querySelector<HTMLElement>('[data-product-marquee-copy]');
     const toggle = context.root.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
     const toggleLabel = context.root.querySelector<HTMLElement>('[data-marquee-toggle-label]');
-    if (!viewport || !track || !originalGroup || !copyGroup || !toggle || !toggleLabel) {
+    const cubeCanvas = context.root.querySelector<HTMLCanvasElement>('[data-catalog-cube-canvas]');
+    if (
+      !viewport ||
+      !track ||
+      !originalGroup ||
+      !copyGroup ||
+      !toggle ||
+      !toggleLabel ||
+      !cubeCanvas
+    ) {
       throw new Error('La struttura del catalogo in movimento è incompleta.');
     }
 
@@ -97,6 +109,7 @@ export class CatalogShowcaseExperience implements Experience {
       passive: false,
       signal: this.listenerController.signal
     });
+    void this.mountCubeRenderer(context.root, viewport, cubeCanvas, context.reducedMotion);
 
     if (context.reducedMotion) return;
 
@@ -123,7 +136,9 @@ export class CatalogShowcaseExperience implements Experience {
 
   play(): void {
     if (!this.mounted || !this.root) return;
+    this.playRequested = true;
     this.paused = false;
+    this.cubeRenderer?.play();
     if (this.reducedMotion) {
       this.root.dataset.marqueeState = 'static';
       return;
@@ -133,14 +148,17 @@ export class CatalogShowcaseExperience implements Experience {
 
   pause(): void {
     if (!this.mounted || !this.root) return;
+    this.playRequested = false;
     this.paused = true;
     this.cancelManipulation();
     this.cancelFrame();
     this.loopAnimation?.pause();
+    this.cubeRenderer?.pause();
     this.root.dataset.marqueeState = 'paused';
   }
 
   resize(): void {
+    this.cubeRenderer?.resize();
     if (
       !this.mounted ||
       this.reducedMotion ||
@@ -174,6 +192,7 @@ export class CatalogShowcaseExperience implements Experience {
     this.loopAnimation.pause();
     this.loopAnimation.currentTime = progress * duration;
     this.loopAnimation.updatePlaybackRate(this.currentRate);
+    this.cubeRenderer?.syncSlots();
     this.needsResize = false;
     this.syncMotionState();
   }
@@ -188,6 +207,8 @@ export class CatalogShowcaseExperience implements Experience {
     this.cancelManipulation();
     this.loopAnimation?.cancel();
     this.loopAnimation = undefined;
+    this.cubeRenderer?.destroy();
+    this.cubeRenderer = undefined;
     this.removeGeneratedCopies();
     if (this.root) {
       this.root.style.removeProperty('--marquee-distance');
@@ -197,6 +218,7 @@ export class CatalogShowcaseExperience implements Experience {
       this.root.dataset.marqueeState = 'destroyed';
     }
     this.userPaused = false;
+    this.playRequested = false;
     this.updateToggle();
     this.mounted = false;
     this.paused = false;
@@ -214,9 +236,34 @@ export class CatalogShowcaseExperience implements Experience {
     this.syncMotionState();
   };
 
+  private async mountCubeRenderer(
+    root: HTMLElement,
+    viewport: HTMLElement,
+    canvas: HTMLCanvasElement,
+    reducedMotion: boolean
+  ): Promise<void> {
+    try {
+      const { CatalogCubeRenderer } = await import('./glass-ideas/catalog-cube-renderer');
+      if (!this.mounted || this.root !== root) return;
+      const renderer = new CatalogCubeRenderer({ root, viewport, canvas, reducedMotion });
+      if (!renderer.mount()) return;
+      if (!this.mounted || this.root !== root) {
+        renderer.destroy();
+        return;
+      }
+      this.cubeRenderer?.destroy();
+      this.cubeRenderer = renderer;
+      if (this.playRequested) renderer.play();
+    } catch {
+      root.dataset.catalogCubeRenderer = 'fallback';
+    }
+  }
+
   private readonly handlePointerEnter = (): void => {
     this.pointerOver = true;
     this.targetRate = 0.18;
+    this.currentRate = this.targetRate;
+    this.loopAnimation?.updatePlaybackRate(this.currentRate);
     this.syncMotionState();
     this.scheduleFrame();
   };
@@ -224,6 +271,8 @@ export class CatalogShowcaseExperience implements Experience {
   private readonly handlePointerLeave = (): void => {
     this.pointerOver = false;
     this.targetRate = 1;
+    this.currentRate = this.targetRate;
+    this.loopAnimation?.updatePlaybackRate(this.currentRate);
     this.syncMotionState();
     this.scheduleFrame();
   };
@@ -240,6 +289,7 @@ export class CatalogShowcaseExperience implements Experience {
     }
 
     this.finishWheelInteraction();
+    this.clearClickSuppression();
     this.dragPointerId = event.pointerId;
     this.dragStartX = event.clientX;
     this.dragStartY = event.clientY;

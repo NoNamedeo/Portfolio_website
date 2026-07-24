@@ -9,6 +9,79 @@ interface Props {
 }
 
 const { title, accent, description } = Astro.props;
+
+const panes = [
+  {
+    left: '2%',
+    top: '4%',
+    width: '44%',
+    height: '34%',
+    layer: 2,
+    driftX: -1.12,
+    driftY: -0.42,
+    scrollStart: 0.02
+  },
+  {
+    left: '27%',
+    top: '12%',
+    width: '45%',
+    height: '40%',
+    layer: 4,
+    driftX: 0.12,
+    driftY: -1.24,
+    scrollStart: 0
+  },
+  {
+    left: '69%',
+    top: '3%',
+    width: '29%',
+    height: '31%',
+    layer: 3,
+    driftX: 1.08,
+    driftY: -0.32,
+    scrollStart: 0.08
+  },
+  {
+    left: '5%',
+    top: '55%',
+    width: '38%',
+    height: '34%',
+    layer: 3,
+    driftX: -1.16,
+    driftY: 0.32,
+    scrollStart: 0.06
+  },
+  {
+    left: '31%',
+    top: '59%',
+    width: '47%',
+    height: '34%',
+    layer: 2,
+    driftX: 0.04,
+    driftY: 1.18,
+    scrollStart: 0.1
+  },
+  {
+    left: '70%',
+    top: '35%',
+    width: '30%',
+    height: '43%',
+    layer: 5,
+    driftX: 1.12,
+    driftY: 0.46,
+    scrollStart: 0.04
+  },
+  {
+    left: '44%',
+    top: '38%',
+    width: '29%',
+    height: '27%',
+    layer: 6,
+    driftX: -0.18,
+    driftY: -1.32,
+    scrollStart: 0.12
+  }
+] as const;
 ---
 
 <section
@@ -25,20 +98,40 @@ const { title, accent, description } = Astro.props;
     </header>
   </ResponsiveContainer>
 
-  <div class="home-showcase__stage" data-showcase-stage>
-    <div class="home-showcase__ambience" aria-hidden="true"></div>
+  <div class="home-showcase__scroll-scene" data-showcase-scroll-scene>
+    <div class="home-showcase__stage" data-showcase-stage>
+      <div class="home-showcase__ambience" aria-hidden="true"></div>
 
-    <h1 id="home-showcase-title" class="home-showcase__title">
-      <span class="home-showcase__back-text" data-showcase-back-text>{title}</span>
-      <span class="home-showcase__front-text" data-showcase-front-text>{accent}</span>
-    </h1>
+      <h1 id="home-showcase-title" class="home-showcase__title">
+        <span class="home-showcase__back-text" data-showcase-back-text>{title}</span>
+        <span class="home-showcase__front-text" data-showcase-front-text>{accent}</span>
+      </h1>
 
-    <div class="home-showcase__glass" data-showcase-glass aria-hidden="true">
-      <span class="home-showcase__glass-depth"></span>
-      <span class="home-showcase__glass-sheen" data-showcase-sheen></span>
+      <div class="home-showcase__glass" data-showcase-glass aria-hidden="true">
+        <canvas class="home-showcase__glass-canvas" data-showcase-glass-canvas aria-hidden="true"
+        ></canvas>
+
+        {
+          panes.map((pane) => (
+            <span
+              class="home-showcase__pane"
+              data-showcase-pane
+              data-pane-drift-x={pane.driftX}
+              data-pane-drift-y={pane.driftY}
+              data-pane-scroll-start={pane.scrollStart}
+              style={`--pane-left: ${pane.left}; --pane-top: ${pane.top}; --pane-width: ${pane.width}; --pane-height: ${pane.height}; --pane-layer: ${pane.layer};`}
+            >
+              <span class="home-showcase__pane-surface" />
+              <span class="home-showcase__pane-depth" />
+              <span class="home-showcase__glass-sheen" data-showcase-sheen />
+            </span>
+          ))
+        }
+      </div>
+
+      <div class="home-showcase__pointer-light" data-showcase-pointer-light aria-hidden="true">
+      </div>
     </div>
-
-    <div class="home-showcase__pointer-light" data-showcase-pointer-light aria-hidden="true"></div>
   </div>
 
   <ResponsiveContainer>

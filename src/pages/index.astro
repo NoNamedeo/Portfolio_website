@@ -1,9 +1,8 @@
 ---
 import { createCompositionRoot } from '@app/composition-root';
 import CatalogShowcase from '@presentation/components/home/CatalogShowcase.astro';
+import GlassConcept from '@presentation/components/home/GlassConcept.astro';
 import HomeShowcase from '@presentation/components/home/HomeShowcase.astro';
-import Button from '@presentation/components/shared/Button.astro';
-import Section from '@presentation/components/shared/Section.astro';
 import BaseLayout from '@presentation/layouts/BaseLayout.astro';
 
 const model = await createCompositionRoot().getHomePage.execute();
@@ -16,18 +15,7 @@ const model = await createCompositionRoot().getHomePage.execute();
     description={model.introduction}
   />
 
-  <CatalogShowcase items={model.featuredItems} />
+  <GlassConcept />
 
-  <Section narrow eyebrow="Il concetto" title="Un acquisto che apre una conversazione">
-    <div class="flow" style="--flow-space: var(--space-l)">
-      <p class="lead">
-        Qui il linguaggio dell’e-commerce rende esplorabile un percorso professionale. Il checkout
-        raccoglie una richiesta: nessun pagamento viene elaborato.
-      </p>
-      <div class="cluster">
-        <Button href="/catalog/">Sfoglia tutto</Button>
-        <Button href="/about/" variant="secondary">Conosci il profilo</Button>
-      </div>
-    </div>
-  </Section>
+  <CatalogShowcase items={model.featuredItems} />
 </BaseLayout>

@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+test.describe.configure({ mode: 'serial' });
+test.setTimeout(90_000);
+
 const waitForTwoFrames = (page: Page) =>
   page.evaluate(
     () =>
@@ -31,6 +34,29 @@ test('usa gli articoli reali e copie decorative senza contaminare la pagina cata
   await expect(
     showcase.locator('[data-product-marquee-original] [data-marquee-item-link]')
   ).toHaveCount(4);
+  await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveCount(1);
+  await expect(showcase).toHaveAttribute('data-catalog-cube-renderer', 'webgl');
+  await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
+    'data-catalog-cube-state',
+    'rendered'
+  );
+  await expect(showcase.locator('[data-product-marquee-original] img')).toHaveCount(0);
+  expect(
+    await showcase
+      .locator('[data-product-marquee-original] [data-cube-slot]')
+      .evaluateAll(
+        (slots) => new Set(slots.map((slot) => slot.getAttribute('data-cube-accent'))).size
+      )
+  ).toBe(4);
+  expect(
+    await showcase
+      .locator('[data-product-marquee-original] [data-marquee-item-link]')
+      .first()
+      .evaluate((link) => ({
+        background: getComputedStyle(link).backgroundImage,
+        border: getComputedStyle(link).borderTopWidth
+      }))
+  ).toEqual({ background: 'none', border: '0px' });
   const originalLinks = await showcase
     .locator('[data-product-marquee-original] [data-marquee-item-link]')
     .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
@@ -94,6 +120,34 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
     .poll(async () => (await animationSnapshot(page)).playbackRate, { timeout: 10_000 })
     .toBeLessThan(0.3);
 
+  const firstCube = root
+    .locator('[data-product-marquee-original] [data-marquee-item-link]')
+    .first();
+  const firstCubeBox = await firstCube.boundingBox();
+  expect(firstCubeBox).not.toBeNull();
+  if (!firstCubeBox) return;
+  await page.mouse.move(
+    firstCubeBox.x + firstCubeBox.width * 0.72,
+    firstCubeBox.y + firstCubeBox.height * 0.32
+  );
+  await expect(firstCube).toHaveAttribute('data-cube-active', '');
+  await firstCube.dispatchEvent('pointerdown', {
+    button: 0,
+    buttons: 1,
+    pointerId: 27,
+    pointerType: 'mouse'
+  });
+  await expect(root.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
+    'data-catalog-cube-pulse',
+    'active'
+  );
+  await firstCube.dispatchEvent('pointerup', {
+    button: 0,
+    buttons: 0,
+    pointerId: 27,
+    pointerType: 'mouse'
+  });
+
   const firstLink = root
     .locator('[data-product-marquee-original] [data-marquee-item-link]')
     .first();
@@ -145,7 +199,7 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
     window.dispatchEvent(event);
   });
   await root.scrollIntoViewIfNeeded();
-  await expect(root).toHaveAttribute('data-marquee-state', 'running');
+  await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
   expect((await animationSnapshot(page)).count).toBe(1);
   expect(await track.getAttribute('style')).toBeNull();
 });
@@ -304,14 +358,36 @@ test('touch consente lo swipe, mantiene il loop lento e non intercetta il tap', 
     await expect(root).toHaveAttribute('data-marquee-state', 'running');
     await expect(page).toHaveURL('http://127.0.0.1:4321/');
 
-    const firstLink = root
-      .locator('[data-product-marquee-original] [data-marquee-item-link]')
-      .first();
-    const linkBox = await firstLink.boundingBox();
-    expect(linkBox).not.toBeNull();
-    if (!linkBox) return;
-    await page.touchscreen.tap(linkBox.x + linkBox.width / 2, linkBox.y + linkBox.height / 2);
-    await expect(page).toHaveURL(/\/catalog\/signal-archive\/$/);
+    const tapTarget = await root.locator('[data-marquee-item-link]').evaluateAll((links) => {
+      const visibleLink = links
+        .map((link) => {
+          const bounds = link.getBoundingClientRect();
+          const visibleWidth = Math.min(bounds.right, window.innerWidth) - Math.max(bounds.left, 0);
+          const visibleHeight =
+            Math.min(bounds.bottom, window.innerHeight) - Math.max(bounds.top, 0);
+          return { link, bounds, visibleArea: visibleWidth * visibleHeight };
+        })
+        .filter(
+          (candidate) => candidate.link instanceof HTMLAnchorElement && candidate.visibleArea > 0
+        )
+        .sort((left, right) => right.visibleArea - left.visibleArea)[0];
+      if (!visibleLink || !(visibleLink.link instanceof HTMLAnchorElement)) return null;
+      const { bounds } = visibleLink;
+      const x = (Math.max(bounds.left, 0) + Math.min(bounds.right, window.innerWidth)) / 2;
+      const y = (Math.max(bounds.top, 0) + Math.min(bounds.bottom, window.innerHeight)) / 2;
+      const hitLink = document.elementFromPoint(x, y)?.closest('a');
+      return {
+        x,
+        y,
+        hitPathname: hitLink instanceof HTMLAnchorElement ? new URL(hitLink.href).pathname : null,
+        pathname: new URL(visibleLink.link.href).pathname
+      };
+    });
+    expect(tapTarget).not.toBeNull();
+    if (!tapTarget) return;
+    expect(tapTarget.hitPathname).toBe(tapTarget.pathname);
+    await page.touchscreen.tap(tapTarget.x, tapTarget.y);
+    await expect.poll(() => new URL(page.url()).pathname).toBe(tapTarget.pathname);
   } finally {
     await context.close();
   }

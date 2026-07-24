@@ -14,7 +14,17 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      use: {
+        ...devices['Desktop Chrome'],
+        // The installed browser uses the real GPU locally. CI's bundled Chromium
+        // receives an explicit WebGL backend so both paths stay testable.
+        channel: process.env.CI ? undefined : 'chrome',
+        launchOptions: process.env.CI
+          ? {
+              args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+            }
+          : undefined
+      }
     }
   ],
   webServer: {

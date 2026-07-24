@@ -18,6 +18,11 @@ experienceRegistry.register('home-showcase', async () => {
   const { HomeShowcaseExperience } = await import('@experience/home/home-showcase-experience');
   return new HomeShowcaseExperience();
 });
+experienceRegistry.register('glass-human', async () => {
+  const { GlassHumanExperience } =
+    await import('@experience/home/glass-ideas/glass-human-experience');
+  return new GlassHumanExperience();
+});
 experienceRegistry.register('catalog-showcase', async () => {
   const { CatalogShowcaseExperience } =
     await import('@experience/home/catalog-showcase-experience');

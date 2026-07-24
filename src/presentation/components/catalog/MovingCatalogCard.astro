@@ -3,10 +3,12 @@ import type { CatalogItemCardModel } from '@application/models/page-models';
 
 interface Props {
   item: CatalogItemCardModel;
+  visualIndex: number;
+  accent: string;
   decorative?: boolean;
 }
 
-const { item, decorative = false } = Astro.props;
+const { item, visualIndex, accent, decorative = false } = Astro.props;
 ---
 
 <a
@@ -14,23 +16,23 @@ const { item, decorative = false } = Astro.props;
   href={'/catalog/' + item.slug + '/'}
   tabindex={decorative ? -1 : undefined}
   data-marquee-item-link
+  data-cube-card
+  data-cube-index={visualIndex}
+  style={`--cube-accent: ${accent}`}
 >
-  <span class="moving-catalog-card__media">
-    <img
-      src={item.media.src}
-      alt={decorative ? '' : item.media.alt}
-      width={item.media.width}
-      height={item.media.height}
-      loading="lazy"
-      decoding="async"
-    />
+  <span
+    class="moving-catalog-card__cube-stage"
+    data-cube-slot
+    data-cube-accent={accent}
+    data-cube-variant={visualIndex}
+    aria-hidden="true"
+  >
+    <span class="moving-catalog-card__cube-fallback">
+      <span class="moving-catalog-card__cube-core"></span>
+    </span>
   </span>
   <span class="moving-catalog-card__body">
-    <span class="eyebrow">{item.typeLabel} · {item.year}</span>
     <span class="moving-catalog-card__title">{item.title}</span>
-    <span class="moving-catalog-card__meta">
-      <span>{item.categories[0]}</span>
-      <span>{item.pricingLabel}</span>
-    </span>
+    <span class="sr-only">{item.typeLabel}, {item.year}. {item.pricingLabel}</span>
   </span>
 </a>
