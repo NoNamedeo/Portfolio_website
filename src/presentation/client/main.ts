@@ -14,6 +14,7 @@ import { CART_CHANGED_EVENT, dispatchCartChanged } from './cart-events';
 
 const client = createClientCompositionRoot();
 const experienceRegistry = new ExperienceRegistry();
+const APP_READY_EVENT = 'portfolio:app-ready';
 experienceRegistry.register('home-showcase', async () => {
   const { HomeShowcaseExperience } = await import('@experience/home/home-showcase-experience');
   return new HomeShowcaseExperience();
@@ -388,15 +389,23 @@ const destroyPageExperience = (): void => {
   activeExperiences = [];
 };
 
-const initialize = (): void => {
-  if (document.documentElement.dataset.portfolioClient === 'ready') return;
+const markAppAsReady = (): void => {
+  document.documentElement.dataset.portfolioApp = 'ready';
+  window.dispatchEvent(new Event(APP_READY_EVENT));
+};
+
+const initialize = async (): Promise<void> => {
+  if (document.documentElement.dataset.portfolioClient === 'ready') {
+    markAppAsReady();
+    return;
+  }
   document.documentElement.dataset.portfolioClient = 'ready';
   const reducedMotion = new MotionPreferences().isReduced();
   document.documentElement.dataset.motion = reducedMotion ? 'reduced' : 'full';
   setupCartActions();
   setupCheckout();
-  void setupPageExperience(reducedMotion);
-  void updateClientViews();
+  const pageExperience = setupPageExperience(reducedMotion);
+  const clientViews = updateClientViews();
 
   window.addEventListener(CART_CHANGED_EVENT, (event) => {
     announce(event.detail.message);
@@ -410,6 +419,9 @@ const initialize = (): void => {
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) void setupPageExperience(new MotionPreferences().isReduced());
   });
+
+  await Promise.allSettled([pageExperience, clientViews]);
+  markAppAsReady();
 };
 
-initialize();
+void initialize();

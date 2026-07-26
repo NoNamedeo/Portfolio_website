@@ -11,6 +11,18 @@ export default defineConfig({
   site: siteConfig.canonicalUrl,
   output: 'static',
   integrations: [mdx(), sitemap()],
+  vite: {
+    build: {
+      chunkSizeWarningLimit: 600
+    },
+    environments: {
+      astro: {
+        optimizeDeps: {
+          include: ['picomatch']
+        }
+      }
+    }
+  },
   build: {
     format: 'directory'
   }

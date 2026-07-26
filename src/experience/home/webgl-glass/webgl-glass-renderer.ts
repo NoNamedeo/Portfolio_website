@@ -1,37 +1,35 @@
 import {
+  ACESFilmicToneMapping,
   Color,
-  Mesh,
-  MeshBasicMaterial,
-  OrthographicCamera,
-  PlaneGeometry,
-  Raycaster,
+  DirectionalLight,
+  HemisphereLight,
+  PerspectiveCamera,
   Scene,
-  ShaderMaterial,
   SRGBColorSpace,
   Vector2,
-  Vector4,
-  WebGLRenderTarget,
   WebGLRenderer,
-  type Intersection,
-  type Object3D
+  type BufferGeometry
 } from 'three';
 import {
-  GLASS_CONFIG,
-  GLASS_PANE_LIMIT,
-  selectGlassQuality,
-  type GlassQuality
-} from './glass-config';
-import { GlassSceneTextures } from './glass-scene-textures';
-import { glassFragmentShader, glassVertexShader } from './glass-shaders';
+  applyGlassPlateLayout,
+  createGlassPlateStates,
+  updateGlassPlatePhysics,
+  type GlassPlateState
+} from './glass-composition';
+import { GLASS_CONFIG, GLASS_DEBUG, selectGlassQuality, type GlassQuality } from './glass-config';
+import { createGlassMaterialResources, type GlassMaterialResources } from './glass-material';
+import { loadGlassPlateGeometry } from './glass-model-loader';
+import { createRefractionBackdrop, type RefractionBackdrop } from './glass-refraction-backdrop';
+import { createGlassRefractionDebug, type GlassRefractionDebug } from './glass-refraction-debug';
+import { loadGlassSloganGeometries, type LoadedGlassSloganGeometries } from './glass-slogan-loader';
+import { createGlassSlogans, type GlassSlogans } from './glass-slogans';
 
-export type GlassRendererStatus = 'webgl' | 'fallback' | 'destroyed';
+export type GlassRendererStatus = 'loading' | 'webgl' | 'fallback' | 'destroyed';
 
 interface WebGLGlassRendererOptions {
   readonly stage: HTMLElement;
   readonly glass: HTMLElement;
   readonly canvas: HTMLCanvasElement;
-  readonly panes: readonly HTMLElement[];
-  readonly backText: HTMLElement;
   readonly reducedMotion: boolean;
   readonly onStatusChange: (status: GlassRendererStatus) => void;
 }
@@ -46,36 +44,25 @@ export class WebGLGlassRenderer {
   private readonly stage: HTMLElement;
   private readonly glass: HTMLElement;
   private readonly canvas: HTMLCanvasElement;
-  private readonly panes: readonly HTMLElement[];
-  private readonly backText: HTMLElement;
   private readonly reducedMotion: boolean;
   private readonly onStatusChange: (status: GlassRendererStatus) => void;
-  private readonly camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-  private readonly glassScene = new Scene();
-  private readonly backdropScene = new Scene();
-  private readonly raycaster = new Raycaster();
-  private readonly pointerNdc = new Vector2();
-  private readonly targetPointer = new Vector2(0.5, 0.5);
-  private readonly currentPointer = new Vector2(0.5, 0.5);
-  private readonly intersections: Intersection<Object3D>[] = [];
-  private readonly trail = Array.from(
-    { length: GLASS_CONFIG.trailLength },
-    () => new Vector4(0.5, 0.5, 0, 0)
+  private readonly scene = new Scene();
+  private readonly camera = new PerspectiveCamera(
+    GLASS_CONFIG.camera.fov,
+    1,
+    GLASS_CONFIG.camera.near,
+    GLASS_CONFIG.camera.far
   );
-  private readonly ripple = new Vector4(0.5, 0.5, -100, 0);
-  private readonly paneRects = Array.from(
-    { length: GLASS_PANE_LIMIT },
-    () => new Vector4(-10, -10, 0, 0)
-  );
-  private readonly paneRotations = Array.from({ length: GLASS_PANE_LIMIT }, () => 0);
+  private readonly targetPointer = new Vector2();
+  private readonly currentPointer = new Vector2();
 
   private renderer?: WebGLRenderer;
-  private renderTarget?: WebGLRenderTarget;
-  private textures?: GlassSceneTextures;
-  private glassMaterial?: ShaderMaterial;
-  private backdropMaterial?: MeshBasicMaterial;
-  private glassMesh?: Mesh<PlaneGeometry, ShaderMaterial>;
-  private backdropMesh?: Mesh<PlaneGeometry, MeshBasicMaterial>;
+  private sourceGeometry?: BufferGeometry;
+  private materialResources?: GlassMaterialResources;
+  private backdrop?: RefractionBackdrop;
+  private debugScene?: GlassRefractionDebug;
+  private slogans?: GlassSlogans;
+  private plates: GlassPlateState[] = [];
   private listenerController?: AbortController;
   private resizeObserver?: ResizeObserver;
   private intersectionObserver?: IntersectionObserver;
@@ -83,40 +70,41 @@ export class WebGLGlassRenderer {
   private frameId?: number;
   private lastFrameTime = 0;
   private elapsedTime = 0;
-  private lastPointerX = 0;
-  private lastPointerY = 0;
-  private lastPointerTime = 0;
-  private targetHover = 0;
-  private currentHover = 0;
-  private targetVelocity = 0;
-  private currentVelocity = 0;
+  private targetScrollProgress = 0;
+  private currentScrollProgress = 0;
+  private halfWidth = 1;
+  private halfHeight = 1;
   private playRequested = false;
   private visible = false;
   private initialized = false;
   private destroyed = false;
   private contextLost = false;
+  private firstLayout = true;
+  private pointerCapable = false;
 
   constructor(options: WebGLGlassRendererOptions) {
     this.stage = options.stage;
     this.glass = options.glass;
     this.canvas = options.canvas;
-    this.panes = options.panes.slice(0, GLASS_PANE_LIMIT);
-    this.backText = options.backText;
     this.reducedMotion = options.reducedMotion;
     this.onStatusChange = options.onStatusChange;
-    this.camera.position.z = 2;
+    this.camera.position.set(0, 0, GLASS_CONFIG.camera.positionZ);
+    this.camera.lookAt(0, 0, 0);
   }
 
-  mount(): boolean {
+  async mount(): Promise<boolean> {
     if (this.initialized || this.destroyed) return this.initialized;
-    this.quality = selectGlassQuality(window.innerWidth, this.reducedMotion);
+    this.onStatusChange('loading');
+    const bounds = this.glass.getBoundingClientRect();
+    this.quality = selectGlassQuality(bounds.width || window.innerWidth, this.reducedMotion);
     const context = this.canvas.getContext('webgl2', {
       alpha: true,
       antialias: this.quality.antialias,
       depth: true,
       failIfMajorPerformanceCaveat: true,
       powerPreference: 'high-performance',
-      premultipliedAlpha: true
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: false
     });
     if (!context) {
       this.onStatusChange('fallback');
@@ -124,7 +112,7 @@ export class WebGLGlassRenderer {
     }
 
     try {
-      this.renderer = new WebGLRenderer({
+      const renderer = new WebGLRenderer({
         canvas: this.canvas,
         context,
         alpha: true,
@@ -132,17 +120,73 @@ export class WebGLGlassRenderer {
         powerPreference: 'high-performance',
         premultipliedAlpha: true
       });
-      this.renderer.outputColorSpace = SRGBColorSpace;
-      this.renderer.setClearColor(new Color(0x000000), 0);
-      this.textures = new GlassSceneTextures();
-      this.createScenes();
+      this.renderer = renderer;
+      renderer.outputColorSpace = SRGBColorSpace;
+      renderer.toneMapping = ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.04;
+      renderer.setClearColor(new Color(0x000000), 0);
+      renderer.shadowMap.enabled = false;
+      const debugRendererInfo = context.getExtension('WEBGL_debug_renderer_info');
+      const gpuName = String(
+        debugRendererInfo
+          ? context.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL)
+          : (context.getParameter(context.RENDERER) ?? '')
+      );
+      if (/swiftshader|angle.*direct3d/i.test(gpuName)) {
+        renderer.debug.checkShaderErrors = false;
+      }
+      renderer.transmissionResolutionScale = GLASS_DEBUG
+        ? 1
+        : this.quality.transmissionResolutionScale;
+
+      const loadedModel = await loadGlassPlateGeometry();
+      let loadedSlogans: LoadedGlassSloganGeometries;
+      try {
+        loadedSlogans = await loadGlassSloganGeometries();
+      } catch (error) {
+        loadedModel.geometry.dispose();
+        throw error;
+      }
+      this.sourceGeometry = loadedModel.geometry;
+      if (this.destroyed) {
+        loadedSlogans.dispose();
+        this.disposeGraphics();
+        return false;
+      }
+
+      this.createScene(loadedSlogans);
       this.attachLifecycle();
       this.initialized = true;
       this.resize();
+      renderer.compile(this.scene, this.camera);
+      if (this.destroyed) return false;
       this.renderOnce();
+      this.canvas.dataset.glassSourceMesh = loadedModel.sourceMeshName;
+      this.canvas.dataset.glassMeshSelection = loadedModel.usedFallback ? 'fallback' : 'exact';
+      this.canvas.dataset.glassMaterial = 'mesh-physical-transmission';
+      this.canvas.dataset.glassRefractionBackdrop = 'procedural-scene';
+      this.canvas.dataset.glassDebug = GLASS_DEBUG ? 'enabled' : 'off';
+      this.canvas.dataset.glassThickness = String(this.materialResources?.tuning.thickness ?? '');
+      this.canvas.dataset.glassIor = String(this.materialResources?.tuning.ior ?? '');
+      this.canvas.dataset.glassEnvironment = 'room-environment-pmrem';
+      this.canvas.dataset.glassPhysics = 'spring-damper';
+      this.canvas.dataset.glassMotion = this.reducedMotion ? 'reduced' : 'active';
+      this.canvas.dataset.glassBackSloganModel = GLASS_CONFIG.slogans.back.modelUrl;
+      this.canvas.dataset.glassFrontSloganModel = GLASS_CONFIG.slogans.front.modelUrl;
+      this.canvas.dataset.glassBackSloganMesh = this.slogans?.backSourceMeshName ?? '';
+      this.canvas.dataset.glassFrontSloganMesh = this.slogans?.frontSourceMeshName ?? '';
+      this.canvas.dataset.glassBackSloganLayer = 'behind-glass';
+      this.canvas.dataset.glassFrontSloganLayer = 'foreground';
       this.onStatusChange('webgl');
       return true;
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[Hero glass] Impossibile inizializzare ${GLASS_CONFIG.modelUrl}. ` +
+            'Rimane attivo il fallback statico.',
+          error
+        );
+      }
       this.disposeGraphics();
       this.onStatusChange('fallback');
       return false;
@@ -165,62 +209,47 @@ export class WebGLGlassRenderer {
   }
 
   resize(): void {
-    if (
-      !this.initialized ||
-      !this.renderer ||
-      !this.renderTarget ||
-      !this.textures ||
-      !this.glassMaterial ||
-      !this.glassMesh
-    ) {
-      return;
-    }
-
+    if (!this.initialized || !this.renderer) return;
     const bounds = this.glass.getBoundingClientRect();
     if (bounds.width <= 0 || bounds.height <= 0) return;
-    const nextQuality = selectGlassQuality(window.innerWidth, this.reducedMotion);
-    if (this.quality?.name !== nextQuality.name) {
-      this.replaceGlassGeometry(nextQuality);
-    }
+
+    const nextQuality = selectGlassQuality(bounds.width, this.reducedMotion);
+    const qualityChanged = this.quality?.name !== nextQuality.name;
     this.quality = nextQuality;
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, nextQuality.pixelRatioLimit);
-    this.renderer.setPixelRatio(pixelRatio);
+    this.renderer.transmissionResolutionScale = GLASS_DEBUG
+      ? 1
+      : nextQuality.transmissionResolutionScale;
+    this.renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio || 1, nextQuality.pixelRatioLimit)
+    );
     this.renderer.setSize(bounds.width, bounds.height, false);
-    const targetWidth = Math.max(
-      1,
-      Math.round(bounds.width * pixelRatio * nextQuality.renderScale)
+    this.camera.aspect = bounds.width / bounds.height;
+    this.camera.updateProjectionMatrix();
+
+    this.halfHeight = Math.tan((this.camera.fov * Math.PI) / 360) * GLASS_CONFIG.camera.positionZ;
+    this.halfWidth = this.halfHeight * this.camera.aspect;
+    this.backdrop?.resize(this.halfWidth, this.halfHeight, nextQuality.name === 'mobile');
+    this.slogans?.resize(nextQuality.name, this.halfWidth, this.halfHeight);
+    applyGlassPlateLayout(
+      this.plates,
+      nextQuality.name,
+      this.halfWidth,
+      this.halfHeight,
+      this.firstLayout || this.reducedMotion
     );
-    const targetHeight = Math.max(
-      1,
-      Math.round(bounds.height * pixelRatio * nextQuality.renderScale)
-    );
-    this.renderTarget.setSize(targetWidth, targetHeight);
-    this.textures.update(this.stage, this.glass, this.backText, targetWidth, targetHeight);
-    this.glassMaterial.uniforms.uResolution!.value.set(bounds.width, bounds.height);
-    this.glassMaterial.uniforms.uWaveStrength!.value =
-      nextQuality.name === 'mobile'
-        ? GLASS_CONFIG.mobileWaveStrength
-        : GLASS_CONFIG.idleWaveStrength;
-    this.updatePaneUniforms();
+    this.debugScene?.resize(this.halfWidth, nextQuality.name === 'mobile');
+    this.firstLayout = false;
     this.canvas.dataset.glassQuality = nextQuality.name;
-    this.renderBackdropTarget();
+    this.canvas.dataset.glassPlateCount = String(GLASS_DEBUG ? 1 : nextQuality.plateCount);
+    this.canvas.dataset.glassResponsiveLayout = qualityChanged ? 'updated' : 'stable';
     this.renderOnce();
   }
 
-  setTextRefractionEnabled(enabled: boolean): void {
-    if (!this.glassMaterial) return;
-    this.glassMaterial.uniforms.uTextMix!.value = enabled ? 1 : 0;
-    this.renderOnce();
-  }
-
-  syncLayout(): void {
-    if (!this.initialized || this.destroyed || this.contextLost) return;
-    this.updatePaneUniforms();
-    if (this.reducedMotion) {
-      this.renderOnce();
-    } else {
-      this.scheduleFrame();
-    }
+  setScrollProgress(progress: number): void {
+    if (this.reducedMotion) return;
+    this.targetScrollProgress = clamp(progress, 0, 1);
+    this.canvas.dataset.glassScrollProgress = this.targetScrollProgress.toFixed(3);
+    if (this.playRequested) this.scheduleFrame();
   }
 
   destroy(): void {
@@ -234,76 +263,64 @@ export class WebGLGlassRenderer {
     this.intersectionObserver?.disconnect();
     this.intersectionObserver = undefined;
     this.disposeGraphics();
-    this.canvas.removeAttribute('data-glass-quality');
-    this.canvas.removeAttribute('data-glass-render-state');
-    this.canvas.removeAttribute('data-glass-contact');
-    this.canvas.removeAttribute('data-glass-ripple');
+    for (const attribute of [
+      'data-glass-quality',
+      'data-glass-plate-count',
+      'data-glass-render-state',
+      'data-glass-source-mesh',
+      'data-glass-mesh-selection',
+      'data-glass-material',
+      'data-glass-refraction-backdrop',
+      'data-glass-debug',
+      'data-glass-thickness',
+      'data-glass-ior',
+      'data-glass-environment',
+      'data-glass-physics',
+      'data-glass-motion',
+      'data-glass-pointer',
+      'data-glass-pointer-x',
+      'data-glass-pointer-y',
+      'data-glass-scroll-progress',
+      'data-glass-responsive-layout',
+      'data-glass-back-slogan-model',
+      'data-glass-front-slogan-model',
+      'data-glass-back-slogan-mesh',
+      'data-glass-front-slogan-mesh',
+      'data-glass-back-slogan-layer',
+      'data-glass-front-slogan-layer'
+    ]) {
+      this.canvas.removeAttribute(attribute);
+    }
     this.onStatusChange('destroyed');
     this.initialized = false;
   }
 
-  private createScenes(): void {
-    if (!this.renderer || !this.textures || !this.quality) return;
-    this.renderTarget = new WebGLRenderTarget(1, 1, {
-      depthBuffer: false,
-      stencilBuffer: false
-    });
-    this.renderTarget.texture.colorSpace = SRGBColorSpace;
-    this.renderTarget.texture.generateMipmaps = false;
+  private createScene(sloganGeometries: LoadedGlassSloganGeometries): void {
+    if (!this.renderer || !this.sourceGeometry) return;
+    this.backdrop = createRefractionBackdrop();
+    this.scene.add(this.backdrop.group);
+    this.materialResources = createGlassMaterialResources(this.renderer, this.scene);
+    this.plates = createGlassPlateStates(this.sourceGeometry, this.materialResources.material);
+    for (const plate of this.plates) this.scene.add(plate.mesh);
+    this.slogans = createGlassSlogans(sloganGeometries);
+    this.scene.add(this.slogans.group);
+    this.backdrop.group.visible = !GLASS_DEBUG;
+    this.slogans.group.visible = !GLASS_DEBUG;
+    if (GLASS_DEBUG) {
+      this.debugScene = createGlassRefractionDebug(this.plates, this.materialResources.tuning);
+      this.scene.add(this.debugScene.group);
+    }
 
-    const backdropGeometry = new PlaneGeometry(2, 2);
-    this.backdropMaterial = new MeshBasicMaterial({ map: this.textures.backdropTexture });
-    this.backdropMesh = new Mesh(backdropGeometry, this.backdropMaterial);
-    this.backdropScene.add(this.backdropMesh);
-
-    this.glassMaterial = new ShaderMaterial({
-      vertexShader: glassVertexShader,
-      fragmentShader: glassFragmentShader,
-      transparent: true,
-      depthWrite: false,
-      uniforms: {
-        uBackdropTexture: { value: this.renderTarget.texture },
-        uTextTexture: { value: this.textures.textTexture },
-        uResolution: { value: new Vector2(1, 1) },
-        uPointer: { value: this.currentPointer },
-        uTime: { value: 0 },
-        uVelocity: { value: 0 },
-        uHover: { value: 0 },
-        uTextMix: { value: 0 },
-        uRefractionStrength: { value: GLASS_CONFIG.refractionStrength },
-        uChromaticAberration: { value: GLASS_CONFIG.chromaticAberration },
-        uHoverRadius: { value: GLASS_CONFIG.hoverRadius },
-        uGlowIntensity: { value: GLASS_CONFIG.glowIntensity },
-        uRippleStrength: { value: GLASS_CONFIG.rippleStrength },
-        uRoughness: { value: GLASS_CONFIG.roughness },
-        uThickness: { value: GLASS_CONFIG.thickness },
-        uEdgeBrightness: { value: GLASS_CONFIG.edgeBrightness },
-        uWaveStrength: { value: GLASS_CONFIG.idleWaveStrength },
-        uCurvature: { value: 0.018 },
-        uPaneRadius: { value: 0.018 },
-        uPaneRects: { value: this.paneRects },
-        uPaneRotations: { value: this.paneRotations },
-        uRipple: { value: this.ripple },
-        uTrail: { value: this.trail }
-      }
-    });
-    this.glassMesh = new Mesh(
-      new PlaneGeometry(2, 2, this.quality.widthSegments, this.quality.heightSegments),
-      this.glassMaterial
+    const hemisphere = new HemisphereLight(
+      0xeaf4ff,
+      0x1b1713,
+      GLASS_CONFIG.lighting.hemisphereIntensity
     );
-    this.glassScene.add(this.glassMesh);
-  }
-
-  private replaceGlassGeometry(quality: GlassQuality): void {
-    if (!this.glassMesh) return;
-    const previousGeometry = this.glassMesh.geometry;
-    this.glassMesh.geometry = new PlaneGeometry(
-      2,
-      2,
-      quality.widthSegments,
-      quality.heightSegments
-    );
-    previousGeometry.dispose();
+    const key = new DirectionalLight(0xffe0cc, GLASS_CONFIG.lighting.keyIntensity);
+    key.position.set(-4.5, 5.2, 7.4);
+    const rim = new DirectionalLight(0x7192ff, GLASS_CONFIG.lighting.rimIntensity);
+    rim.position.set(5.5, -2.6, 5.8);
+    this.scene.add(hemisphere, key, rim);
   }
 
   private attachLifecycle(): void {
@@ -312,13 +329,15 @@ export class WebGLGlassRenderer {
       passive: true,
       signal: this.listenerController.signal
     } as const;
-    if (!this.reducedMotion) {
-      this.stage.addEventListener('pointerenter', this.handlePointerEnter, listenerOptions);
+    this.pointerCapable =
+      !this.reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (this.pointerCapable) {
+      this.stage.addEventListener('pointerenter', this.handlePointerMove, listenerOptions);
       this.stage.addEventListener('pointermove', this.handlePointerMove, listenerOptions);
       this.stage.addEventListener('pointerleave', this.handlePointerLeave, listenerOptions);
-      this.stage.addEventListener('pointerdown', this.handlePointerDown, listenerOptions);
-      this.stage.addEventListener('pointerup', this.handlePointerUp, listenerOptions);
-      this.stage.addEventListener('pointercancel', this.handlePointerUp, listenerOptions);
+      this.canvas.dataset.glassPointer = 'neutral';
+    } else {
+      this.canvas.dataset.glassPointer = this.reducedMotion ? 'disabled' : 'ambient';
     }
     this.canvas.addEventListener('webglcontextlost', this.handleContextLost, {
       signal: this.listenerController.signal
@@ -327,7 +346,7 @@ export class WebGLGlassRenderer {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(this.glass);
     this.intersectionObserver = new IntersectionObserver(this.handleIntersection, {
-      rootMargin: '18% 0px',
+      rootMargin: '12% 0px',
       threshold: 0.01
     });
     this.intersectionObserver.observe(this.stage);
@@ -336,8 +355,7 @@ export class WebGLGlassRenderer {
   }
 
   private readonly handleIntersection: IntersectionObserverCallback = (entries): void => {
-    const entry = entries[0];
-    this.visible = Boolean(entry?.isIntersecting);
+    this.visible = Boolean(entries[0]?.isIntersecting);
     if (this.visible && this.playRequested) {
       this.scheduleFrame();
     } else {
@@ -345,54 +363,24 @@ export class WebGLGlassRenderer {
     }
   };
 
-  private readonly handlePointerEnter = (event: PointerEvent): void => {
-    const hit = this.resolvePointer(event);
-    this.setContactState(hit);
-    if (hit) this.targetHover = 1;
-  };
-
   private readonly handlePointerMove = (event: PointerEvent): void => {
-    const hit = this.resolvePointer(event);
-    this.setContactState(hit);
-    this.targetHover = hit ? 1 : 0;
-    const elapsed = event.timeStamp - this.lastPointerTime;
-    if (this.lastPointerTime > 0 && elapsed > 0) {
-      const distance = Math.hypot(
-        event.clientX - this.lastPointerX,
-        event.clientY - this.lastPointerY
-      );
-      this.targetVelocity = clamp(distance / elapsed / GLASS_CONFIG.maximumPointerSpeed, 0, 1);
-    }
-    this.lastPointerX = event.clientX;
-    this.lastPointerY = event.clientY;
-    this.lastPointerTime = event.timeStamp;
-    if (hit && this.playRequested) this.scheduleFrame();
+    const bounds = this.stage.getBoundingClientRect();
+    this.targetPointer.set(
+      clamp(((event.clientX - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1, -1, 1),
+      clamp(-(((event.clientY - bounds.top) / Math.max(bounds.height, 1)) * 2 - 1), -1, 1)
+    );
+    this.canvas.dataset.glassPointer = 'active';
+    this.canvas.dataset.glassPointerX = this.targetPointer.x.toFixed(3);
+    this.canvas.dataset.glassPointerY = this.targetPointer.y.toFixed(3);
+    if (this.playRequested) this.scheduleFrame();
   };
 
   private readonly handlePointerLeave = (): void => {
-    this.setContactState(false);
-    this.targetHover = 0;
-    this.targetVelocity = 0;
-  };
-
-  private readonly handlePointerDown = (event: PointerEvent): void => {
-    if (!this.resolvePointer(event)) return;
-    this.ripple.set(
-      this.targetPointer.x,
-      this.targetPointer.y,
-      this.elapsedTime,
-      event.pointerType === 'touch' ? 0.65 : 0.48
-    );
-    this.canvas.dataset.glassRipple = 'active';
-    this.targetHover = 1;
-  };
-
-  private readonly handlePointerUp = (event: PointerEvent): void => {
-    if (event.pointerType !== 'mouse') {
-      this.setContactState(false);
-      this.targetHover = 0;
-      this.targetVelocity = 0;
-    }
+    this.targetPointer.set(0, 0);
+    this.canvas.dataset.glassPointer = 'neutral';
+    this.canvas.dataset.glassPointerX = '0';
+    this.canvas.dataset.glassPointerY = '0';
+    if (this.playRequested) this.scheduleFrame();
   };
 
   private readonly handleContextLost = (event: Event): void => {
@@ -401,72 +389,10 @@ export class WebGLGlassRenderer {
     this.contextLost = true;
     this.pause();
     this.onStatusChange('fallback');
+    if (import.meta.env.DEV) {
+      console.warn('[Hero glass] Contesto WebGL perso; è stato attivato il fallback statico.');
+    }
   };
-
-  private resolvePointer(event: PointerEvent): boolean {
-    if (!this.glassMesh) return false;
-    const bounds = this.glass.getBoundingClientRect();
-    const paneHit = this.panes.some((pane) =>
-      this.isPointInsidePane(pane, event.clientX, event.clientY)
-    );
-    if (!paneHit) {
-      return false;
-    }
-
-    this.pointerNdc.set(
-      ((event.clientX - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1,
-      -((event.clientY - bounds.top) / Math.max(bounds.height, 1)) * 2 + 1
-    );
-    this.raycaster.setFromCamera(this.pointerNdc, this.camera);
-    this.intersections.length = 0;
-    this.raycaster.intersectObject(this.glassMesh, false, this.intersections);
-    const uv = this.intersections[0]?.uv;
-    if (!uv) return false;
-    this.targetPointer.copy(uv);
-    return true;
-  }
-
-  private isPointInsidePane(pane: HTMLElement, clientX: number, clientY: number): boolean {
-    const style = getComputedStyle(pane);
-    if (Number.parseFloat(style.opacity) <= 0.02) return false;
-    const rect = pane.getBoundingClientRect();
-    return (
-      clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
-    );
-  }
-
-  private updatePaneUniforms(): void {
-    if (!this.glassMaterial) return;
-    const bounds = this.glass.getBoundingClientRect();
-    const width = Math.max(bounds.width, 1);
-    const height = Math.max(bounds.height, 1);
-    for (let index = 0; index < GLASS_PANE_LIMIT; index += 1) {
-      const pane = this.panes[index];
-      const target = this.paneRects[index];
-      if (!target) continue;
-      if (!pane) {
-        target.set(-10, -10, 0, 0);
-        this.paneRotations[index] = 0;
-        continue;
-      }
-      const rect = pane.getBoundingClientRect();
-      const scale = Math.max(this.readPaneProperty(pane, '--pane-scale', 1), 0.01);
-      target.set(
-        (rect.left + rect.width / 2 - bounds.left) / width,
-        1 - (rect.top + rect.height / 2 - bounds.top) / height,
-        (pane.offsetWidth * scale) / width / 2,
-        (pane.offsetHeight * scale) / height / 2
-      );
-      this.paneRotations[index] = 0;
-    }
-    this.glassMaterial.uniforms.uPaneRadius!.value = Math.min(18 / height, 0.032);
-    this.glassMaterial.uniformsNeedUpdate = true;
-  }
-
-  private readPaneProperty(pane: HTMLElement, property: string, fallback = 0): number {
-    const value = Number.parseFloat(getComputedStyle(pane).getPropertyValue(property));
-    return Number.isFinite(value) ? value : fallback;
-  }
 
   private readonly renderFrame = (timestamp: number): void => {
     this.frameId = undefined;
@@ -484,79 +410,58 @@ export class WebGLGlassRenderer {
   };
 
   private render(timestamp: number): void {
-    if (!this.renderer || !this.glassMaterial) return;
+    if (!this.renderer || !this.quality) return;
     const deltaSeconds = this.lastFrameTime
-      ? clamp((timestamp - this.lastFrameTime) / 1000, 1 / 120, 0.05)
+      ? clamp(
+          (timestamp - this.lastFrameTime) / 1000,
+          1 / 120,
+          GLASS_CONFIG.motion.maximumDeltaSeconds
+        )
       : 1 / 60;
     this.lastFrameTime = timestamp;
     if (!this.reducedMotion) this.elapsedTime += deltaSeconds;
-    const pointerBlend = 1 - Math.exp(-GLASS_CONFIG.pointerDamping * deltaSeconds);
-    this.currentPointer.lerp(this.targetPointer, pointerBlend);
-    this.currentHover = damp(
-      this.currentHover,
-      this.targetHover,
-      GLASS_CONFIG.hoverDamping,
-      deltaSeconds
-    );
-    this.targetVelocity *= Math.exp(-5.2 * deltaSeconds);
-    this.currentVelocity = damp(
-      this.currentVelocity,
-      this.targetVelocity,
-      GLASS_CONFIG.velocityDamping,
+
+    const pointerBlend = 1 - Math.exp(-GLASS_CONFIG.motion.pointerDamping * deltaSeconds);
+    this.currentPointer.x += (this.targetPointer.x - this.currentPointer.x) * pointerBlend;
+    this.currentPointer.y += (this.targetPointer.y - this.currentPointer.y) * pointerBlend;
+    this.currentScrollProgress = damp(
+      this.currentScrollProgress,
+      this.targetScrollProgress,
+      GLASS_CONFIG.motion.scrollDamping,
       deltaSeconds
     );
 
-    const lead = this.trail[0];
-    if (lead) {
-      lead.x = damp(lead.x, this.currentPointer.x, GLASS_CONFIG.trailDamping, deltaSeconds);
-      lead.y = damp(lead.y, this.currentPointer.y, GLASS_CONFIG.trailDamping, deltaSeconds);
-      lead.z = damp(
-        lead.z,
-        this.currentHover * (0.2 + this.currentVelocity * 0.8),
-        GLASS_CONFIG.trailDamping,
-        deltaSeconds
+    const ambientScale = this.reducedMotion ? 0 : this.quality.ambientMotionScale;
+    if (GLASS_DEBUG) {
+      this.debugScene?.update();
+    } else {
+      updateGlassPlatePhysics(
+        this.plates,
+        this.currentPointer.x,
+        this.currentPointer.y,
+        this.currentScrollProgress,
+        this.elapsedTime,
+        deltaSeconds,
+        this.halfWidth,
+        this.halfHeight,
+        ambientScale
+      );
+      this.backdrop?.update(this.elapsedTime, ambientScale);
+      this.slogans?.update(
+        this.currentPointer.x,
+        this.currentPointer.y,
+        this.currentScrollProgress,
+        this.elapsedTime,
+        ambientScale
       );
     }
-    for (let index = 1; index < this.trail.length; index += 1) {
-      const point = this.trail[index];
-      const previous = this.trail[index - 1];
-      if (!point || !previous) continue;
-      const damping = GLASS_CONFIG.trailDamping / (1 + index * 0.42);
-      point.x = damp(point.x, previous.x, damping, deltaSeconds);
-      point.y = damp(point.y, previous.y, damping, deltaSeconds);
-      point.z = damp(point.z, previous.z, damping, deltaSeconds);
-    }
-
-    this.glassMaterial.uniforms.uTime!.value = this.elapsedTime;
-    this.glassMaterial.uniforms.uVelocity!.value = this.currentVelocity;
-    this.glassMaterial.uniforms.uHover!.value = this.currentHover;
-    this.renderer.setRenderTarget(null);
-    this.renderer.clear();
-    this.renderer.render(this.glassScene, this.camera);
+    this.renderer.render(this.scene, this.camera);
     this.canvas.dataset.glassRenderState = 'rendered';
-  }
-
-  private setContactState(active: boolean): void {
-    const nextState = active ? 'active' : 'idle';
-    if (this.canvas.dataset.glassContact !== nextState) {
-      this.canvas.dataset.glassContact = nextState;
-    }
-  }
-
-  private renderBackdropTarget(): void {
-    if (!this.renderer || !this.renderTarget) return;
-    this.renderer.setRenderTarget(this.renderTarget);
-    this.renderer.setClearColor(new Color(0x000000), 1);
-    this.renderer.clear();
-    this.renderer.render(this.backdropScene, this.camera);
-    this.renderer.setRenderTarget(null);
-    this.renderer.setClearColor(new Color(0x000000), 0);
   }
 
   private renderOnce(): void {
     if (!this.initialized || this.destroyed || this.contextLost) return;
-    const timestamp = performance.now();
-    this.render(timestamp);
+    this.render(performance.now());
   }
 
   private scheduleFrame(): void {
@@ -581,24 +486,21 @@ export class WebGLGlassRenderer {
   }
 
   private disposeGraphics(): void {
-    this.glassMesh?.geometry.dispose();
-    this.backdropMesh?.geometry.dispose();
-    this.glassMaterial?.dispose();
-    this.backdropMaterial?.dispose();
-    this.renderTarget?.dispose();
-    this.textures?.dispose();
+    this.scene.clear();
+    this.debugScene?.dispose();
+    this.debugScene = undefined;
+    this.plates = [];
+    this.backdrop?.dispose();
+    this.backdrop = undefined;
+    this.slogans?.dispose();
+    this.slogans = undefined;
+    this.materialResources?.dispose();
+    this.materialResources = undefined;
+    this.sourceGeometry?.dispose();
+    this.sourceGeometry = undefined;
     if (this.renderer) {
       this.renderer.dispose();
-      this.renderer.forceContextLoss();
     }
-    this.glassScene.clear();
-    this.backdropScene.clear();
-    this.glassMesh = undefined;
-    this.backdropMesh = undefined;
-    this.glassMaterial = undefined;
-    this.backdropMaterial = undefined;
-    this.renderTarget = undefined;
-    this.textures = undefined;
     this.renderer = undefined;
   }
 }

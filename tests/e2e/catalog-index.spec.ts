@@ -182,7 +182,8 @@ test('le quattro proposte mantengono una cadenza condivisa dopo una pausa locale
     );
 
   const typeTrigger = type.getByRole('button', { name: /Apri Tipo/ });
-  await typeTrigger.click();
+  await typeTrigger.focus();
+  await typeTrigger.press('ArrowDown');
   await expect(type).toHaveAttribute('data-cycle-state', 'open');
   const pausedTypeTick = (await cycleTicks())[1];
 
@@ -214,8 +215,9 @@ test('le quattro proposte mantengono una cadenza condivisa dopo una pausa locale
     )
     .toBe(true);
 
-  await typeTrigger.click();
-  await type.getByRole('option', { name: 'Servizi' }).click();
+  await typeTrigger.focus();
+  await typeTrigger.press('ArrowDown');
+  await type.getByRole('option', { name: 'Servizi' }).press('Enter');
   await expect(type).toHaveAttribute('data-cycle-state', 'closed');
   const selectedTypeTick = (await cycleTicks())[1];
 

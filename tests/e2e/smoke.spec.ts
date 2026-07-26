@@ -1,5 +1,24 @@
 import { expect, test } from '@playwright/test';
 
+test('mostra il caricamento iniziale e lascia pronta la pagina', async ({ page }) => {
+  await page.goto('/');
+
+  const loader = page.locator('[data-site-loader]');
+  await expect(loader).toBeVisible();
+  await expect(loader).toHaveAttribute('aria-label', 'Caricamento del sito');
+  await expect(page.locator('html')).toHaveAttribute('data-portfolio-app', 'ready');
+  await expect(loader).toBeHidden({ timeout: 10_000 });
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze');
+
+  await page.reload();
+  const reloadedLoader = page.locator('[data-site-loader]');
+  await expect(reloadedLoader).toBeVisible();
+  await expect(reloadedLoader).toBeHidden({ timeout: 10_000 });
+
+  await page.goto('/about/');
+  await expect(page.locator('[data-site-loader]')).toHaveCount(0);
+});
+
 test('apre homepage e catalogo', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze');
@@ -14,12 +33,29 @@ test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', a
   await expect(page.locator('[data-catalog-entry]:visible')).toHaveCount(1);
   await expect(page.getByRole('heading', { name: 'Product Prototype Sprint' })).toBeVisible();
 
-  await page.getByRole('button', { name: /Apri Categoria/ }).click();
-  await page.getByRole('option', { name: 'Tutte le categorie' }).click();
+  const categoryControl = page
+    .locator('[data-cycle-control]')
+    .filter({ has: page.locator('label[for="catalog-category"]') });
+  const categoryTrigger = categoryControl.getByRole('button', { name: /Apri Categoria/ });
+  await categoryTrigger.focus();
+  await categoryTrigger.press('ArrowDown');
+  await expect(categoryControl).toHaveAttribute('data-cycle-state', 'open');
+  await categoryControl.getByRole('option', { name: 'Tutte le categorie' }).press('Enter');
+  await expect(categoryTrigger).toHaveAttribute(
+    'aria-label',
+    /Selezione corrente: Tutte le categorie/
+  );
   await page.getByLabel('Cerca nel catalogo').fill('Astro TypeScript');
   await expect(page.locator('[data-catalog-result-count]')).toHaveText('3');
-  await page.getByRole('button', { name: /Apri Ordina/ }).click();
-  await page.getByRole('option', { name: 'Titolo A–Z' }).click();
+  const sortControl = page
+    .locator('[data-cycle-control]')
+    .filter({ has: page.locator('label[for="catalog-sort"]') });
+  const sortTrigger = sortControl.getByRole('button', { name: /Apri Ordina/ });
+  await sortTrigger.focus();
+  await sortTrigger.press('ArrowDown');
+  await expect(sortControl).toHaveAttribute('data-cycle-state', 'open');
+  await sortControl.getByRole('option', { name: 'Titolo A–Z' }).press('Enter');
+  await expect(sortTrigger).toHaveAttribute('aria-label', /Selezione corrente: Titolo A–Z/);
   await expect
     .poll(() =>
       page

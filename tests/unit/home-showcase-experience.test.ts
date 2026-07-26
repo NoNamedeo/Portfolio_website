@@ -1,45 +1,25 @@
 import { describe, expect, it } from 'vitest';
+import { calculateShowcaseScrollProgress } from '@experience/home/home-showcase-experience';
+import { calculateSpringAcceleration } from '@experience/home/webgl-glass/glass-composition';
 import {
-  calculatePointerAttraction,
-  calculateShowcaseScrollProgress,
-  normalizePointerSpeed
-} from '@experience/home/home-showcase-experience';
+  GLASS_CONFIG,
+  GLASS_DEBUG,
+  GLASS_DEBUG_MATERIAL_OPTIONS,
+  GLASS_LAYOUTS
+} from '@experience/home/webgl-glass/glass-config';
+import { GLASS_SLOGAN_LAYOUTS } from '@experience/home/webgl-glass/glass-slogans';
 
 describe('HomeShowcaseExperience', () => {
-  it('normalizza la velocità senza propagare valori instabili', () => {
-    expect(normalizePointerSpeed(0, 16)).toBe(0);
-    expect(normalizePointerSpeed(12, 16)).toBeCloseTo(0.5);
-    expect(normalizePointerSpeed(1000, 16)).toBe(1);
-    expect(normalizePointerSpeed(10, 0)).toBe(0);
+  it('applica una forza elastica verso il target e la riduce con la massa', () => {
+    const light = calculateSpringAcceleration(0, 2, 0, 1, 18, 8);
+    const heavy = calculateSpringAcceleration(0, 2, 0, 2, 18, 8);
+    expect(light).toBeGreaterThan(0);
+    expect(heavy).toBeCloseTo(light / 2);
   });
 
-  it('mantiene un’attrazione quasi impercettibile anche a grande distanza', () => {
-    const attraction = calculatePointerAttraction({ x: 0, y: 0 }, { x: 1200, y: 0 }, 420, 16);
-    expect(attraction.x).toBeGreaterThan(0);
-    expect(attraction.x).toBeLessThan(1);
-    expect(attraction.y).toBe(0);
-  });
-
-  it('aumenta gradualmente avvicinandosi senza superare il limite', () => {
-    const far = calculatePointerAttraction({ x: 0, y: 0 }, { x: 1200, y: 0 }, 420, 16);
-    const medium = calculatePointerAttraction({ x: 0, y: 0 }, { x: 420, y: 0 }, 420, 16);
-    const near = calculatePointerAttraction({ x: 0, y: 0 }, { x: 80, y: 0 }, 420, 16);
-    expect(near.x).toBeGreaterThan(medium.x);
-    expect(medium.x).toBeGreaterThan(far.x);
-    expect(Math.hypot(near.x, near.y)).toBeLessThanOrEqual(16);
-  });
-
-  it('non introduce una soglia netta alla vecchia distanza di influenza', () => {
-    const before = calculatePointerAttraction({ x: 0, y: 0 }, { x: 419, y: 0 }, 420, 16);
-    const after = calculatePointerAttraction({ x: 0, y: 0 }, { x: 421, y: 0 }, 420, 16);
-    expect(Math.abs(before.x - after.x)).toBeLessThan(0.1);
-  });
-
-  it('torna neutra quando il puntatore coincide con il centro del testo', () => {
-    expect(calculatePointerAttraction({ x: 20, y: 20 }, { x: 20, y: 20 }, 420, 16)).toEqual({
-      x: 0,
-      y: 0
-    });
+  it('il damping contrasta la velocità senza introdurre energia', () => {
+    expect(calculateSpringAcceleration(1, 1, 2, 1, 18, 8)).toBeLessThan(0);
+    expect(calculateSpringAcceleration(1, 1, -2, 1, 18, 8)).toBeGreaterThan(0);
   });
 
   it('normalizza la dispersione lungo la corsa sticky della scena', () => {
@@ -51,5 +31,59 @@ describe('HomeShowcaseExperience', () => {
   it('disabilita la progressione quando la scena non supera la viewport', () => {
     expect(calculateShowcaseScrollProgress(-200, 900, 900)).toBe(0);
     expect(calculateShowcaseScrollProgress(-200, 700, 900)).toBe(0);
+  });
+});
+
+describe('GLASS_LAYOUTS', () => {
+  it('mantiene corsie di profondità separate durante il movimento', () => {
+    for (const layout of Object.values(GLASS_LAYOUTS)) {
+      const sortedDepths = layout.map((plate) => plate.position[2]).sort((a, b) => b - a);
+      const minimumGap = sortedDepths
+        .slice(1)
+        .reduce(
+          (gap, depth, index) => Math.min(gap, sortedDepths[index]! - depth),
+          Number.POSITIVE_INFINITY
+        );
+
+      expect(minimumGap).toBeGreaterThanOrEqual(0.59);
+      expect(layout.every((plate) => plate.maxTranslation[2] <= 0.04)).toBe(true);
+      expect(
+        layout.every(
+          (plate) =>
+            Math.abs(plate.maxRotation[0]) <= (2 * Math.PI) / 180 &&
+            Math.abs(plate.maxRotation[1]) <= (2.2 * Math.PI) / 180
+        )
+      ).toBe(true);
+    }
+  });
+
+  it('colloca il primo slogan dietro una lastra e il secondo davanti a tutte', () => {
+    for (const quality of ['high', 'balanced', 'mobile'] as const) {
+      const layout = GLASS_LAYOUTS[quality];
+      const sloganLayout = GLASS_SLOGAN_LAYOUTS[quality];
+      const coveringPlate = layout.find((plate) => plate.id === 'north-west');
+      const foremostGlassDepth = Math.max(
+        ...layout.map((plate) => plate.position[2] + plate.maxTranslation[2])
+      );
+
+      expect(coveringPlate).toBeDefined();
+      expect(sloganLayout.backPosition[2]).toBeLessThan(
+        coveringPlate!.position[2] - coveringPlate!.maxTranslation[2]
+      );
+      expect(sloganLayout.frontPosition[2]).toBeGreaterThan(foremostGlassDepth + 0.5);
+    }
+  });
+
+  it('mantiene disattivata la diagnostica e usa la calibrazione verificata', () => {
+    expect(GLASS_DEBUG).toBe(false);
+    expect(GLASS_DEBUG_MATERIAL_OPTIONS.thickness).toEqual([0.05, 0.15, 0.3, 0.6]);
+    expect(GLASS_DEBUG_MATERIAL_OPTIONS.ior).toEqual([1.3, 1.5, 1.8]);
+    expect(GLASS_CONFIG.material).toMatchObject({
+      transmission: 1,
+      opacity: 1,
+      thickness: 0.3,
+      ior: 1.5,
+      envMapIntensity: 1.1
+    });
   });
 });

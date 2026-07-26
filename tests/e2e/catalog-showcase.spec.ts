@@ -114,7 +114,7 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
   expect(groupWidths.original).toBeCloseTo(groupWidths.copy, 1);
   expect(groupWidths.original).toBeGreaterThanOrEqual(groupWidths.viewport);
 
-  await viewport.hover();
+  await viewport.dispatchEvent('pointerenter', { pointerType: 'mouse' });
   await expect(root).toHaveAttribute('data-marquee-state', 'slow');
   await expect
     .poll(async () => (await animationSnapshot(page)).playbackRate, { timeout: 10_000 })
@@ -277,18 +277,35 @@ test('reduced motion usa una fascia statica completa', async ({ page }) => {
   expect(
     await viewport.evaluate((element) => element.scrollWidth - element.clientWidth)
   ).toBeGreaterThan(100);
-  await page.mouse.move(
-    viewportBox.x + viewportBox.width * 0.7,
-    viewportBox.y + viewportBox.height * 0.5
-  );
-  await page.mouse.down();
-  await page.mouse.move(
-    viewportBox.x + viewportBox.width * 0.35,
-    viewportBox.y + viewportBox.height * 0.5,
-    { steps: 3 }
-  );
+  const pointerStart = {
+    x: viewportBox.x + viewportBox.width * 0.7,
+    y: viewportBox.y + viewportBox.height * 0.5
+  };
+  await viewport.dispatchEvent('pointerdown', {
+    button: 0,
+    buttons: 1,
+    clientX: pointerStart.x,
+    clientY: pointerStart.y,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
+  await viewport.dispatchEvent('pointermove', {
+    button: 0,
+    buttons: 1,
+    clientX: viewportBox.x + viewportBox.width * 0.35,
+    clientY: pointerStart.y,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
   await expect(root).toHaveAttribute('data-marquee-state', 'dragging');
-  await page.mouse.up();
+  await viewport.dispatchEvent('pointerup', {
+    button: 0,
+    buttons: 0,
+    clientX: viewportBox.x + viewportBox.width * 0.35,
+    clientY: pointerStart.y,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
   await expect(root).toHaveAttribute('data-marquee-state', 'static');
   expect(await viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(50);
   await expect(root.getByRole('link', { name: /Vai al catalogo/ })).toBeVisible();

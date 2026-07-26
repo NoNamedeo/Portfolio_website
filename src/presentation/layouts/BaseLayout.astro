@@ -2,6 +2,7 @@
 import type { SiteShellModel } from '@application/models/page-models';
 import SiteFooter from '@presentation/components/navigation/SiteFooter.astro';
 import SiteHeader from '@presentation/components/navigation/SiteHeader.astro';
+import LoadingScreen from '@presentation/components/shared/LoadingScreen.astro';
 import SeoHead from '@presentation/components/shared/SeoHead.astro';
 import '@styles/global.css';
 
@@ -33,6 +34,26 @@ const lang = model.locale.split('-')[0] ?? 'it';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <SeoHead seo={model.seo} />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const startLoader = () => {
+          root.dataset.siteLoaderStarted = String(performance.now());
+          root.dataset.siteLoaderState = 'pending';
+        };
+        const navigationEntry = performance.getEntriesByType('navigation')[0];
+        const isReload =
+          navigationEntry instanceof PerformanceNavigationTiming &&
+          navigationEntry.type === 'reload';
+        try {
+          if (isReload || window.sessionStorage.getItem('portfolio-store:loader-seen') !== 'true') {
+            startLoader();
+          }
+        } catch {
+          startLoader();
+        }
+      })();
+    </script>
   </head>
   <body
     data-page={page}
@@ -40,6 +61,7 @@ const lang = model.locale.split('-')[0] ?? 'it';
     data-experience={experience}
     data-transition={transition}
   >
+    <LoadingScreen siteName={model.name} />
     <a class="skip-link" href="#main-content">Vai al contenuto</a>
     <SiteHeader siteName={model.name} currentPath={Astro.url.pathname} />
     <main id="main-content" tabindex="-1">
