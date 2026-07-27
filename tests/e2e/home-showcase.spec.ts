@@ -50,7 +50,8 @@ test('carica una sola volta il GLB e sostituisce davvero tutti i placeholder', a
   expect(Object.fromEntries(modelRequests)).toEqual({
     '/3D_models/glass_plate_web.glb': 1,
     '/3D_models/competenze_in_vetrina.glb': 1,
-    '/3D_models/idee_in_movimento.glb': 1
+    '/3D_models/idee_in_movimento.glb': 1,
+    '/3D_models/glass_cubes_collection_1.glb': 1
   });
   await expect(canvas).toHaveAttribute('data-glass-model', '/3D_models/glass_plate_web.glb');
   await expect(canvas).toHaveAttribute(
@@ -181,9 +182,7 @@ test('riusa lo scroll esistente per aprire la composizione senza scatti', async 
       Number.parseFloat((await root.getAttribute('data-showcase-scroll-progress')) ?? '0')
     )
     .toBeGreaterThan(0.98);
-  await expect
-    .poll(() => readCustomProperty(page, '--glass-exit-opacity'))
-    .toBeLessThan(0.08);
+  await expect.poll(() => readCustomProperty(page, '--glass-exit-opacity')).toBeLessThan(0.08);
 
   const stickyTop = await page
     .locator('[data-showcase-stage]')

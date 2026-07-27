@@ -13,7 +13,7 @@ export interface SeoModel {
   readonly description: string;
   readonly canonical: string;
   readonly image: string;
-  readonly type: 'website' | 'article' | 'profile';
+  readonly type: 'website' | 'article';
   readonly jsonLd?: Readonly<Record<string, unknown>>;
 }
 
@@ -97,26 +97,6 @@ export interface CartPageModel extends SiteShellModel {
 export interface CheckoutPageModel extends SiteShellModel {
   readonly cart: CartPageModel;
   readonly formName: string;
-}
-
-export interface ResumeItemModel {
-  readonly title: string;
-  readonly subtitle: string;
-  readonly period: string;
-  readonly description: string;
-  readonly current: boolean;
-}
-
-export interface AboutPageModel extends SiteShellModel {
-  readonly fullName: string;
-  readonly headline: string;
-  readonly biography: string;
-  readonly workExperience: readonly ResumeItemModel[];
-  readonly education: readonly ResumeItemModel[];
-  readonly skills: readonly { readonly name: string; readonly level: string }[];
-  readonly hobbies: readonly string[];
-  readonly socialLinks: readonly { readonly label: string; readonly href: string }[];
-  readonly contact: { readonly email: string; readonly location: string };
 }
 
 export type CatalogClientItemModel = CatalogItemProps;

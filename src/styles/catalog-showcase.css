@@ -215,21 +215,6 @@
     transform: translate3d(1rem, -1rem, -1rem);
   }
 
-  .moving-catalog-card__cube-core {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: block;
-    width: 28%;
-    aspect-ratio: 1;
-    border-radius: 35%;
-    background: var(--cube-accent);
-    box-shadow:
-      0 0 1rem var(--cube-accent),
-      0 0 3rem var(--cube-accent);
-    transform: translate3d(-50%, -50%, 1rem);
-  }
-
   .catalog-showcase[data-catalog-cube-renderer='webgl'] .moving-catalog-card__cube-fallback {
     opacity: 0;
   }

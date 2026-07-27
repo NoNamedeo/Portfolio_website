@@ -8,8 +8,7 @@ interface Props {
 const { currentPath } = Astro.props;
 const items = [
   { href: '/', label: messages.navigation.home },
-  { href: '/catalog/', label: messages.navigation.catalog },
-  { href: '/about/', label: messages.navigation.about }
+  { href: '/catalog/', label: messages.navigation.catalog }
 ];
 
 const isCurrent = (href: string): boolean =>

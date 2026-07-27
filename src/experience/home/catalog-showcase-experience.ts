@@ -22,12 +22,17 @@ export class CatalogShowcaseExperience implements Experience {
   private track?: HTMLElement;
   private originalGroup?: HTMLElement;
   private copyGroup?: HTMLElement;
+  private cubeCanvas?: HTMLCanvasElement;
   private toggle?: HTMLButtonElement;
   private toggleLabel?: HTMLElement;
   private listenerController?: AbortController;
   private intersectionObserver?: IntersectionObserver;
+  private cubeLoadObserver?: IntersectionObserver;
   private loopAnimation?: Animation;
   private cubeRenderer?: CatalogCubeRenderer;
+  private cubeRendererLoading = false;
+  private cubeIdleCallbackId?: number;
+  private cubeLoadTimerId?: number;
   private frameId?: number;
   private wheelReleaseTimerId?: number;
   private clickResetTimerId?: number;
@@ -83,6 +88,7 @@ export class CatalogShowcaseExperience implements Experience {
     this.track = track;
     this.originalGroup = originalGroup;
     this.copyGroup = copyGroup;
+    this.cubeCanvas = cubeCanvas;
     this.toggle = toggle;
     this.toggleLabel = toggleLabel;
     this.reducedMotion = context.reducedMotion;
@@ -109,7 +115,12 @@ export class CatalogShowcaseExperience implements Experience {
       passive: false,
       signal: this.listenerController.signal
     });
-    void this.mountCubeRenderer(context.root, viewport, cubeCanvas, context.reducedMotion);
+    this.cubeLoadObserver = new IntersectionObserver(this.handleCubeLoadIntersection, {
+      rootMargin: '70% 0px',
+      threshold: 0
+    });
+    this.cubeLoadObserver.observe(context.root);
+    this.scheduleCubeRendererLoad();
 
     if (context.reducedMotion) return;
 
@@ -203,12 +214,16 @@ export class CatalogShowcaseExperience implements Experience {
     this.listenerController = undefined;
     this.intersectionObserver?.disconnect();
     this.intersectionObserver = undefined;
+    this.cubeLoadObserver?.disconnect();
+    this.cubeLoadObserver = undefined;
+    this.cancelScheduledCubeRendererLoad();
     this.cancelFrame();
     this.cancelManipulation();
     this.loopAnimation?.cancel();
     this.loopAnimation = undefined;
     this.cubeRenderer?.destroy();
     this.cubeRenderer = undefined;
+    this.cubeRendererLoading = false;
     this.removeGeneratedCopies();
     if (this.root) {
       this.root.style.removeProperty('--marquee-distance');
@@ -236,26 +251,72 @@ export class CatalogShowcaseExperience implements Experience {
     this.syncMotionState();
   };
 
+  private readonly handleCubeLoadIntersection: IntersectionObserverCallback = (entries): void => {
+    if (
+      !entries.some((entry) => entry.isIntersecting) ||
+      !this.root ||
+      !this.viewport ||
+      !this.cubeCanvas
+    ) {
+      return;
+    }
+    this.cubeLoadObserver?.disconnect();
+    this.cubeLoadObserver = undefined;
+    this.cancelScheduledCubeRendererLoad();
+    void this.mountCubeRenderer(this.root, this.viewport, this.cubeCanvas, this.reducedMotion);
+  };
+
+  private scheduleCubeRendererLoad(): void {
+    const load = (): void => {
+      this.cubeIdleCallbackId = undefined;
+      this.cubeLoadTimerId = undefined;
+      if (!this.root || !this.viewport || !this.cubeCanvas) return;
+      void this.mountCubeRenderer(this.root, this.viewport, this.cubeCanvas, this.reducedMotion);
+    };
+    const idleScheduler = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+    };
+    if (typeof idleScheduler.requestIdleCallback === 'function') {
+      this.cubeIdleCallbackId = idleScheduler.requestIdleCallback(load, { timeout: 1800 });
+      return;
+    }
+    this.cubeLoadTimerId = window.setTimeout(load, 900);
+  }
+
+  private cancelScheduledCubeRendererLoad(): void {
+    if (this.cubeIdleCallbackId !== undefined && 'cancelIdleCallback' in window) {
+      window.cancelIdleCallback(this.cubeIdleCallbackId);
+    }
+    if (this.cubeLoadTimerId !== undefined) window.clearTimeout(this.cubeLoadTimerId);
+    this.cubeIdleCallbackId = undefined;
+    this.cubeLoadTimerId = undefined;
+  }
+
   private async mountCubeRenderer(
     root: HTMLElement,
     viewport: HTMLElement,
     canvas: HTMLCanvasElement,
     reducedMotion: boolean
   ): Promise<void> {
+    if (this.cubeRenderer || this.cubeRendererLoading || !this.mounted) return;
+    this.cubeRendererLoading = true;
+    root.dataset.catalogCubeRenderer = 'loading';
     try {
       const { CatalogCubeRenderer } = await import('./glass-ideas/catalog-cube-renderer');
       if (!this.mounted || this.root !== root) return;
       const renderer = new CatalogCubeRenderer({ root, viewport, canvas, reducedMotion });
-      if (!renderer.mount()) return;
+      if (!(await renderer.mount())) return;
       if (!this.mounted || this.root !== root) {
         renderer.destroy();
         return;
       }
-      this.cubeRenderer?.destroy();
       this.cubeRenderer = renderer;
-      if (this.playRequested) renderer.play();
+      renderer.resize();
+      if (this.playRequested && !document.hidden) renderer.play();
     } catch {
       root.dataset.catalogCubeRenderer = 'fallback';
+    } finally {
+      this.cubeRendererLoading = false;
     }
   }
 
@@ -410,7 +471,13 @@ export class CatalogShowcaseExperience implements Experience {
   };
 
   private readonly handleVisibilityChange = (): void => {
-    if (document.hidden) this.cancelManipulation();
+    if (document.hidden) {
+      this.cancelManipulation();
+      this.cubeRenderer?.pause();
+    } else if (this.playRequested) {
+      this.cubeRenderer?.resize();
+      this.cubeRenderer?.play();
+    }
     this.syncMotionState();
   };
 

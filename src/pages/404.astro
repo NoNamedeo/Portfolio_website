@@ -9,7 +9,7 @@ const model = await createCompositionRoot().getStaticPage.execute('not-found');
 
 <BaseLayout {model} page="not-found" experience="none">
   <Section narrow eyebrow="Errore 404">
-    <div class="flow" style="--flow-space: var(--space-l)">
+    <div class="flow glass-panel confirmation-panel" style="--flow-space: var(--space-l)">
       <h1>Articolo<br />fuori catalogo.</h1>
       <p class="lead">La pagina richiesta non esiste o è stata spostata.</p>
       <Button href="/catalog/">Torna al catalogo</Button>

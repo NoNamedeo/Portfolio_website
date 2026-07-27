@@ -1,22 +1,60 @@
 import { expect, test } from '@playwright/test';
 
 test('mostra il caricamento iniziale e lascia pronta la pagina', async ({ page }) => {
-  await page.goto('/');
+  test.setTimeout(120_000);
+  const documentResponse = await page.request.get('/');
+  const documentHtml = await documentResponse.text();
+  expect(documentHtml).toContain('site-loader__indicator');
+  expect(documentHtml).not.toContain('site-loader__pane');
+  expect(documentHtml).not.toContain('site-loader__copy');
+  expect(documentHtml).not.toContain('Mettiamo tutto');
+
+  let releaseModelRequest: () => void = () => undefined;
+  let signalModelRequest: () => void = () => undefined;
+  const modelRequestGate = new Promise<void>((resolve) => {
+    releaseModelRequest = resolve;
+  });
+  const modelRequested = new Promise<void>((resolve) => {
+    signalModelRequest = resolve;
+  });
+  await page.route('**/3D_models/glass_plate_web.glb', async (route) => {
+    signalModelRequest();
+    await modelRequestGate;
+    await route.continue();
+  });
+  const navigation = page.goto('/');
 
   const loader = page.locator('[data-site-loader]');
+  await modelRequested;
   await expect(loader).toBeVisible();
-  await expect(loader).toHaveAttribute('aria-label', 'Caricamento del sito');
-  await expect(page.locator('html')).toHaveAttribute('data-portfolio-app', 'ready');
-  await expect(loader).toBeHidden({ timeout: 10_000 });
+  await page.waitForTimeout(250);
+  await expect(loader).toBeVisible();
+  expect(await page.locator('html').getAttribute('data-portfolio-app')).not.toBe('ready');
+  releaseModelRequest();
+  await navigation;
+  await expect(page.locator('html')).toHaveAttribute('data-portfolio-app', 'ready', {
+    timeout: 30_000
+  });
+  await expect(page.locator('[data-showcase-root]')).toHaveAttribute(
+    'data-showcase-glass-renderer',
+    /^(webgl|fallback)$/
+  );
+  await expect(loader).toHaveCount(0, { timeout: 10_000 });
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze');
 
   await page.reload();
   const reloadedLoader = page.locator('[data-site-loader]');
-  await expect(reloadedLoader).toBeVisible();
-  await expect(reloadedLoader).toBeHidden({ timeout: 10_000 });
+  await expect(page.locator('[data-showcase-root]')).toHaveAttribute(
+    'data-showcase-glass-renderer',
+    /^(webgl|fallback)$/,
+    { timeout: 45_000 }
+  );
+  await expect(reloadedLoader).toHaveCount(0, { timeout: 5_000 });
 
-  await page.goto('/about/');
-  await expect(page.locator('[data-site-loader]')).toHaveCount(0);
+  const removedProfile = await page.goto('/about/');
+  expect(removedProfile?.status()).toBe(404);
+  await expect(page.locator('[data-site-loader]')).toHaveCount(0, { timeout: 5_000 });
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('fuori catalogo');
 });
 
 test('apre homepage e catalogo', async ({ page }) => {
@@ -24,7 +62,41 @@ test('apre homepage e catalogo', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze');
   await page.getByRole('link', { name: 'Catalogo' }).first().click();
   await expect(page).toHaveURL(/\/catalog\/$/);
-  await expect(page.locator('[data-catalog-item]')).toHaveCount(6);
+  await expect(page.locator('[data-catalog-item]')).toHaveCount(4);
+});
+
+test('attende gli oggetti critici anche nelle navigazioni successive', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/cart/');
+  await expect(page.locator('[data-site-loader]')).toHaveCount(0, { timeout: 10_000 });
+
+  let releaseModelRequest: () => void = () => undefined;
+  let signalModelRequest: () => void = () => undefined;
+  const modelRequestGate = new Promise<void>((resolve) => {
+    releaseModelRequest = resolve;
+  });
+  const modelRequested = new Promise<void>((resolve) => {
+    signalModelRequest = resolve;
+  });
+  await page.route('**/3D_models/glass_cubes_design_plasma.glb', async (route) => {
+    signalModelRequest();
+    await modelRequestGate;
+    await route.continue();
+  });
+
+  const navigation = page.getByRole('link', { name: 'Catalogo' }).first().click();
+  await modelRequested;
+  const loader = page.locator('[data-site-loader]');
+  await expect(loader).toBeVisible();
+  expect(await page.locator('html').getAttribute('data-portfolio-app')).not.toBe('ready');
+  releaseModelRequest();
+  await navigation;
+  await expect(page.locator('[data-catalog-cube-grid]')).toHaveAttribute(
+    'data-catalog-cube-renderer',
+    /^(webgl|fallback)$/,
+    { timeout: 30_000 }
+  );
+  await expect(loader).toHaveCount(0, { timeout: 5_000 });
 });
 
 test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', async ({ page }) => {
@@ -46,7 +118,7 @@ test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', a
     /Selezione corrente: Tutte le categorie/
   );
   await page.getByLabel('Cerca nel catalogo').fill('Astro TypeScript');
-  await expect(page.locator('[data-catalog-result-count]')).toHaveText('3');
+  await expect(page.locator('[data-catalog-result-count]')).toHaveText('2');
   const sortControl = page
     .locator('[data-cycle-control]')
     .filter({ has: page.locator('label[for="catalog-sort"]') });
@@ -62,7 +134,7 @@ test('applica ricerca, filtro da URL e ordinamento con le regole del dominio', a
         .locator('[data-catalog-entry]:visible [data-catalog-title]')
         .evaluateAll((links) => links.map((link) => link.getAttribute('aria-label')))
     )
-    .toEqual(['Frontend Architecture', 'Product Prototype Sprint', 'Signal Archive']);
+    .toEqual(['Product Prototype Sprint', 'Signal Archive']);
 });
 
 test('apre una scheda articolo e usa il carrello locale', async ({ page }) => {
@@ -73,6 +145,48 @@ test('apre una scheda articolo e usa il carrello locale', async ({ page }) => {
   await page.getByRole('link', { name: 'Apri il carrello' }).click();
   await expect(page).toHaveURL(/\/cart\/$/);
   await expect(page.getByRole('heading', { name: 'Product Prototype Sprint' })).toBeVisible();
+});
+
+test('le quattro schede espandono il motivo e il modello del proprio cubo', async ({ page }) => {
+  test.setTimeout(90_000);
+  const articles = [
+    {
+      slug: 'signal-archive',
+      motif: 'binary',
+      model: '/3D_models/glass_cubes_design_zeros_and_ones.glb'
+    },
+    {
+      slug: 'civic-loop',
+      motif: 'circuit',
+      model: '/3D_models/glass_cubes_design_circuit.glb'
+    },
+    {
+      slug: 'open-lab',
+      motif: 'plasma',
+      model: '/3D_models/glass_cubes_design_plasma.glb'
+    },
+    {
+      slug: 'product-prototype-sprint',
+      motif: 'network',
+      model: '/3D_models/glass_cubes_design_S.glb'
+    }
+  ] as const;
+
+  for (const article of articles) {
+    await page.goto(`/catalog/${article.slug}/`);
+    const detail = page.locator('[data-article-slug]');
+    const cube = detail.locator('[data-catalog-cube-grid]').first();
+    await expect(detail).toHaveAttribute('data-article-slug', article.slug);
+    await expect(detail).toHaveAttribute('data-article-motif', article.motif);
+    await expect(cube).toHaveAttribute('data-catalog-cube-renderer', 'webgl', {
+      timeout: 20_000
+    });
+    await expect(cube.locator('[data-cube-slot]')).toHaveAttribute(
+      'data-cube-model',
+      article.model
+    );
+    await expect(detail.locator('.article-detail__project-media img')).toHaveCount(1);
+  }
 });
 
 test('naviga dal carrello al checkout', async ({ page }) => {
@@ -86,6 +200,8 @@ test('naviga dal carrello al checkout', async ({ page }) => {
   await expect(page.getByText(/Nessun dato di pagamento/)).toBeVisible();
   await expect(page.locator('[data-checkout-summary]')).toContainText('Product Prototype Sprint');
   await expect(page.locator('[data-checkout-cart]')).toHaveValue(/item-prototype-sprint/);
+  await expect(page.locator('.checkout-form')).toHaveCSS('border-top-style', 'solid');
+  await expect(page.locator('.summary-card')).toHaveCSS('border-top-style', 'solid');
   await expect(page.locator('input[name*="card" i], input[autocomplete="cc-number"]')).toHaveCount(
     0
   );
@@ -113,6 +229,13 @@ test('restituisce una vera 404 per una scheda inesistente', async ({ page }) => 
   const response = await page.goto('/catalog/articolo-inesistente/');
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('fuori catalogo');
+});
+
+test('la pagina Profilo è stata eliminata', async ({ page }) => {
+  const response = await page.goto('/about/');
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole('link', { name: 'Profilo' })).toHaveCount(0);
+  await expect(page.locator('link[rel="canonical"]')).not.toHaveAttribute('href', /\/about\/$/);
 });
 
 test('mantiene struttura accessibile e metadata SEO nella build', async ({ page }) => {
@@ -158,15 +281,7 @@ test('le route principali non generano errori client critici', async ({ page }) 
     if (message.type() === 'error') errors.push(message.text());
   });
 
-  const routes = [
-    '/',
-    '/catalog/',
-    '/catalog/signal-archive/',
-    '/cart/',
-    '/checkout/',
-    '/about/',
-    '/404/'
-  ];
+  const routes = ['/', '/catalog/', '/catalog/signal-archive/', '/cart/', '/checkout/', '/404/'];
   for (const route of routes) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBeLessThan(500);

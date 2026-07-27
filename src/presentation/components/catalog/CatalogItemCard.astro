@@ -1,5 +1,6 @@
 ---
 import type { CatalogItemCardModel } from '@application/models/page-models';
+import { getArticleGlassCubeVisual } from '@experience/home/glass-ideas/article-cube-config';
 import AcquisitionButton from './AcquisitionButton.astro';
 import PricingLabel from './PricingLabel.astro';
 
@@ -8,7 +9,8 @@ interface Props {
   priority?: boolean;
 }
 
-const { item, priority = false } = Astro.props;
+const { item } = Astro.props;
+const visual = getArticleGlassCubeVisual(item.slug);
 ---
 
 <article
@@ -22,6 +24,8 @@ const { item, priority = false } = Astro.props;
   data-featured={item.featured ? '1' : '0'}
   data-theme={item.themeKey}
   data-experience={item.experienceKey}
+  data-cube-card
+  style={`--cube-accent: ${visual.accent}; --cube-accent-secondary: ${visual.secondaryAccent}`}
 >
   <a
     class="catalog-card__media"
@@ -29,15 +33,17 @@ const { item, priority = false } = Astro.props;
     tabindex="-1"
     aria-hidden="true"
   >
-    <img
-      src={item.media.src}
-      alt={item.media.alt}
-      width={item.media.width}
-      height={item.media.height}
-      loading={priority ? 'eager' : 'lazy'}
-      fetchpriority={priority ? 'high' : 'auto'}
-      decoding="async"
-    />
+    <span
+      class="catalog-card__cube-stage"
+      data-cube-slot
+      data-cube-id={visual.id}
+      data-cube-index={visual.modelIndex}
+      data-cube-animation-detail="compact"
+    >
+      <span class="catalog-card__cube-fallback" data-cube-motif={visual.motif}>
+        <span></span>
+      </span>
+    </span>
     {item.featured && <span class="catalog-card__badge">In evidenza</span>}
   </a>
   <div class="catalog-card__body">

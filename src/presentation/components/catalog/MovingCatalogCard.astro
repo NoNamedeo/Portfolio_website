@@ -24,12 +24,11 @@ const { item, visualIndex, accent, decorative = false } = Astro.props;
     class="moving-catalog-card__cube-stage"
     data-cube-slot
     data-cube-accent={accent}
-    data-cube-variant={visualIndex}
+    data-cube-id={item.slug}
+    data-cube-index={visualIndex}
     aria-hidden="true"
   >
-    <span class="moving-catalog-card__cube-fallback">
-      <span class="moving-catalog-card__cube-core"></span>
-    </span>
+    <span class="moving-catalog-card__cube-fallback"></span>
   </span>
   <span class="moving-catalog-card__body">
     <span class="moving-catalog-card__title">{item.title}</span>

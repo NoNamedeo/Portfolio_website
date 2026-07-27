@@ -1,0 +1,43 @@
+---
+import { getArticleGlassCubeVisual } from '@experience/home/glass-ideas/article-cube-config';
+
+interface Props {
+  slug: string;
+  title: string;
+}
+
+const { slug, title } = Astro.props;
+const visual = getArticleGlassCubeVisual(slug);
+---
+
+<figure
+  class="article-cube"
+  data-page-experience
+  data-experience="catalog-cubes"
+  data-catalog-cube-grid
+  data-cube-card
+  data-loader-critical="true"
+  style={`--article-accent: ${visual.accent}; --article-accent-secondary: ${visual.secondaryAccent}`}
+>
+  <div class="article-cube__viewport" data-catalog-cube-viewport>
+    <canvas class="article-cube__canvas" data-catalog-cube-canvas aria-hidden="true"></canvas>
+    <span
+      class="article-cube__slot"
+      data-cube-slot
+      data-cube-id={visual.id}
+      data-cube-index={visual.modelIndex}
+      data-cube-animation-detail="full"
+      aria-hidden="true"
+    >
+      <span
+        class="catalog-card__cube-fallback article-cube__fallback"
+        data-cube-motif={visual.motif}
+      >
+        <span></span>
+      </span>
+    </span>
+  </div>
+  <figcaption class="sr-only">
+    Cubo interattivo di {title}, motivo visivo {visual.motif}.
+  </figcaption>
+</figure>

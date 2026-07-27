@@ -2,7 +2,6 @@ export const messages = {
   navigation: {
     home: 'Home',
     catalog: 'Catalogo',
-    about: 'Profilo',
     cart: 'Carrello'
   },
   actions: {

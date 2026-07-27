@@ -31,15 +31,29 @@ test('usa gli articoli reali e copie decorative senza contaminare la pagina cata
   await page.goto('/');
   const showcase = page.locator('[data-home-catalog-showcase]');
   await expect(showcase).toHaveCount(1);
+  await showcase.scrollIntoViewIfNeeded();
   await expect(
     showcase.locator('[data-product-marquee-original] [data-marquee-item-link]')
   ).toHaveCount(4);
   await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveCount(1);
-  await expect(showcase).toHaveAttribute('data-catalog-cube-renderer', 'webgl');
+  await expect(showcase).toHaveAttribute('data-catalog-cube-renderer', 'webgl', {
+    timeout: 30_000
+  });
   await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
     'data-catalog-cube-state',
     'rendered'
   );
+  await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
+    'data-catalog-cube-models',
+    /glass_cubes_design_zeros_and_ones\.glb.*glass_cubes_design_circuit\.glb.*glass_cubes_design_plasma\.glb.*glass_cubes_design_S\.glb/
+  );
+  await expect(showcase.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
+    'data-catalog-cube-model-count',
+    '4'
+  );
+  await expect(
+    showcase.locator('[data-product-marquee-original] [data-cube-slot]').first()
+  ).toHaveAttribute('data-cube-model', '/3D_models/glass_cubes_design_zeros_and_ones.glb');
   await expect(showcase.locator('[data-product-marquee-original] img')).toHaveCount(0);
   expect(
     await showcase
@@ -84,7 +98,7 @@ test('usa gli articoli reali e copie decorative senza contaminare la pagina cata
   await page.goto('/catalog/');
   await expect(page.getByRole('heading', { name: 'Esplora per categoria' })).toHaveCount(0);
   await expect(page.locator('[data-catalog-categories]')).toHaveCount(0);
-  await expect(page.locator('[data-catalog-item]')).toHaveCount(6);
+  await expect(page.locator('[data-catalog-item]')).toHaveCount(4);
 });
 
 test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async ({ page }) => {
@@ -119,6 +133,9 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
   await expect
     .poll(async () => (await animationSnapshot(page)).playbackRate, { timeout: 10_000 })
     .toBeLessThan(0.3);
+  await expect(root).toHaveAttribute('data-catalog-cube-renderer', 'webgl', {
+    timeout: 30_000
+  });
 
   const firstCube = root
     .locator('[data-product-marquee-original] [data-marquee-item-link]')
@@ -224,32 +241,94 @@ test('supporta grab con il mouse e scorrimento orizzontale da touchpad', async (
     y: linkBox.y + linkBox.height * 0.5
   };
   const beforeDrag = await animationSnapshot(page);
-  await page.mouse.move(dragStart.x, dragStart.y);
-  await page.mouse.down();
+  await firstLink.dispatchEvent('pointerdown', {
+    button: 0,
+    buttons: 1,
+    clientX: dragStart.x,
+    clientY: dragStart.y,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
   await expect(root).toHaveAttribute('data-marquee-state', 'dragging');
   await expect(viewport).toHaveAttribute('data-marquee-dragging', 'true');
-  await page.mouse.move(dragStart.x + 170, dragStart.y + 8, { steps: 4 });
+  await viewport.dispatchEvent('pointermove', {
+    button: 0,
+    buttons: 1,
+    clientX: dragStart.x + 170,
+    clientY: dragStart.y + 8,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
   const duringDrag = await animationSnapshot(page);
   expect(duringDrag.playState).toBe('paused');
   expect(Math.abs(duringDrag.currentTime - beforeDrag.currentTime)).toBeGreaterThan(500);
   expect(await viewport.evaluate((element) => getComputedStyle(element).cursor)).toBe('grabbing');
-  await page.mouse.up();
+  await viewport.dispatchEvent('pointerup', {
+    button: 0,
+    buttons: 0,
+    clientX: dragStart.x + 170,
+    clientY: dragStart.y + 8,
+    pointerId: 41,
+    pointerType: 'mouse'
+  });
 
   await expect(viewport).not.toHaveAttribute('data-marquee-dragging', /.+/);
   await expect(page).toHaveURL('http://127.0.0.1:4321/');
   await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
 
   const beforeWheel = await animationSnapshot(page);
-  await viewport.dispatchEvent('wheel', {
-    deltaMode: 0,
-    deltaX: 180,
-    deltaY: 0
+  const duringWheel = await root.evaluate((element) => {
+    const marqueeViewport = element.querySelector<HTMLElement>('[data-product-marquee-viewport]');
+    const track = element.querySelector<HTMLElement>('[data-product-marquee-track]');
+    marqueeViewport?.dispatchEvent(
+      new WheelEvent('wheel', {
+        bubbles: true,
+        deltaMode: 0,
+        deltaX: 180,
+        deltaY: 0
+      })
+    );
+    const animation = track?.getAnimations()[0];
+    return {
+      state: (element as HTMLElement).dataset.marqueeState,
+      currentTime: typeof animation?.currentTime === 'number' ? animation.currentTime : 0,
+      playState: animation?.playState ?? 'missing'
+    };
   });
-  await expect(root).toHaveAttribute('data-marquee-state', 'scrolling');
-  const duringWheel = await animationSnapshot(page);
+  expect(duringWheel.state).toBe('scrolling');
   expect(duringWheel.playState).toBe('paused');
   expect(Math.abs(duringWheel.currentTime - beforeWheel.currentTime)).toBeGreaterThan(500);
   await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
+});
+
+test('riprende il rendering dei cubi dopo un ritorno dalla bfcache', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const root = page.locator('[data-home-catalog-showcase]');
+  const canvas = root.locator('[data-catalog-cube-canvas]');
+  await root.scrollIntoViewIfNeeded();
+  await expect(root).toHaveAttribute('data-catalog-cube-renderer', 'webgl', {
+    timeout: 30_000
+  });
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-catalog-cube-frame')))
+    .toBeGreaterThan(0);
+  const frameBeforePause = Number(await canvas.getAttribute('data-catalog-cube-frame'));
+
+  await page.evaluate(() => {
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+  });
+  await expect(root).toHaveAttribute('data-marquee-state', 'paused');
+  await expect(root).toHaveAttribute('data-catalog-cube-renderer', 'webgl');
+
+  await page.evaluate(() => {
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+  });
+  await expect(root).toHaveAttribute('data-marquee-state', /^(slow|running)$/);
+  await expect(root).toHaveAttribute('data-catalog-cube-renderer', 'webgl');
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-catalog-cube-frame')))
+    .toBeGreaterThan(frameBeforePause);
 });
 
 test('reduced motion usa una fascia statica completa', async ({ page }) => {

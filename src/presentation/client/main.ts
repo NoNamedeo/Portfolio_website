@@ -19,10 +19,10 @@ experienceRegistry.register('home-showcase', async () => {
   const { HomeShowcaseExperience } = await import('@experience/home/home-showcase-experience');
   return new HomeShowcaseExperience();
 });
-experienceRegistry.register('glass-human', async () => {
-  const { GlassHumanExperience } =
-    await import('@experience/home/glass-ideas/glass-human-experience');
-  return new GlassHumanExperience();
+experienceRegistry.register('glass-cube-concept', async () => {
+  const { GlassCubeConceptExperience } =
+    await import('@experience/home/glass-ideas/glass-cube-concept-experience');
+  return new GlassCubeConceptExperience();
 });
 experienceRegistry.register('catalog-showcase', async () => {
   const { CatalogShowcaseExperience } =
@@ -32,6 +32,10 @@ experienceRegistry.register('catalog-showcase', async () => {
 experienceRegistry.register('catalog-index', async () => {
   const { CatalogIndexExperience } = await import('@experience/catalog/catalog-index-experience');
   return new CatalogIndexExperience();
+});
+experienceRegistry.register('catalog-cubes', async () => {
+  const { CatalogCubesExperience } = await import('@experience/catalog/catalog-cubes-experience');
+  return new CatalogCubesExperience();
 });
 
 let activeExperiences: Experience[] = [];
@@ -361,6 +365,7 @@ const setupPageExperience = (reducedMotion: boolean): Promise<void> => {
           }
           return experience;
         } catch (error) {
+          root.dataset.loaderExperience = 'fallback';
           announce(errorMessage(error));
           return undefined;
         }
@@ -389,9 +394,92 @@ const destroyPageExperience = (): void => {
   activeExperiences = [];
 };
 
+const pausePageExperience = (): void => {
+  activeExperiences.forEach((experience) => experience.pause());
+};
+
+const resumePageExperience = (): void => {
+  activeExperiences.forEach((experience) => {
+    experience.resize();
+    experience.play();
+  });
+};
+
 const markAppAsReady = (): void => {
   document.documentElement.dataset.portfolioApp = 'ready';
   window.dispatchEvent(new Event(APP_READY_EVENT));
+};
+
+const handlePageHide = (event: PageTransitionEvent): void => {
+  if (event.persisted) {
+    pausePageExperience();
+    return;
+  }
+  destroyPageExperience();
+};
+
+const handlePageShow = (event: PageTransitionEvent): void => {
+  if (!event.persisted) return;
+  if (activeExperiences.length > 0) {
+    resumePageExperience();
+    markAppAsReady();
+    return;
+  }
+  void setupPageExperience(new MotionPreferences().isReduced()).then(markAppAsReady);
+};
+
+const waitForCriticalExperiences = (): Promise<void> => {
+  const roots = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-page-experience][data-experience][data-loader-critical="true"]'
+    )
+  ];
+  if (roots.length === 0) return Promise.resolve();
+
+  const isReady = (root: HTMLElement): boolean => {
+    if (root.dataset.loaderExperience === 'fallback') return true;
+    if (root.dataset.experience === 'home-showcase') {
+      return (
+        root.dataset.showcaseGlassRenderer === 'webgl' ||
+        root.dataset.showcaseGlassRenderer === 'fallback'
+      );
+    }
+    if (root.dataset.experience === 'catalog-cubes') {
+      return (
+        root.dataset.catalogCubeRenderer === 'webgl' ||
+        root.dataset.catalogCubeRenderer === 'fallback'
+      );
+    }
+    return true;
+  };
+
+  if (roots.every(isReady)) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const observer = new MutationObserver(() => {
+      if (roots.every(isReady)) finish();
+    });
+
+    function finish(): void {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      resolve();
+    }
+
+    roots.forEach((root) => {
+      observer.observe(root, {
+        attributes: true,
+        attributeFilter: [
+          'data-loader-experience',
+          'data-showcase-glass-renderer',
+          'data-catalog-cube-renderer'
+        ]
+      });
+    });
+    if (roots.every(isReady)) finish();
+  });
 };
 
 const initialize = async (): Promise<void> => {
@@ -406,6 +494,7 @@ const initialize = async (): Promise<void> => {
   setupCheckout();
   const pageExperience = setupPageExperience(reducedMotion);
   const clientViews = updateClientViews();
+  const criticalExperiences = waitForCriticalExperiences();
 
   window.addEventListener(CART_CHANGED_EVENT, (event) => {
     announce(event.detail.message);
@@ -415,13 +504,12 @@ const initialize = async (): Promise<void> => {
   window.addEventListener('storage', (event) => {
     if (event.key === client.cartStorageKey) void updateClientViews();
   });
-  window.addEventListener('pagehide', destroyPageExperience);
-  window.addEventListener('pageshow', (event) => {
-    if (event.persisted) void setupPageExperience(new MotionPreferences().isReduced());
-  });
+  window.addEventListener('pagehide', handlePageHide);
+  window.addEventListener('pageshow', handlePageShow);
 
-  await Promise.allSettled([pageExperience, clientViews]);
+  await Promise.allSettled([criticalExperiences, clientViews]);
   markAppAsReady();
+  await pageExperience;
 };
 
 void initialize();

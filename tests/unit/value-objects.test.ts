@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { EmailAddress } from '@core/domain/checkout/email-address';
-import { DateRange } from '@core/domain/profile/profile';
 import { Money } from '@core/domain/shared/money';
 import { Slug } from '@core/domain/shared/slug';
 
@@ -45,12 +44,5 @@ describe('EmailAddress', () => {
 
   it('rifiuta un indirizzo incompleto', () => {
     expect(() => EmailAddress.create('hello@invalid')).toThrow();
-  });
-});
-
-describe('DateRange', () => {
-  it('rifiuta mesi inesistenti e intervalli invertiti', () => {
-    expect(() => new DateRange({ start: '2026-13' })).toThrow();
-    expect(() => new DateRange({ start: '2026-02', end: '2026-01' })).toThrow();
   });
 });

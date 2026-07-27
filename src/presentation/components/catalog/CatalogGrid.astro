@@ -6,17 +6,29 @@ interface Props {
   items: readonly CatalogItemCardModel[];
   id?: string;
   eagerFirst?: boolean;
+  loaderCritical?: boolean;
 }
 
-const { items, id, eagerFirst = false } = Astro.props;
+const { items, id, eagerFirst = false, loaderCritical = false } = Astro.props;
 ---
 
-<ul class="catalog-grid" {id} data-catalog-grid>
-  {
-    items.map((item, index) => (
-      <li data-catalog-entry={item.id}>
-        <CatalogItemCard {item} priority={eagerFirst && index === 0} />
-      </li>
-    ))
-  }
-</ul>
+<div
+  class="catalog-cube-grid"
+  data-page-experience
+  data-experience="catalog-cubes"
+  data-catalog-cube-grid
+  data-loader-critical={loaderCritical ? 'true' : undefined}
+>
+  <div class="catalog-cube-grid__viewport" data-catalog-cube-viewport>
+    <canvas class="catalog-cube-grid__canvas" data-catalog-cube-canvas aria-hidden="true"></canvas>
+    <ul class="catalog-grid" {id} data-catalog-grid>
+      {
+        items.map((item, index) => (
+          <li data-catalog-entry={item.id}>
+            <CatalogItemCard {item} priority={eagerFirst && index === 0} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>

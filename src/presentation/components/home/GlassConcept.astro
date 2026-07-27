@@ -7,8 +7,8 @@ import ResponsiveContainer from '@presentation/components/shared/ResponsiveConta
   class="glass-concept"
   aria-labelledby="glass-concept-title"
   data-page-experience
-  data-experience="glass-human"
-  data-glass-human-root
+  data-experience="glass-cube-concept"
+  data-glass-cube-concept-root
 >
   <ResponsiveContainer>
     <div class="glass-concept__layout">
@@ -20,23 +20,18 @@ import ResponsiveContainer from '@presentation/components/shared/ResponsiveConta
           raccoglie una richiesta: nessun pagamento viene elaborato.
         </p>
         <div class="cluster">
-          <Button href="/catalog/">Sfoglia tutto</Button>
-          <Button href="/about/" variant="secondary">Conosci il profilo</Button>
+          <Button href="/catalog/">Sfoglia i quattro articoli</Button>
         </div>
       </div>
 
-      <div class="glass-concept__scene" data-glass-human-stage aria-hidden="true">
-        <canvas class="glass-concept__canvas" data-glass-human-canvas></canvas>
-        <div class="glass-human-fallback">
-          <span class="glass-human-fallback__head"></span>
-          <span class="glass-human-fallback__torso"></span>
-          <span class="glass-human-fallback__arm glass-human-fallback__arm--left"></span>
-          <span class="glass-human-fallback__arm glass-human-fallback__arm--right"></span>
-          <span class="glass-human-fallback__leg glass-human-fallback__leg--left"></span>
-          <span class="glass-human-fallback__leg glass-human-fallback__leg--right"></span>
-          <span class="glass-human-fallback__idea"></span>
+      <div class="glass-concept__scene">
+        <div class="glass-concept__viewport" data-glass-cube-stage aria-hidden="true">
+          <canvas class="glass-concept__canvas" data-glass-cube-canvas></canvas>
+          <div class="glass-cube-fallback">
+            <span class="glass-cube-fallback__body"></span>
+          </div>
+          <p class="glass-concept__scene-caption">Un solo cubo. Una rotazione discreta.</p>
         </div>
-        <p class="glass-concept__scene-caption">Un’idea offerta diventa uno spazio condiviso.</p>
       </div>
     </div>
   </ResponsiveContainer>

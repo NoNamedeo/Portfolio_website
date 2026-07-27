@@ -22,6 +22,18 @@ const {
   transition = 'none'
 } = Astro.props;
 const lang = model.locale.split('-')[0] ?? 'it';
+const criticalAssets =
+  page === 'home'
+    ? [
+        '/3D_models/glass_plate_web.glb',
+        '/3D_models/competenze_in_vetrina.glb',
+        '/3D_models/idee_in_movimento.glb',
+        '/3D_models/glass_cubes_collection_1.glb',
+        '/3D_models/glass_cubes_design_plasma.glb'
+      ]
+    : page === 'catalog' || page === 'catalog-item'
+      ? ['/3D_models/glass_cubes_design_plasma.glb']
+      : [];
 ---
 
 <!doctype html>
@@ -30,28 +42,20 @@ const lang = model.locale.split('-')[0] ?? 'it';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#f3f0e8" />
+    <meta name="theme-color" content="#06070a" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    {
+      criticalAssets.map((asset) => (
+        <link rel="preload" href={asset} as="fetch" crossorigin="anonymous" />
+      ))
+    }
     <SeoHead seo={model.seo} />
     <script is:inline>
       (() => {
         const root = document.documentElement;
-        const startLoader = () => {
-          root.dataset.siteLoaderStarted = String(performance.now());
-          root.dataset.siteLoaderState = 'pending';
-        };
-        const navigationEntry = performance.getEntriesByType('navigation')[0];
-        const isReload =
-          navigationEntry instanceof PerformanceNavigationTiming &&
-          navigationEntry.type === 'reload';
-        try {
-          if (isReload || window.sessionStorage.getItem('portfolio-store:loader-seen') !== 'true') {
-            startLoader();
-          }
-        } catch {
-          startLoader();
-        }
+        root.dataset.siteLoaderStarted = String(performance.now());
+        root.dataset.siteLoaderState = 'pending';
       })();
     </script>
   </head>
@@ -61,7 +65,7 @@ const lang = model.locale.split('-')[0] ?? 'it';
     data-experience={experience}
     data-transition={transition}
   >
-    <LoadingScreen siteName={model.name} />
+    <LoadingScreen />
     <a class="skip-link" href="#main-content">Vai al contenuto</a>
     <SiteHeader siteName={model.name} currentPath={Astro.url.pathname} />
     <main id="main-content" tabindex="-1">

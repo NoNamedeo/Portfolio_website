@@ -98,46 +98,4 @@ const catalog = defineCollection({
   })
 });
 
-const dateRangeSchema = z.object({
-  start: z.string().regex(/^\d{4}-(?:0[1-9]|1[0-2])$/),
-  end: z
-    .string()
-    .regex(/^\d{4}-(?:0[1-9]|1[0-2])$/)
-    .optional()
-});
-
-const profile = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/profile' }),
-  schema: z.object({
-    fullName: nonEmptyString.max(120),
-    headline: nonEmptyString.max(160),
-    biography: nonEmptyString.max(1000),
-    contactInformation: z.object({
-      email: z.email(),
-      location: nonEmptyString.max(160)
-    }),
-    socialLinks: z.array(z.object({ label: nonEmptyString.max(80), href: link })).max(12),
-    hobbies: uniqueStrings(20),
-    resume: z.object({
-      workExperience: z.array(
-        z.object({
-          role: nonEmptyString,
-          organization: nonEmptyString,
-          period: dateRangeSchema,
-          description: nonEmptyString
-        })
-      ),
-      education: z.array(
-        z.object({
-          qualification: nonEmptyString,
-          institution: nonEmptyString,
-          period: dateRangeSchema,
-          description: nonEmptyString
-        })
-      ),
-      skills: z.array(z.object({ name: nonEmptyString, level: nonEmptyString }))
-    })
-  })
-});
-
-export const collections = { catalog, profile };
+export const collections = { catalog };

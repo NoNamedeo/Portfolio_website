@@ -1,5 +1,6 @@
 ---
 import type { CatalogItemCardModel } from '@application/models/page-models';
+import { getArticleGlassCubeVisual } from '@experience/home/glass-ideas/article-cube-config';
 import MovingCatalogCard from '@presentation/components/catalog/MovingCatalogCard.astro';
 import Button from '@presentation/components/shared/Button.astro';
 import ResponsiveContainer from '@presentation/components/shared/ResponsiveContainer.astro';
@@ -9,7 +10,10 @@ interface Props {
 }
 
 const { items } = Astro.props;
-const cubeAccents = ['#72d8ff', '#ff735f', '#ffd166', '#b899ff', '#70e1a5', '#ff98c8'] as const;
+const entries = items.map((item, index) => ({
+  item,
+  visual: getArticleGlassCubeVisual(index)
+}));
 ---
 
 <section
@@ -44,25 +48,21 @@ const cubeAccents = ['#72d8ff', '#ff735f', '#ffd166', '#b899ff', '#70e1a5', '#ff
     <div class="catalog-showcase__track" data-product-marquee-track>
       <ul class="catalog-showcase__group" data-product-marquee-original>
         {
-          items.map((item, index) => (
+          entries.map(({ item, visual }) => (
             <li>
-              <MovingCatalogCard
-                {item}
-                visualIndex={index}
-                accent={cubeAccents[index % cubeAccents.length] ?? cubeAccents[0]}
-              />
+              <MovingCatalogCard {item} visualIndex={visual.modelIndex} accent={visual.accent} />
             </li>
           ))
         }
       </ul>
       <ul class="catalog-showcase__group" data-product-marquee-copy aria-hidden="true">
         {
-          items.map((item, index) => (
+          entries.map(({ item, visual }) => (
             <li>
               <MovingCatalogCard
                 {item}
-                visualIndex={index}
-                accent={cubeAccents[index % cubeAccents.length] ?? cubeAccents[0]}
+                visualIndex={visual.modelIndex}
+                accent={visual.accent}
                 decorative
               />
             </li>

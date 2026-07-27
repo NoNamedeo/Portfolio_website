@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('rimuove le categorie, compatta i media e mantiene il layout stabile', async ({ page }) => {
+test('mostra esattamente quattro cubi e mantiene il layout stabile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/catalog/');
   const root = page.locator('[data-catalog-index]');
@@ -14,8 +14,18 @@ test('rimuove le categorie, compatta i media e mantiene il layout stabile', asyn
       return bounds.width / bounds.height;
     })
   );
-  expect(ratios).toHaveLength(6);
-  ratios.forEach((ratio) => expect(ratio).toBeCloseTo(5 / 2, 1));
+  expect(ratios).toHaveLength(4);
+  ratios.forEach((ratio) => expect(ratio).toBeCloseTo(4 / 3, 1));
+  const cubeGrid = page.locator('[data-catalog-cube-grid]').first();
+  await expect(cubeGrid).toHaveAttribute('data-catalog-cube-renderer', 'webgl', {
+    timeout: 20_000
+  });
+  await expect(cubeGrid.locator('[data-catalog-cube-canvas]')).toHaveAttribute(
+    'data-catalog-cube-model-count',
+    '4'
+  );
+  await expect(page.locator('[data-cube-slot]')).toHaveCount(4);
+  await expect(page.locator('.catalog-card__media img')).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth === document.documentElement.clientWidth
@@ -44,7 +54,7 @@ test('i tre controlli condividono ciclo, hover esclusivo, tastiera e filtri real
         const value = await visibleCycleValue();
         return value !== null && value !== initialVisualValue;
       },
-      { timeout: 5_000 }
+      { timeout: 10_000 }
     )
     .toBe(true);
 
@@ -75,7 +85,7 @@ test('i tre controlli condividono ciclo, hover esclusivo, tastiera e filtri real
   expect(Math.abs((centers?.panelY ?? 0) - (centers?.triggerY ?? 0))).toBeLessThan(2);
   await expect(page.getByRole('button', { name: 'Conferma e chiudi' })).toHaveCount(0);
   const typeOptions = typeControl.getByRole('option');
-  await expect(typeOptions).toHaveCount(9);
+  await expect(typeOptions).toHaveCount(4);
   expect(
     await typeControl
       .locator('[data-cycle-viewport]')
@@ -150,7 +160,7 @@ test('i tre controlli condividono ciclo, hover esclusivo, tastiera e filtri real
   await sortPanel.hover();
   const closingAnimationCount = await sortControl.evaluate((control) => {
     const panel = control.querySelector<HTMLElement>('[data-cycle-panel]');
-    panel?.dispatchEvent(new PointerEvent('pointerleave'));
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     return panel?.getAnimations().length ?? 0;
   });
   expect(closingAnimationCount).toBe(1);
@@ -262,7 +272,7 @@ test('la ricerca alterna suggerimenti soltanto quando è vuota e inattiva', asyn
         const value = await visibleSuggestion();
         return value !== null && value !== firstSuggestion;
       },
-      { timeout: 5_000 }
+      { timeout: 10_000 }
     )
     .toBe(true);
   await expect(input).toHaveValue('');
@@ -270,14 +280,18 @@ test('la ricerca alterna suggerimenti soltanto quando è vuota e inattiva', asyn
   await input.focus();
   await expect(field).toHaveAttribute('data-search-state', 'active');
   await expect
-    .poll(() =>
-      field
-        .locator('.catalog-search-field__surface')
-        .evaluate((surface) => surface.getBoundingClientRect().width)
+    .poll(
+      () =>
+        field
+          .locator('.catalog-search-field__surface')
+          .evaluate((surface) => surface.getBoundingClientRect().width),
+      { timeout: 15_000 }
     )
     .toBeGreaterThan(idleWidth);
   await expect
-    .poll(() => input.evaluate((element) => element.getBoundingClientRect().height))
+    .poll(() => input.evaluate((element) => element.getBoundingClientRect().height), {
+      timeout: 15_000
+    })
     .toBeGreaterThan(idleHeight);
   expect(
     await field
@@ -286,7 +300,7 @@ test('la ricerca alterna suggerimenti soltanto quando è vuota e inattiva', asyn
   ).toBe(0);
 
   await input.fill('Astro TypeScript');
-  await expect(page.locator('[data-catalog-result-count]')).toHaveText('3');
+  await expect(page.locator('[data-catalog-result-count]')).toHaveText('2');
   await input.blur();
   await expect(field).toHaveAttribute('data-search-state', 'filled');
   await input.fill('');

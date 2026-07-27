@@ -196,6 +196,7 @@ export class WebGLGlassRenderer {
   play(): void {
     if (!this.initialized || this.destroyed || this.contextLost) return;
     this.playRequested = true;
+    this.cancelFrame();
     if (this.reducedMotion) {
       this.renderOnce();
       return;
@@ -357,6 +358,7 @@ export class WebGLGlassRenderer {
   private readonly handleIntersection: IntersectionObserverCallback = (entries): void => {
     this.visible = Boolean(entries[0]?.isIntersecting);
     if (this.visible && this.playRequested) {
+      this.cancelFrame();
       this.scheduleFrame();
     } else {
       this.cancelFrame();
@@ -479,8 +481,7 @@ export class WebGLGlassRenderer {
   }
 
   private cancelFrame(): void {
-    if (this.frameId === undefined) return;
-    window.cancelAnimationFrame(this.frameId);
+    if (this.frameId !== undefined) window.cancelAnimationFrame(this.frameId);
     this.frameId = undefined;
     this.lastFrameTime = 0;
   }

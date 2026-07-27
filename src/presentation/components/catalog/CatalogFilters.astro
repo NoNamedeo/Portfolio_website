@@ -24,9 +24,9 @@ const sortOptions = [
   { value: 'title', label: 'Titolo A–Z' }
 ];
 const searchSuggestions = [
-  'Cerca un progetto…',
+  'Cerca uno dei quattro articoli…',
   ...model.items.slice(0, 2).map((item) => `Prova “${item.title}”`),
-  'Cerca una competenza…',
+  'Cerca una tecnologia…',
   ...(model.categories[0] ? [`Prova “${model.categories[0]}”`] : [])
 ];
 ---

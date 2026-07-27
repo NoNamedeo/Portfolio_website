@@ -181,7 +181,6 @@ class CatalogCycleControl {
     this.panel.addEventListener('keydown', this.handleOptionKeydown, options);
     this.root.addEventListener('focusout', this.handleFocusOut, options);
     if (this.pointerCapable) {
-      this.panel.addEventListener('pointerleave', this.handlePanelPointerLeave, options);
       this.panel.addEventListener('pointerover', this.handleOptionPointerOver, options);
     }
     document.addEventListener('pointerdown', this.handleDocumentPointerDown, options);
@@ -284,11 +283,6 @@ class CatalogCycleControl {
     this.pinned = true;
     this.updateSelectedValue();
     this.close(true);
-  };
-
-  private readonly handlePanelPointerLeave = (): void => {
-    this.clearOptionPreview();
-    this.close();
   };
 
   private readonly handleOptionPointerOver = (event: PointerEvent): void => {

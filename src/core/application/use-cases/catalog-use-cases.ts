@@ -4,18 +4,13 @@ import {
 } from '@application/mappers/catalog-item-mapper';
 import { createSeoModel } from '@application/mappers/seo-mapper';
 import type {
-  AboutPageModel,
   CatalogClientItemModel,
   CatalogItemPageModel,
   CatalogPageModel,
   HomePageModel,
   SiteShellModel
 } from '@application/models/page-models';
-import type {
-  CatalogRepository,
-  ProfileRepository,
-  SiteIdentityRepository
-} from '@application/ports/repositories';
+import type { CatalogRepository, SiteIdentityRepository } from '@application/ports/repositories';
 import { ApplicationError } from '@application/errors/application-error';
 import { Catalog } from '@core/domain/catalog/catalog';
 import type { CatalogQuery } from '@core/domain/catalog/catalog';
@@ -57,7 +52,7 @@ export class GetHomePage {
         }
       }),
       introduction:
-        'Progetti, competenze e collaborazioni diventano articoli da esplorare, combinare e trasformare in una conversazione concreta.',
+        'Quattro mondi digitali diventano articoli da esplorare, combinare e trasformare in una conversazione concreta.',
       featuredItems: catalog.featured().slice(0, 4).map(mapCatalogItemToCard)
     };
   }
@@ -93,16 +88,13 @@ export class GetCatalogPage {
           (first, second) =>
             second.count - first.count || first.name.localeCompare(second.name, 'it')
         ),
-      types: [
-        { value: 'project', label: 'Progetti' },
-        { value: 'knowledge', label: 'Conoscenze' },
-        { value: 'activity', label: 'Attività' },
-        { value: 'experience', label: 'Esperienze' },
-        { value: 'skill', label: 'Competenze' },
-        { value: 'service', label: 'Servizi' },
-        { value: 'hobby', label: 'Hobby' },
-        { value: 'other', label: 'Altro' }
-      ],
+      types: (
+        [
+          { value: 'project', label: 'Progetti' },
+          { value: 'activity', label: 'Attività' },
+          { value: 'service', label: 'Servizi' }
+        ] as const
+      ).filter((type) => items.some((item) => item.type === type.value)),
       resultCount: items.length
     };
   }
@@ -178,49 +170,6 @@ export class GetCatalogClientData {
   async execute(): Promise<readonly CatalogClientItemModel[]> {
     const catalog = new Catalog(await this.catalogRepository.getAll());
     return catalog.published().map(mapCatalogItemToClient);
-  }
-}
-
-const periodLabel = (start: string, end?: string): string =>
-  start.slice(0, 4) + ' — ' + (end ? end.slice(0, 4) : 'Oggi');
-
-export class GetAboutPage {
-  constructor(
-    private readonly profileRepository: ProfileRepository,
-    private readonly identityRepository: SiteIdentityRepository
-  ) {}
-
-  async execute(): Promise<AboutPageModel> {
-    const profile = await this.profileRepository.getProfile();
-    return {
-      ...(await shell(this.identityRepository, {
-        title: 'Profilo',
-        description: profile.biography,
-        path: '/about/',
-        type: 'profile'
-      })),
-      fullName: profile.fullName,
-      headline: profile.headline,
-      biography: profile.biography,
-      workExperience: profile.resume.workExperience.map((item) => ({
-        title: item.role,
-        subtitle: item.organization,
-        period: periodLabel(item.period.start, item.period.end),
-        description: item.description,
-        current: item.period.isCurrent()
-      })),
-      education: profile.resume.education.map((item) => ({
-        title: item.qualification,
-        subtitle: item.institution,
-        period: periodLabel(item.period.start, item.period.end),
-        description: item.description,
-        current: item.period.isCurrent()
-      })),
-      skills: profile.resume.skills,
-      hobbies: profile.hobbies,
-      socialLinks: profile.socialLinks,
-      contact: profile.contactInformation
-    };
   }
 }
 

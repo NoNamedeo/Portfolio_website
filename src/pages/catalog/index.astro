@@ -14,20 +14,20 @@ const model = await createCompositionRoot().getCatalogPage.execute();
     <ResponsiveContainer>
       <header class="section-heading">
         <p class="eyebrow">Catalogo completo / {model.resultCount} articoli</p>
-        <h1 data-animate="page-title">Il percorso,<br />messo a scaffale.</h1>
+        <h1 data-animate="page-title">Quattro mondi,<br />un solo catalogo.</h1>
         <p class="lead">
-          Cerca un progetto, filtra le competenze o ordina i servizi. Ogni scheda racconta un pezzo
-          del lavoro e il modo più adatto per attivarlo.
+          Esplora i quattro articoli attraverso i rispettivi cubi. Ricerca, filtri e ordinamento
+          lavorano esclusivamente su questa selezione.
         </p>
       </header>
 
       <CatalogFilters {model} />
       <div class="catalog-status" aria-live="polite">
         <p><strong data-catalog-result-count>{model.resultCount}</strong> risultati</p>
-        <p>Contenuti dimostrativi · aggiornabili via MDX</p>
+        <p>Quattro articoli · contenuti aggiornabili via MDX</p>
       </div>
 
-      <CatalogGrid items={model.items} />
+      <CatalogGrid items={model.items} loaderCritical />
       <div data-catalog-no-results hidden>
         <EmptyState
           title="Nessun articolo corrisponde"

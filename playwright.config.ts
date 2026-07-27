@@ -3,7 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  workers: process.env.CI ? 1 : undefined,
+  // Le suite aprono più scene WebGL reali: limitare il parallelismo evita
+  // contesa GPU e mantiene affidabili i test delle animazioni temporizzate.
+  workers: process.env.CI ? 1 : 2,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',

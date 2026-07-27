@@ -1,5 +1,4 @@
 import {
-  GetAboutPage,
   GetCatalogClientData,
   GetCatalogItemPage,
   GetCatalogPage,
@@ -19,13 +18,11 @@ import {
 } from '@application/use-cases/cart-use-cases';
 import { StartCheckout } from '@application/use-cases/checkout-use-cases';
 import { AstroContentCatalogRepository } from '@infrastructure/content/astro-content-catalog-repository';
-import { AstroContentProfileRepository } from '@infrastructure/content/astro-content-profile-repository';
 import { ConfigurationSiteIdentityRepository } from '@infrastructure/configuration/configuration-site-identity-repository';
 import { LocalStorageCartRepository } from '@infrastructure/persistence/local-storage-cart-repository';
 
 export const createCompositionRoot = () => {
   const catalogRepository = new AstroContentCatalogRepository();
-  const profileRepository = new AstroContentProfileRepository();
   const identityRepository = new ConfigurationSiteIdentityRepository();
   const cartRepository = new LocalStorageCartRepository();
 
@@ -36,7 +33,6 @@ export const createCompositionRoot = () => {
     queryCatalog: new QueryCatalog(catalogRepository),
     getPublishedCatalogItemSlugs: new GetPublishedCatalogItemSlugs(catalogRepository),
     getCatalogClientData: new GetCatalogClientData(catalogRepository),
-    getAboutPage: new GetAboutPage(profileRepository, identityRepository),
     getStaticPage: new GetStaticPage(identityRepository),
     getCart: new GetCart(cartRepository, catalogRepository, identityRepository),
     addItemToCart: new AddItemToCart(cartRepository, catalogRepository),
