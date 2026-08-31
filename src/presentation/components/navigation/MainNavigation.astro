@@ -7,12 +7,11 @@ interface Props {
 
 const { currentPath } = Astro.props;
 const items = [
-  { href: '/', label: messages.navigation.home },
+  { href: '/portfolio/', label: messages.navigation.home },
   { href: '/catalog/', label: messages.navigation.catalog }
 ];
 
-const isCurrent = (href: string): boolean =>
-  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+const isCurrent = (href: string): boolean => currentPath.startsWith(href);
 ---
 
 <nav class="main-navigation" aria-label="Navigazione principale">

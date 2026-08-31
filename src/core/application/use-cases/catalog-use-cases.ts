@@ -43,12 +43,13 @@ export class GetHomePage {
       tagline: identity.tagline,
       locale: identity.locale,
       seo: createSeoModel(identity, {
+        path: '/portfolio/',
         jsonLd: {
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           name: identity.name,
           description: identity.description,
-          url: identity.canonicalUrl
+          url: new URL('/portfolio/', identity.canonicalUrl).toString()
         }
       }),
       introduction:

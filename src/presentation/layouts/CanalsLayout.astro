@@ -1,0 +1,86 @@
+---
+import siteConfig from '../../../site.config.json';
+import '@styles/canals-site.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+}
+
+const { title, description, canonicalPath } = Astro.props;
+const canonical = new URL(canonicalPath, siteConfig.canonicalUrl).toString();
+---
+
+<!doctype html>
+<html lang="it" class="canals-has-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f00000" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+  </head>
+  <body class="canals-body is-canals-loading" data-canals-page>
+    <div class="canals-loader" data-canals-loader role="status" aria-live="polite">
+      <div class="canals-loader__shutters" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </div>
+      <div class="canals-loader__top">
+        <span>Amsterdam, NL</span>
+        <span data-loader-value>000</span>
+      </div>
+      <p class="canals-loader__word" aria-label="Canals">
+        <span>C</span><span>A</span><span>N</span><span>A</span><span>L</span><span>S</span>
+      </p>
+      <p class="canals-loader__caption">An editorial journey through water</p>
+    </div>
+
+    <a class="canals-skip" href="#canals-content">Vai al contenuto</a>
+
+    <aside class="canals-rail" data-canals-rail>
+      <button
+        class="canals-rail__toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="canals-menu"
+        data-canals-menu-toggle
+      >
+        <span class="canals-rail__burger" aria-hidden="true"><i></i><i></i></span>
+        <span class="canals-visually-hidden" data-canals-menu-label>Apri il menu</span>
+      </button>
+      <p class="canals-rail__credit">A story shaped by water</p>
+      <div class="canals-rail__progress" aria-hidden="true">
+        <i data-canals-progress></i>
+      </div>
+      <a class="canals-rail__mark" href="/" aria-label="Torna alla pagina di ingresso">
+        <span>×</span><span>×</span><span>×</span>
+      </a>
+    </aside>
+
+    <div class="canals-menu" id="canals-menu" data-canals-menu aria-hidden="true">
+      <div class="canals-menu__meta">
+        <p>Navigate the story</p>
+        <p>52°22′N<br />4°54′E</p>
+      </div>
+      <nav aria-label="Capitoli">
+        <a href="#overview" data-canals-jump><small>00</small><span>Overview</span></a>
+        <a href="#origins" data-canals-jump><small>01</small><span>Origins</span></a>
+        <a href="#functions" data-canals-jump><small>02</small><span>Functions</span></a>
+        <a href="#expansion" data-canals-jump><small>03</small><span>Expansion</span></a>
+      </nav>
+      <p class="canals-menu__footer">Scroll, drag, explore</p>
+    </div>
+
+    <main id="canals-content">
+      <slot />
+    </main>
+
+    <script>
+      import '@presentation/client/canals-site';
+    </script>
+  </body>
+</html>

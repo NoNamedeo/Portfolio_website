@@ -71,6 +71,7 @@ describe('catalog use cases', () => {
       new IdentityRepository()
     ).execute();
     expect(model.featuredItems.map((item) => item.slug)).toEqual(['one']);
+    expect(model.seo.canonical).toBe('https://example.com/portfolio/');
   });
 
   it('delega la ricerca alle regole del catalogo', async () => {

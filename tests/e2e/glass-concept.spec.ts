@@ -4,7 +4,7 @@ test.describe.configure({ mode: 'serial' });
 test.setTimeout(90_000);
 
 test('mantiene un solo cubo semplice senza selettori di forma o articolo', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const concept = page.locator('[data-glass-cube-concept-root]');
   const catalog = page.locator('[data-home-catalog-showcase]');
 
@@ -32,7 +32,7 @@ test('mantiene un solo cubo semplice senza selettori di forma o articolo', async
 
 test('usa sempre il cubo XL del GLB semplice con qualità adattiva', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const concept = page.locator('[data-glass-cube-concept-root]');
   const canvas = concept.locator('[data-glass-cube-canvas]');
   const stage = concept.locator('[data-glass-cube-stage]');
@@ -67,7 +67,7 @@ test('usa sempre il cubo XL del GLB semplice con qualità adattiva', async ({ pa
 
 test('consente rotazione leggera e drag senza cambiare geometria', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const concept = page.locator('[data-glass-cube-concept-root]');
   const canvas = concept.locator('[data-glass-cube-canvas]');
   const stage = concept.locator('[data-glass-cube-stage]');

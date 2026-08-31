@@ -28,7 +28,7 @@ const animationSnapshot = (page: Page) =>
 test('usa gli articoli reali e copie decorative senza contaminare la pagina catalogo', async ({
   page
 }) => {
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const showcase = page.locator('[data-home-catalog-showcase]');
   await expect(showcase).toHaveCount(1);
   await showcase.scrollIntoViewIfNeeded();
@@ -103,7 +103,7 @@ test('usa gli articoli reali e copie decorative senza contaminare la pagina cata
 
 test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const root = page.locator('[data-home-catalog-showcase]');
   const viewport = root.locator('[data-product-marquee-viewport]');
   const track = root.locator('[data-product-marquee-track]');
@@ -223,7 +223,7 @@ test('esegue un loop continuo e gestisce hover, focus, resize e cleanup', async 
 
 test('supporta grab con il mouse e scorrimento orizzontale da touchpad', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const root = page.locator('[data-home-catalog-showcase]');
   const viewport = root.locator('[data-product-marquee-viewport]');
   const firstLink = root
@@ -303,7 +303,7 @@ test('supporta grab con il mouse e scorrimento orizzontale da touchpad', async (
 
 test('riprende il rendering dei cubi dopo un ritorno dalla bfcache', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const root = page.locator('[data-home-catalog-showcase]');
   const canvas = root.locator('[data-catalog-cube-canvas]');
   await root.scrollIntoViewIfNeeded();
@@ -333,7 +333,7 @@ test('riprende il rendering dei cubi dopo un ritorno dalla bfcache', async ({ pa
 
 test('reduced motion usa una fascia statica completa', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   const root = page.locator('[data-home-catalog-showcase]');
   await expect(root).toHaveAttribute('data-marquee-mode', 'reduced');
   await expect(root).toHaveAttribute('data-marquee-state', 'static');
@@ -401,7 +401,7 @@ test('touch consente lo swipe, mantiene il loop lento e non intercetta il tap', 
   });
   try {
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/portfolio/');
     const root = page.locator('[data-home-catalog-showcase]');
     await root.scrollIntoViewIfNeeded();
     await expect(root).toHaveAttribute('data-marquee-state', 'running');
@@ -497,7 +497,7 @@ test('senza JavaScript mantiene card, link e CTA utilizzabili', async ({ browser
   });
   try {
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/portfolio/');
     const root = page.locator('[data-home-catalog-showcase]');
     await expect(root).not.toHaveAttribute('data-marquee-mode', /.+/);
     await expect(

@@ -1,0 +1,21 @@
+---
+import { createCompositionRoot } from '@app/composition-root';
+import CatalogShowcase from '@presentation/components/home/CatalogShowcase.astro';
+import GlassConcept from '@presentation/components/home/GlassConcept.astro';
+import HomeShowcase from '@presentation/components/home/HomeShowcase.astro';
+import BaseLayout from '@presentation/layouts/BaseLayout.astro';
+
+const model = await createCompositionRoot().getHomePage.execute();
+---
+
+<BaseLayout {model} page="home" experience="home-showcase">
+  <HomeShowcase
+    title="Competenze in vetrina"
+    accent="Idee in movimento"
+    description={model.introduction}
+  />
+
+  <GlassConcept />
+
+  <CatalogShowcase items={model.featuredItems} />
+</BaseLayout>

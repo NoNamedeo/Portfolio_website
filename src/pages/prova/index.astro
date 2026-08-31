@@ -1,0 +1,385 @@
+---
+import { experimentalProjects } from '@presentation/data/experimental-site';
+import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
+---
+
+<ExperimentalLayout
+  title="Esperienze — Fisica, software ed elettronica"
+  description="Un racconto editoriale tra fisica, informatica, video processing ed elettronica DIY."
+  canonicalPath="/prova/"
+  page="experimental-home"
+>
+  <div class="exp-horizontal-shell" data-horizontal-shell>
+    <div class="exp-horizontal-viewport">
+      <div class="exp-horizontal-track" data-horizontal-track>
+        <section
+          class="exp-hscene exp-hhero"
+          data-horizontal-tone="light"
+          data-horizontal-scene
+          aria-labelledby="exp-home-title"
+        >
+          <div class="exp-hhero__copy">
+            <p class="exp-hhero__route">Home</p>
+
+            <h1 id="exp-home-title">
+              <span>Idee</span>
+              <span>in movimento</span>
+              <span>che</span>
+              <span>sfidano</span>
+              <span>lo <em>ordinario</em></span>
+            </h1>
+
+            <i class="experimental-dot" aria-hidden="true"></i>
+
+            <p class="exp-hhero__intro">
+              Un percorso tra metodo scientifico, software e oggetti costruiti a mano. Discipline
+              diverse, unite dalla stessa curiosità.
+            </p>
+
+            <nav class="exp-hhero__nav" aria-label="Sezioni principali">
+              <a href="/prova/conosci/" data-transition-link>Conosci</a>
+              <a href="/prova/progetti/" data-transition-link>Esperienze</a>
+              <a href="/prova/contatti/" data-transition-link>Contatti</a>
+            </nav>
+
+            <small>PORTFOLIO PERSONALE ©2026</small>
+          </div>
+
+          <figure class="exp-photo exp-hhero__photo" data-scroll-image>
+            <img
+              src="/media/prova/experience-rgb-matrix-v1.png"
+              alt="Matrice RGB dieci per dieci autocostruita"
+              width="1536"
+              height="1024"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </figure>
+        </section>
+
+        <section
+          class="exp-hscene exp-hstudio"
+          data-horizontal-tone="light"
+          data-horizontal-scene
+          aria-labelledby="exp-hstudio-title"
+        >
+          <div class="exp-hstudio__collage" aria-hidden="true">
+            <figure class="exp-photo exp-hstudio__photo exp-hstudio__photo--one" data-scroll-image>
+              <img
+                src="/media/prova/experience-physics-v1.png"
+                alt=""
+                width="1536"
+                height="1024"
+                loading="eager"
+              />
+            </figure>
+            <figure class="exp-photo exp-hstudio__photo exp-hstudio__photo--two" data-scroll-image>
+              <img
+                src="/media/prova/experience-computer-science-v1.png"
+                alt=""
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+
+          <div class="exp-hstudio__statement">
+            <p class="experimental-kicker">(Percorso)</p>
+            <h2 id="exp-hstudio-title">
+              Studiare per<br />
+              <span>comprendere</span><br />
+              costruire per<br />
+              imparare
+            </h2>
+            <p>
+              La fisica mi ha insegnato a misurare. L’informatica a progettare sistemi. I prototipi
+              a confrontare ogni idea con il mondo reale.
+            </p>
+          </div>
+        </section>
+
+        <section
+          class="exp-hscene exp-hmanifesto"
+          data-horizontal-scene
+          aria-labelledby="exp-hmanifesto-title"
+        >
+          <figure
+            class="exp-photo exp-hmanifesto__lead-photo"
+            data-scroll-image
+            data-horizontal-tone="dark"
+          >
+            <img
+              src="/media/prova/experience-sef-v1.png"
+              alt="Pipeline modulare per elaborazione video"
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+
+          <div class="exp-hmanifesto__copy" data-horizontal-tone="dark">
+            <p class="experimental-kicker">Il mio modo di progettare</p>
+            <p id="exp-hmanifesto-title" class="exp-hmanifesto__words" data-word-reveal>
+              {
+                'Parto dai principi, scompongo i problemi e costruisco strumenti che rendono osservabile ogni passaggio. Dal modello fisico al software, dal singolo frame al circuito: cerco chiarezza, modularità, misura e il piacere concreto di far funzionare le cose.'
+                  .split(' ')
+                  .map((word) => <span data-progress-word>{word} </span>)
+              }
+            </p>
+          </div>
+
+          <div
+            class="exp-hmanifesto__values-banner"
+            data-horizontal-tone="light"
+            aria-hidden="true"
+          >
+            <span>METODO</span>
+            <i>✳</i>
+            <span>METODO</span>
+          </div>
+
+          <div class="exp-hmanifesto__collage" data-horizontal-tone="light" aria-hidden="true">
+            <figure
+              class="exp-photo exp-hmanifesto__photo exp-hmanifesto__photo--one"
+              data-scroll-image
+            >
+              <img
+                src="/media/prova/experience-electronics-v1.png"
+                alt=""
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+            <figure
+              class="exp-photo exp-hmanifesto__photo exp-hmanifesto__photo--two"
+              data-scroll-image
+            >
+              <img
+                src="/media/prova/experience-rgb-matrix-v1.png"
+                alt=""
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+        </section>
+
+        <section
+          class="exp-hscene exp-hvalues"
+          data-horizontal-tone="coral"
+          data-horizontal-scene
+          aria-labelledby="exp-hvalues-title"
+        >
+          <p class="experimental-kicker">(Principi)</p>
+          <h2 id="exp-hvalues-title" class="exp-visually-hidden">I miei principi</h2>
+
+          <p class="exp-hvalues__word exp-hvalues__word--one"><small>01</small> Metodo</p>
+          <p class="exp-hvalues__word exp-hvalues__word--two"><small>02</small> Curiosità</p>
+          <p class="exp-hvalues__word exp-hvalues__word--three"><small>03</small> Prototipi</p>
+
+          <p class="exp-hvalues__description">
+            Comprendere prima di semplificare, rendere visibili i passaggi e imparare costruendo:
+            dal modello al codice, dal codice all’hardware.
+          </p>
+
+          <figure class="exp-photo exp-hvalues__photo" data-scroll-image>
+            <img
+              src="/media/prova/experience-computer-science-v1.png"
+              alt="Postazione di programmazione e diagrammi di algoritmi"
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+        </section>
+
+        <section
+          class="exp-hscene exp-hprojects"
+          data-horizontal-scene
+          aria-labelledby="exp-hprojects-title"
+        >
+          <div class="exp-hprojects__intro" data-horizontal-tone="light">
+            <p class="experimental-kicker">Esperienze</p>
+            <h2 id="exp-hprojects-title" class="exp-visually-hidden">Esperienze selezionate</h2>
+            <p>
+              Due percorsi accademici, un framework per il video e un laboratorio in continua
+              evoluzione, dove software ed elettronica diventano oggetti reali.
+            </p>
+          </div>
+
+          {
+            experimentalProjects.map((project, index) => (
+              <article
+                class:list={[
+                  'exp-hproject-card',
+                  `exp-hproject-card--${project.accent}`,
+                  index % 2 === 1 && 'is-offset'
+                ]}
+                data-horizontal-tone="light"
+                data-horizontal-motion
+              >
+                <figure class="exp-photo exp-hproject-card__photo" data-scroll-image>
+                  <img
+                    src={project.image}
+                    alt={project.imageAlt}
+                    width="1536"
+                    height="1024"
+                    loading="lazy"
+                  />
+                </figure>
+
+                <div class="exp-hproject-card__meta">
+                  <span>{project.year}</span>
+                  <span>{project.location}</span>
+                </div>
+
+                <p class="exp-hproject-card__index">{project.index}</p>
+                <h3>{project.name}</h3>
+
+                {project.status === 'available' ? (
+                  <a
+                    class="experimental-button experimental-button--outline"
+                    href={`/prova/progetto/${project.slug}/`}
+                    data-transition-link
+                    data-cursor="Esplora"
+                  >
+                    L’esperienza
+                  </a>
+                ) : (
+                  <span class="experimental-button experimental-button--outline is-disabled">
+                    In preparazione
+                  </span>
+                )}
+              </article>
+            ))
+          }
+
+          <a
+            class="exp-hprojects__all"
+            href="/prova/progetti/"
+            data-horizontal-tone="light"
+            data-transition-link
+            data-cursor="Scopri"
+          >
+            <span>Vedi tutto</span>
+            <strong aria-hidden="true">↗</strong>
+          </a>
+        </section>
+
+        <section
+          class="exp-hscene exp-hfunctional"
+          data-horizontal-scene
+          aria-labelledby="exp-hfunctional-title"
+        >
+          <div class="exp-hfunctional__copy" data-horizontal-tone="light">
+            <p class="experimental-kicker">Dal software all’hardware</p>
+            <h2 id="exp-hfunctional-title">
+              Capire.<br />
+              <span>Progettare.</span><br />
+              Costruire.<br />
+              Ripetere.
+            </h2>
+            <p>
+              Lo stesso metodo attraversa scale diverse: una pipeline video, un algoritmo, un
+              sensore o cento LED. Ogni prototipo è una domanda resa concreta.
+            </p>
+          </div>
+
+          <div
+            class="exp-hfunctional__gallery"
+            data-horizontal-gallery
+            data-horizontal-tone="coral"
+          >
+            <figure class="exp-photo" data-scroll-image>
+              <img
+                src="/media/prova/experience-electronics-v1.png"
+                alt="Prototipo elettronico su banco maker"
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+            <figure class="exp-photo" data-scroll-image>
+              <img
+                src="/media/prova/experience-sef-v1.png"
+                alt="Sistema modulare per elaborazione video"
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+            <figure class="exp-photo" data-scroll-image>
+              <img
+                src="/media/prova/experience-rgb-matrix-v1.png"
+                alt="Matrice RGB dieci per dieci illuminata"
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section
+    class="exp-contact-band"
+    data-header-tone="light"
+    data-reveal-section
+    aria-labelledby="exp-contact-title"
+  >
+    <p class="experimental-kicker">(Prossima sfida)</p>
+    <h2 class="exp-contact-band__unlock" data-scroll-heading>
+      Costruiamo<br />
+      qualcosa
+    </h2>
+
+    <div class="exp-contact-band__collage">
+      <figure class="exp-photo exp-contact-band__photo exp-contact-band__photo--large">
+        <img
+          src="/media/prova/experience-computer-science-v1.png"
+          alt="Strumenti di informatica e progettazione software"
+          width="1536"
+          height="1024"
+          loading="lazy"
+        />
+      </figure>
+      <figure class="exp-photo exp-contact-band__photo exp-contact-band__photo--small">
+        <img
+          src="/media/prova/experience-physics-v1.png"
+          alt="Esperimento di ottica e quaderno di fisica"
+          width="1536"
+          height="1024"
+          loading="lazy"
+        />
+      </figure>
+    </div>
+
+    <div class="exp-contact-band__content">
+      <h2 id="exp-contact-title">
+        Ricerca, codice e<br />
+        materia nella stessa <em>direzione</em>
+      </h2>
+
+      <div>
+        <p>
+          Mi interessano problemi che richiedono rigore, creatività e mani in pasta: dal primo
+          modello fino al test su un sistema reale.
+        </p>
+        <a href="mailto:studio@placeholder.test">studio@placeholder.test</a>
+      </div>
+
+      <a
+        class="experimental-button experimental-button--large"
+        href="/prova/contatti/"
+        data-transition-link
+      >
+        Inizia una conversazione
+      </a>
+    </div>
+  </section>
+</ExperimentalLayout>

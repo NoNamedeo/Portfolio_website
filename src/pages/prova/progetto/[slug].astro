@@ -1,0 +1,197 @@
+---
+import {
+  availableExperimentalProjects,
+  type ExperimentalProject
+} from '@presentation/data/experimental-site';
+import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
+
+export const getStaticPaths = () =>
+  availableExperimentalProjects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project }
+  }));
+
+interface Props {
+  project: ExperimentalProject;
+}
+
+const { project } = Astro.props;
+const projectIndex = availableExperimentalProjects.findIndex((item) => item.slug === project.slug);
+const nextProject =
+  availableExperimentalProjects[(projectIndex + 1) % availableExperimentalProjects.length]!;
+const companionProject =
+  availableExperimentalProjects[(projectIndex + 2) % availableExperimentalProjects.length]!;
+---
+
+<ExperimentalLayout
+  title={`${project.name} — Portfolio`}
+  description={project.intro}
+  canonicalPath={`/prova/progetto/${project.slug}/`}
+  page="experimental-project-detail"
+>
+  <article class:list={['exp-detail', `exp-detail--${project.accent}`]}>
+    <section class="exp-detail-hero" data-header-tone="light">
+      <div class="exp-detail-hero__title">
+        <h1 data-reveal>{project.name}</h1>
+        <span>{project.index}</span>
+      </div>
+      <figure class="exp-detail-hero__media exp-photo" data-parallax="0.025">
+        <img
+          src={project.image}
+          alt={project.imageAlt}
+          width="1536"
+          height="1024"
+          loading="eager"
+        />
+      </figure>
+      <p>{project.name} — {project.location}</p>
+      <small>(Scorri)</small>
+    </section>
+
+    <section class="exp-detail-place" data-header-tone="light">
+      <figure class="exp-photo" data-parallax="0.03">
+        <img src={project.image} alt={project.imageAlt} width="1536" height="1024" loading="lazy" />
+      </figure>
+      <figure class="exp-photo" data-parallax="-0.025">
+        <img
+          src={companionProject.image}
+          alt={companionProject.imageAlt}
+          width="1536"
+          height="1024"
+          loading="lazy"
+        />
+      </figure>
+      <div class="exp-detail-place__copy">
+        <p class="experimental-kicker">(Il contesto)</p>
+        <h2 data-reveal>Dal principio<br />al sistema <em>reale.</em></h2>
+        <p>{project.intro}</p>
+      </div>
+      <dl>
+        <div>
+          <dt>Ambito</dt>
+          <dd>{project.location}</dd>
+        </div>
+        <div>
+          <dt>Connessioni</dt>
+          <dd>Metodo · Modelli<br />Software · Prototipi<br />Misura · Iterazione</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="exp-detail-full-media" data-header-tone="light">
+      <figure class="exp-photo">
+        <img src={project.image} alt={project.imageAlt} width="1536" height="1024" loading="lazy" />
+      </figure>
+    </section>
+
+    <section class="exp-detail-quote" data-header-tone="dark">
+      <p data-reveal>{project.quote}</p>
+      <i class="experimental-dot experimental-dot--coral"></i>
+    </section>
+
+    <section class="exp-detail-features" data-header-tone="dark">
+      {
+        project.features.map((feature, index) => {
+          const featureProject =
+            availableExperimentalProjects[
+              (projectIndex + index + 2) % availableExperimentalProjects.length
+            ]!;
+
+          return (
+            <article class:list={['exp-detail-feature', index % 2 === 1 && 'is-reversed']}>
+              <figure class="exp-photo" data-parallax={index % 2 === 0 ? 0.03 : -0.03}>
+                <img
+                  src={featureProject.image}
+                  alt={featureProject.imageAlt}
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
+                />
+              </figure>
+              <div>
+                <span>0{index + 1}</span>
+                <h2 data-reveal>{feature.title}</h2>
+                <p>{feature.text}</p>
+              </div>
+            </article>
+          );
+        })
+      }
+    </section>
+
+    <section class="exp-detail-gallery" data-header-tone="light">
+      <div class="exp-detail-gallery__heading">
+        <p class="experimental-kicker">(Galleria)</p>
+        <h2 data-reveal>Un ritmo di<br /><em>idee e materia.</em></h2>
+        <p>Seleziona un’immagine per osservarne il dettaglio.</p>
+      </div>
+      <div class="gallery-grid">
+        {
+          availableExperimentalProjects.map((galleryProject) => (
+            <button
+              class="gallery-grid__item exp-photo"
+              type="button"
+              aria-label={`Apri ${galleryProject.name}`}
+              data-gallery-item
+              data-cursor="Apri"
+            >
+              <img
+                src={galleryProject.image}
+                alt={galleryProject.imageAlt}
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </button>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="exp-detail-facts" data-header-tone="coral">
+      <div>
+        <p class="experimental-kicker">(In breve)</p>
+        <h2 data-reveal>Tutto ciò che<br />serve per <em>capire.</em></h2>
+      </div>
+      <dl>
+        {
+          project.facts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <a
+        class="experimental-button experimental-button--large"
+        href="/prova/contatti/"
+        data-transition-link
+      >
+        Parliamone
+      </a>
+    </section>
+
+    <section class="exp-next-project" data-header-tone="light">
+      <p class="experimental-kicker">(Esperienza successiva)</p>
+      <a href={`/prova/progetto/${nextProject.slug}/`} data-transition-link data-cursor="Avanti">
+        <span>{nextProject.index}</span>
+        <strong>{nextProject.name}</strong>
+        <figure class="exp-photo">
+          <img
+            src={nextProject.image}
+            alt={nextProject.imageAlt}
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+        </figure>
+      </a>
+    </section>
+  </article>
+
+  <dialog class="experimental-dialog" data-gallery-dialog>
+    <button type="button" data-gallery-close>Chiudi</button>
+    <div class="experimental-dialog__media" data-gallery-dialog-media></div>
+  </dialog>
+</ExperimentalLayout>

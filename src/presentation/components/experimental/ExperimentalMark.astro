@@ -1,0 +1,17 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<a
+  class:list={['experimental-mark', className]}
+  href="/prova/"
+  aria-label="Atelier Ordinarie, home"
+>
+  <span class="experimental-mark__is">is</span>
+  <span class="experimental-mark__word">BORING</span>
+  <span class="experimental-mark__registered">®</span>
+</a>

@@ -1,0 +1,35 @@
+---
+interface Props {
+  label?: string;
+  tone?: 'sand' | 'stone' | 'sage' | 'blue' | 'coral' | 'ink';
+  scene?: 'interior' | 'exterior' | 'detail' | 'plan' | 'landscape';
+  class?: string;
+  parallax?: number;
+}
+
+const {
+  label = 'Immagine di progetto',
+  tone = 'sand',
+  scene = 'interior',
+  class: className = '',
+  parallax
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'editorial-media',
+    `editorial-media--${tone}`,
+    `editorial-media--${scene}`,
+    className
+  ]}
+  role="img"
+  aria-label={label}
+  data-parallax={parallax}
+>
+  <span class="editorial-media__light" aria-hidden="true"></span>
+  <span class="editorial-media__frame" aria-hidden="true"></span>
+  <span class="editorial-media__object" aria-hidden="true"></span>
+  <span class="editorial-media__plant" aria-hidden="true"></span>
+  <span class="editorial-media__caption" aria-hidden="true">{label}</span>
+</div>

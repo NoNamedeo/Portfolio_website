@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('mostra il caricamento iniziale e lascia pronta la pagina', async ({ page }) => {
   test.setTimeout(120_000);
-  const documentResponse = await page.request.get('/');
+  const documentResponse = await page.request.get('/portfolio/');
   const documentHtml = await documentResponse.text();
   expect(documentHtml).toContain('site-loader__indicator');
   expect(documentHtml).not.toContain('site-loader__pane');
@@ -22,7 +22,7 @@ test('mostra il caricamento iniziale e lascia pronta la pagina', async ({ page }
     await modelRequestGate;
     await route.continue();
   });
-  const navigation = page.goto('/');
+  const navigation = page.goto('/portfolio/');
 
   const loader = page.locator('[data-site-loader]');
   await modelRequested;
@@ -57,8 +57,28 @@ test('mostra il caricamento iniziale e lascia pronta la pagina', async ({ page }
   await expect(page.getByRole('heading', { level: 1 })).toContainText('fuori catalogo');
 });
 
-test('apre homepage e catalogo', async ({ page }) => {
+test('apre la pagina di ingresso, la home completa e il catalogo', async ({ page }) => {
+  test.setTimeout(90_000);
   await page.goto('/');
+  await expect(page.locator('[data-site-loader]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Home attuale' })).toHaveAttribute(
+    'href',
+    '/portfolio/'
+  );
+  await expect(page.getByRole('link', { name: 'Pagina di prova' })).toHaveAttribute(
+    'href',
+    '/prova/'
+  );
+  await expect(page.getByRole('link', { name: 'Canals' })).toHaveAttribute('href', '/canals/');
+  await page.getByRole('link', { name: 'Pagina di prova' }).click();
+  await expect(page).toHaveURL(/\/prova\/$/);
+  await expect(page.locator('[data-site-loader]')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Spazi');
+  await expect(page.locator('html')).toHaveAttribute('data-experimental-ready', 'ready');
+
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Home attuale' }).click();
+  await expect(page).toHaveURL(/\/portfolio\/$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze');
   await page.getByRole('link', { name: 'Catalogo' }).first().click();
   await expect(page).toHaveURL(/\/catalog\/$/);
@@ -281,7 +301,17 @@ test('le route principali non generano errori client critici', async ({ page }) 
     if (message.type() === 'error') errors.push(message.text());
   });
 
-  const routes = ['/', '/catalog/', '/catalog/signal-archive/', '/cart/', '/checkout/', '/404/'];
+  const routes = [
+    '/',
+    '/portfolio/',
+    '/prova/',
+    '/canals/',
+    '/catalog/',
+    '/catalog/signal-archive/',
+    '/cart/',
+    '/checkout/',
+    '/404/'
+  ];
   for (const route of routes) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBeLessThan(500);

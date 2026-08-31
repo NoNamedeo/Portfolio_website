@@ -41,7 +41,7 @@ test('carica una sola volta il GLB e sostituisce davvero tutti i placeholder', a
   });
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
 
   const root = page.locator(rootSelector);
@@ -121,7 +121,7 @@ test('carica una sola volta il GLB e sostituisce davvero tutti i placeholder', a
 
 test('normalizza il puntatore e torna gradualmente allo stato neutro', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
 
   const stage = page.locator('[data-showcase-stage]');
@@ -149,7 +149,7 @@ test('normalizza il puntatore e torna gradualmente allo stato neutro', async ({ 
 
 test('riusa lo scroll esistente per aprire la composizione senza scatti', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
 
   const root = page.locator(rootSelector);
@@ -200,7 +200,7 @@ test('riusa lo scroll esistente per aprire la composizione senza scatti', async 
 
 test('ricalcola qualità e numero di lastre ai breakpoint senza overflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
   const canvas = page.locator(canvasSelector);
 
@@ -229,7 +229,7 @@ test('reduced motion conserva il vetro ma blocca moto continuo, parallax e scrol
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
 
   const root = page.locator(rootSelector);
@@ -259,7 +259,7 @@ test('touch usa il moto ambientale alleggerito e non dipende dall’hover', asyn
   });
   try {
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/portfolio/');
     await waitForWebGLHero(page);
 
     const root = page.locator(rootSelector);
@@ -308,7 +308,7 @@ test('WebGL non disponibile mantiene testo, CTA e fallback statico', async ({ pa
       return nativeGetContext.call(this, contextId, ...options);
     } as typeof nativeGetContext;
   });
-  await page.goto('/');
+  await page.goto('/portfolio/');
 
   const root = page.locator(rootSelector);
   const canvas = page.locator(canvasSelector);
@@ -332,7 +332,7 @@ test('WebGL non disponibile mantiene testo, CTA e fallback statico', async ({ pa
 test('cleanup e ripristino non duplicano canvas durante la navigazione client-side', async ({
   page
 }) => {
-  await page.goto('/');
+  await page.goto('/portfolio/');
   await waitForWebGLHero(page);
   const root = page.locator(rootSelector);
   const canvas = page.locator(canvasSelector);
@@ -366,7 +366,7 @@ test('senza JavaScript conserva contenuto, fallback e layout responsive', async 
       { width: 390, height: 844 }
     ]) {
       await page.setViewportSize(viewport);
-      await page.goto('/');
+      await page.goto('/portfolio/');
       await expect(page.getByRole('heading', { level: 1 })).toContainText('Competenze in vetrina');
       await expect(page.getByRole('heading', { level: 1 })).toContainText('Idee in movimento');
       await expect(page.locator(rootSelector)).not.toHaveAttribute('data-showcase-state', /.+/);

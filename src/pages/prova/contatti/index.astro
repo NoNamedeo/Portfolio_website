@@ -1,0 +1,73 @@
+---
+import { experimentalProjects } from '@presentation/data/experimental-site';
+import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
+---
+
+<ExperimentalLayout
+  title="Contatti — Portfolio"
+  description="Inizia una conversazione su ricerca, software ed elettronica."
+  canonicalPath="/prova/contatti/"
+  page="experimental-contact"
+>
+  <section class="exp-contact-page" data-header-tone="coral">
+    <div class="exp-contact-page__heading">
+      <p class="experimental-kicker">(Contatti)</p>
+      <h1 data-reveal>
+        Costruiamo<br />
+        qualcosa <em>insieme.</em>
+      </h1>
+      <p>
+        Raccontami l’idea, il problema o il prototipo su cui vuoi ragionare. Questo modulo è una
+        dimostrazione e non invia dati.
+      </p>
+    </div>
+
+    <form class="exp-contact-form" data-experimental-contact-form>
+      <label>
+        <span>Nome</span>
+        <input type="text" name="name" autocomplete="name" required placeholder="Il tuo nome" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+          placeholder="nome@email.it"
+        />
+      </label>
+      <label>
+        <span>Interesse</span>
+        <select name="interest" required>
+          <option value="">Seleziona</option>
+          {experimentalProjects.map((project) => <option>{project.name}</option>)}
+          <option>Una nuova collaborazione</option>
+        </select>
+      </label>
+      <label class="exp-contact-form__message">
+        <span>Messaggio</span>
+        <textarea name="message" rows="5" required placeholder="Parlaci del tuo progetto"
+        ></textarea>
+      </label>
+      <label class="exp-contact-form__consent">
+        <input type="checkbox" required />
+        <span>Accetto l’informativa demo sul trattamento dei dati.</span>
+      </label>
+      <button class="experimental-button experimental-button--large" type="submit"
+        >Invia richiesta</button
+      >
+      <p class="exp-contact-form__status" data-form-status aria-live="polite"></p>
+    </form>
+
+    <figure class="exp-contact-page__media exp-photo" data-parallax="0.03">
+      <img
+        src="/media/prova/experience-electronics-v1.png"
+        alt="Banco di lavoro con un prototipo elettronico"
+        width="1536"
+        height="1024"
+        loading="lazy"
+      />
+    </figure>
+  </section>
+</ExperimentalLayout>

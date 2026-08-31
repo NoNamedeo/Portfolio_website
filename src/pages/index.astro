@@ -1,21 +1,59 @@
 ---
-import { createCompositionRoot } from '@app/composition-root';
-import CatalogShowcase from '@presentation/components/home/CatalogShowcase.astro';
-import GlassConcept from '@presentation/components/home/GlassConcept.astro';
-import HomeShowcase from '@presentation/components/home/HomeShowcase.astro';
-import BaseLayout from '@presentation/layouts/BaseLayout.astro';
-
-const model = await createCompositionRoot().getHomePage.execute();
+import Button from '@presentation/components/shared/Button.astro';
+import EntryLayout from '@presentation/layouts/EntryLayout.astro';
 ---
 
-<BaseLayout {model} page="home" experience="home-showcase">
-  <HomeShowcase
-    title="Competenze in vetrina"
-    accent="Idee in movimento"
-    description={model.introduction}
-  />
+<EntryLayout
+  title="Studio Prisma"
+  description="Scegli quale versione del portfolio visitare."
+  canonicalPath="/"
+>
+  <main class="entry-page">
+    <section class="entry-page__content" aria-labelledby="entry-title">
+      <p class="eyebrow">Studio Prisma</p>
+      <h1 id="entry-title">Scegli una pagina</h1>
+      <div class="entry-page__actions">
+        <Button href="/portfolio/">Home attuale</Button>
+        <Button href="/prova/" variant="secondary">Pagina di prova</Button>
+        <Button href="/canals/" variant="secondary">Canals</Button>
+      </div>
+    </section>
+  </main>
+</EntryLayout>
 
-  <GlassConcept />
+<style>
+  .entry-page {
+    display: grid;
+    min-height: 100svh;
+    place-items: center;
+    padding: var(--gutter);
+  }
 
-  <CatalogShowcase items={model.featuredItems} />
-</BaseLayout>
+  .entry-page__content {
+    display: grid;
+    gap: var(--space-l);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .entry-page__content h1 {
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+  }
+
+  .entry-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: center;
+  }
+
+  @media (max-width: 30rem) {
+    .entry-page__actions {
+      width: min(100%, 18rem);
+    }
+
+    .entry-page__actions :global(.button) {
+      width: 100%;
+    }
+  }
+</style>

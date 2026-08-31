@@ -1,0 +1,341 @@
+---
+import CanalsLayout from '@presentation/layouts/CanalsLayout.astro';
+
+const heroImage = '/media/canals/canal-hero-v1.webp';
+const engravingImage = '/media/canals/canal-engraving-v1.webp';
+const constructionImage = '/media/canals/canal-construction-v1.webp';
+const mapImage = '/media/canals/canal-map-v1.webp';
+---
+
+<CanalsLayout
+  title="Canals — An editorial journey"
+  description="Un viaggio editoriale interattivo tra acqua, città e storia."
+  canonicalPath="/canals/"
+>
+  <div class="canals-story" data-canals-shell>
+    <div class="canals-viewport" data-canals-viewport>
+      <div class="canals-track" data-canals-track>
+        <section
+          class="canals-scene canals-hero"
+          id="overview"
+          data-canals-scene
+          data-canals-tone="photo"
+          aria-labelledby="canals-title"
+        >
+          <figure class="canals-cover" data-canals-media data-parallax="0.9">
+            <img
+              src={heroImage}
+              alt="Veduta dal livello dell'acqua di un canale europeo"
+              width="1536"
+              height="1024"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </figure>
+
+          <div class="canals-hero__meta">
+            <p>Amsterdam</p>
+            <p>52°22′N / 4°54′E</p>
+          </div>
+
+          <h1 id="canals-title" class="canals-masthead" aria-label="Canals">
+            <span>C</span><span>A</span><span>N</span><span>A</span><span>L</span><span>S</span>
+          </h1>
+
+          <button
+            class="canals-scroll-cue"
+            type="button"
+            data-canals-next
+            aria-label="Inizia il racconto"
+          >
+            <span>Scroll to explore</span>
+            <b aria-hidden="true">→</b>
+          </button>
+        </section>
+
+        <section
+          class="canals-scene canals-overview"
+          data-canals-scene
+          data-canals-tone="red"
+          aria-labelledby="overview-title"
+        >
+          <div class="canals-section-number" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </div>
+          <div class="canals-overview__top">
+            <p class="canals-kicker" data-reveal>00 — Overview</p>
+            <p class="canals-copy" data-reveal>
+              Una città letta dalla sua acqua. Quattro capitoli attraversano geografia, ingegneria e
+              trasformazione urbana.
+            </p>
+          </div>
+          <div class="canals-rule" data-rule></div>
+          <h2 id="overview-title" class="canals-display" data-reveal-lines>
+            <span>AMSTER</span><span>DAM</span>
+          </h2>
+          <p class="canals-overview__index">I / IV</p>
+        </section>
+
+        <section
+          class="canals-scene canals-photo-break canals-photo-break--first"
+          data-canals-scene
+          data-canals-tone="photo"
+          aria-label="Veduta del canale"
+        >
+          <figure data-canals-media data-parallax="1.25">
+            <img src={heroImage} alt="" width="1536" height="1024" loading="eager" />
+          </figure>
+          <p class="canals-vertical-caption">A city carved by water — chapter zero</p>
+        </section>
+
+        <section
+          class="canals-scene canals-region"
+          data-canals-scene
+          data-canals-tone="paper"
+          aria-labelledby="region-title"
+        >
+          <div class="canals-region__crosses" aria-hidden="true">
+            <span>×</span><span>×</span><span>×</span>
+          </div>
+          <p class="canals-kicker" data-reveal>North Holland / The Netherlands</p>
+          <h2 id="region-title" data-reveal-lines><span>NOORD</span><span>HOLLAND</span></h2>
+          <div class="canals-region__body">
+            <p class="canals-copy" data-reveal>
+              Terra bassa, mare vicino, orizzonte ampio. Qui la geografia non fa da sfondo:
+              stabilisce le regole del progetto urbano.
+            </p>
+            <p class="canals-coordinate" data-reveal>−2.0 m<br />SEA LEVEL</p>
+          </div>
+          <div class="canals-rule" data-rule></div>
+        </section>
+
+        <section
+          class="canals-scene canals-statistics"
+          data-canals-scene
+          data-canals-tone="black"
+          aria-labelledby="statistics-title"
+        >
+          <h2 id="statistics-title" class="canals-visually-hidden">Canals in numbers</h2>
+          <div class="canals-statistics__line" data-reveal-lines>
+            <span>WITH <em>165</em> CANALS</span>
+          </div>
+          <div class="canals-statistics__line canals-statistics__line--right" data-reveal-lines>
+            <span><em>100 KM</em> LENGTH</span>
+          </div>
+          <div class="canals-statistics__line" data-reveal-lines>
+            <span>MORE THAN <em>1200</em> BRIDGES</span>
+          </div>
+          <figure data-canals-media data-parallax="1.5">
+            <img src={heroImage} alt="" width="1536" height="1024" loading="lazy" />
+          </figure>
+          <p class="canals-statistics__note" data-reveal>
+            Numeri indicativi per raccontare la scala di un paesaggio costruito.
+          </p>
+        </section>
+
+        <section
+          class="canals-scene canals-chapter canals-chapter--origins"
+          id="origins"
+          data-canals-scene
+          data-canals-tone="red"
+          aria-labelledby="origins-title"
+        >
+          <p class="canals-kicker" data-reveal>01 — Origins</p>
+          <div class="canals-chapter__glyph" aria-hidden="true"><i></i><i></i></div>
+          <h2 id="origins-title" data-reveal-lines>
+            <span>BUILT</span><span>FROM</span><span>WATER</span>
+          </h2>
+          <p class="canals-copy" data-reveal>
+            Prima delle facciate e dei ponti c'era una domanda elementare: come abitare un
+            territorio che l'acqua continuava a riscrivere?
+          </p>
+          <div class="canals-year" data-float aria-label="Anno 1275">
+            <span>1275</span><small>A beginning</small>
+          </div>
+        </section>
+
+        <section
+          class="canals-scene canals-archive"
+          data-canals-scene
+          data-canals-tone="paper"
+          aria-labelledby="archive-title"
+        >
+          <figure data-canals-media data-parallax="1.15">
+            <img
+              src={engravingImage}
+              alt="Incisione immaginaria di un antico porto olandese"
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+          <div class="canals-archive__copy">
+            <p class="canals-kicker" data-reveal>Archive no. 01</p>
+            <h2 id="archive-title" data-reveal-lines><span>A SMALL</span><span>PORT TOWN</span></h2>
+            <p class="canals-copy" data-reveal>
+              Argini di legno, case strette e una rete di approdi. La città cresce seguendo la
+              corrente, poi impara a disciplinarla.
+            </p>
+          </div>
+          <div class="canals-rule" data-rule></div>
+        </section>
+
+        <section
+          class="canals-scene canals-below"
+          data-canals-scene
+          data-canals-tone="black"
+          aria-labelledby="below-title"
+        >
+          <p class="canals-below__eyebrow" data-reveal>Living</p>
+          <h2 id="below-title" data-reveal-lines>
+            <span>BELOW</span><span>SEA</span><span>LEVEL</span>
+          </h2>
+          <div class="canals-below__datum" data-float>
+            <i></i>
+            <span>0.00</span>
+            <small>NAP datum</small>
+          </div>
+          <p class="canals-copy" data-reveal>
+            Canali, chiuse e pompe formano una macchina territoriale: invisibile quando funziona,
+            decisiva in ogni momento.
+          </p>
+          <div class="canals-tide-lines" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </section>
+
+        <section
+          class="canals-scene canals-construction"
+          data-canals-scene
+          data-canals-tone="photo"
+          aria-labelledby="construction-title"
+        >
+          <figure data-canals-media data-parallax="1.35">
+            <img
+              src={constructionImage}
+              alt="Scena pittorica della costruzione di un canale storico"
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+          <div class="canals-construction__copy">
+            <p class="canals-kicker" data-reveal>Timber / earth / stone</p>
+            <h2 id="construction-title" data-reveal-lines>
+              <span>ENGINEERED</span><span>GROUND</span>
+            </h2>
+          </div>
+          <div class="canals-year canals-year--light" data-float aria-label="Anno 1585">
+            <span>1585</span><small>Rapid growth</small>
+          </div>
+        </section>
+
+        <section
+          class="canals-scene canals-chapter canals-chapter--functions"
+          id="functions"
+          data-canals-scene
+          data-canals-tone="paper"
+          aria-labelledby="functions-title"
+        >
+          <p class="canals-kicker" data-reveal>02 — Functions</p>
+          <div class="canals-chapter__rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <h2 id="functions-title" data-reveal-lines>
+            <span>WATER</span><span>IS AN</span><span>ENGINE</span>
+          </h2>
+          <p class="canals-copy" data-reveal>
+            Difesa, drenaggio, trasporto, commercio. La stessa rete risolve problemi diversi e crea
+            un nuovo spazio pubblico.
+          </p>
+          <p class="canals-chapter__folio">II / IV</p>
+        </section>
+
+        <section
+          class="canals-scene canals-words"
+          data-canals-scene
+          data-canals-tone="red"
+          aria-labelledby="words-title"
+        >
+          <h2 id="words-title" class="canals-visually-hidden">Functions of water</h2>
+          <p class="canals-words__one" data-reveal-lines><span>WATER</span><span>WATER</span></p>
+          <p class="canals-words__two" data-reveal-lines><span>TRADE</span></p>
+          <p class="canals-words__three" data-reveal-lines><span>DEFENCE</span></p>
+          <div class="canals-words__copy">
+            <p class="canals-copy" data-reveal>
+              Ogni parola occupa lo spazio come un'infrastruttura. Scorrendo, le funzioni si
+              sovrappongono e diventano un unico sistema.
+            </p>
+            <div class="canals-rule" data-rule></div>
+          </div>
+        </section>
+
+        <section
+          class="canals-scene canals-map"
+          data-canals-scene
+          data-canals-tone="paper"
+          aria-labelledby="map-title"
+        >
+          <figure data-canals-media data-parallax="1.2">
+            <img
+              src={mapImage}
+              alt="Mappa illustrata di una città attraversata da canali concentrici"
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+          <div class="canals-map__copy">
+            <p class="canals-kicker" data-reveal>Plan / movement / exchange</p>
+            <h2 id="map-title" data-reveal-lines><span>THE RINGS</span><span>CONNECT</span></h2>
+          </div>
+          <div class="canals-map__marker canals-map__marker--one" data-float>01</div>
+          <div class="canals-map__marker canals-map__marker--two" data-float>02</div>
+          <div class="canals-map__marker canals-map__marker--three" data-float>03</div>
+        </section>
+
+        <section
+          class="canals-scene canals-expansion"
+          id="expansion"
+          data-canals-scene
+          data-canals-tone="black"
+          aria-labelledby="expansion-title"
+        >
+          <p class="canals-kicker" data-reveal>03 — Expansion</p>
+          <h2 id="expansion-title" data-reveal-lines>
+            <span>MILLIONS</span><span>OF LINES</span><span>ONE CITY</span>
+          </h2>
+          <p class="canals-copy" data-reveal>
+            Nuovi anelli estendono il centro senza spezzarne la logica. La crescita diventa una
+            figura leggibile dall'alto.
+          </p>
+          <figure data-canals-media data-parallax="1.45">
+            <img src={engravingImage} alt="" width="1536" height="1024" loading="lazy" />
+          </figure>
+          <div class="canals-year canals-year--light" data-float aria-label="Anno 1613">
+            <span>1613</span><small>The great plan</small>
+          </div>
+        </section>
+
+        <section
+          class="canals-scene canals-finale"
+          data-canals-scene
+          data-canals-tone="red"
+          aria-labelledby="finale-title"
+        >
+          <figure data-canals-media data-parallax="1.1">
+            <img src={mapImage} alt="" width="1536" height="1024" loading="lazy" />
+          </figure>
+          <div class="canals-finale__veil" aria-hidden="true"></div>
+          <p class="canals-kicker" data-reveal>End of the journey</p>
+          <h2 id="finale-title" data-reveal-lines><span>A CITY</span><span>IN MOTION</span></h2>
+          <p class="canals-copy" data-reveal>
+            Una storia d'acqua non è mai ferma. Continua fuori dallo schermo, lungo ogni riva.
+          </p>
+          <a href="#overview" data-canals-jump class="canals-restart">
+            <span>Restart</span><b aria-hidden="true">↖</b>
+          </a>
+          <a href="/" class="canals-exit">Back to entrance</a>
+        </section>
+      </div>
+    </div>
+  </div>
+</CanalsLayout>

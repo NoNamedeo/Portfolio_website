@@ -13,7 +13,7 @@ const { siteName, currentPath } = Astro.props;
 
 <header class="site-header">
   <ResponsiveContainer class="site-header__inner">
-    <a class="brand" href="/" aria-label={siteName + ', homepage'}>{siteName}</a>
+    <a class="brand" href="/portfolio/" aria-label={siteName + ', homepage'}>{siteName}</a>
     <MainNavigation {currentPath} />
     <CartIndicator />
   </ResponsiveContainer>

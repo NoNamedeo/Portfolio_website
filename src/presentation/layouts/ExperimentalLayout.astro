@@ -1,0 +1,55 @@
+---
+import siteConfig from '../../../site.config.json';
+import ExperimentalFooter from '@presentation/components/experimental/ExperimentalFooter.astro';
+import ExperimentalHeader from '@presentation/components/experimental/ExperimentalHeader.astro';
+import ExperimentalPreloader from '@presentation/components/experimental/ExperimentalPreloader.astro';
+import '@styles/experimental-site.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  page: string;
+  hideFooter?: boolean;
+}
+
+const { title, description, canonicalPath, page, hideFooter = false } = Astro.props;
+const canonical = new URL(canonicalPath, siteConfig.canonicalUrl).toString();
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#eee6da" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <script is:inline>
+      document.documentElement.classList.add('has-experimental-js');
+    </script>
+  </head>
+  <body class="experimental-body" data-experimental-page={page}>
+    <ExperimentalPreloader />
+    <div class="experimental-transition" data-page-transition aria-hidden="true">
+      <span>NORMAL</span>
+      <i>is</i>
+      <strong>BORING</strong>
+    </div>
+    <div class="experimental-cursor" data-experimental-cursor aria-hidden="true">
+      <span data-cursor-label></span>
+    </div>
+    <a class="experimental-skip-link" href="#experimental-main">Vai al contenuto</a>
+    <ExperimentalHeader />
+    <main id="experimental-main" tabindex="-1">
+      <slot />
+    </main>
+    {!hideFooter && <ExperimentalFooter />}
+    <script>
+      import '@presentation/client/experimental-site';
+    </script>
+  </body>
+</html>

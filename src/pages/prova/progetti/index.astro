@@ -1,0 +1,118 @@
+---
+import { experimentalProjects } from '@presentation/data/experimental-site';
+import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
+---
+
+<ExperimentalLayout
+  title="Esperienze — Fisica, software ed elettronica"
+  description="Una raccolta di percorsi accademici e progetti tra software, video ed elettronica."
+  canonicalPath="/prova/progetti/"
+  page="experimental-projects"
+>
+  <section class="exp-projects-hero" data-header-tone="dark">
+    <div class="exp-projects-hero__section-label">Esperienze</div>
+    <div class="exp-projects-hero__title">
+      <h1>
+        <span data-reveal>Esperienze</span>
+        <span data-reveal>che collegano</span>
+        <span data-reveal>scienza e codice</span>
+        <span data-reveal>alla <em>materia</em></span>
+      </h1>
+      <i class="experimental-dot experimental-dot--coral"></i>
+    </div>
+    <p data-reveal>
+      Due lauree, un framework Python e progetti embedded: scale diverse attraversate dallo stesso
+      metodo, dalla curiosità e dal piacere di costruire.
+    </p>
+    <figure class="exp-projects-hero__media exp-photo" data-parallax="-0.04">
+      <img
+        src="/media/prova/experience-rgb-matrix-v1.png"
+        alt="Matrice RGB dieci per dieci autocostruita"
+        width="1536"
+        height="1024"
+      />
+    </figure>
+  </section>
+
+  <section class="exp-project-list" aria-label="Elenco dei progetti">
+    {
+      experimentalProjects.map((project, index) => (
+        <article
+          class:list={[
+            'exp-project-showcase',
+            `exp-project-showcase--${project.accent}`,
+            index % 2 === 1 && 'is-reversed'
+          ]}
+          data-header-tone={project.accent === 'coral' ? 'coral' : 'light'}
+        >
+          <div class="exp-project-showcase__visual">
+            <figure class="exp-photo" data-parallax={index % 2 === 0 ? 0.025 : -0.025}>
+              <img
+                src={project.image}
+                alt={project.imageAlt}
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+            <figure class="exp-photo" aria-hidden="true">
+              <img
+                src={experimentalProjects[(index + 2) % experimentalProjects.length]!.image}
+                alt=""
+                width="1536"
+                height="1024"
+                loading="lazy"
+              />
+            </figure>
+          </div>
+          <div class="exp-project-showcase__content">
+            <div class="exp-project-showcase__meta">
+              <span>({project.year})</span>
+              <span>{project.location}</span>
+            </div>
+            <span class="exp-project-showcase__index">{project.index}</span>
+            <h2 data-reveal>{project.name}</h2>
+            <p>{project.intro}</p>
+            {project.status === 'available' ? (
+              <a
+                class="experimental-button experimental-button--outline"
+                href={`/prova/progetto/${project.slug}/`}
+                data-transition-link
+                data-cursor="Esplora"
+              >
+                L’esperienza
+              </a>
+            ) : (
+              <span class="experimental-button experimental-button--outline is-disabled">
+                In preparazione
+              </span>
+            )}
+          </div>
+        </article>
+      ))
+    }
+  </section>
+
+  <section class="exp-projects-closing" data-header-tone="coral">
+    <figure class="exp-photo">
+      <img
+        src="/media/prova/experience-electronics-v1.png"
+        alt="Banco di prototipazione elettronica"
+        width="1536"
+        height="1024"
+        loading="lazy"
+      />
+    </figure>
+    <div>
+      <p class="experimental-kicker">(Una nuova domanda)</p>
+      <h2 data-reveal>Il prossimo<br /><em>esperimento</em><br />inizia qui.</h2>
+      <a
+        href="/prova/contatti/"
+        class="experimental-button experimental-button--large"
+        data-transition-link
+      >
+        Inizia una conversazione
+      </a>
+    </div>
+  </section>
+</ExperimentalLayout>

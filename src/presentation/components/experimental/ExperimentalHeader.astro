@@ -1,0 +1,95 @@
+---
+import { experimentalProjects } from '@presentation/data/experimental-site';
+import ExperimentalMark from './ExperimentalMark.astro';
+---
+
+<header class="experimental-header" data-experimental-header>
+  <a class="experimental-header__brand" href="/prova/" data-transition-link>
+    <span>NORMAL</span>
+  </a>
+
+  <button
+    class="experimental-header__menu-button"
+    type="button"
+    aria-expanded="false"
+    aria-controls="experimental-menu"
+    data-menu-toggle
+    data-cursor="Apri"
+  >
+    <span data-menu-label>Menu</span>
+  </button>
+
+  <div class="experimental-menu" id="experimental-menu" aria-hidden="true" data-menu>
+    <div class="experimental-menu__primary">
+      <p class="experimental-kicker">(Navigazione)</p>
+      <nav aria-label="Navigazione prova">
+        <a href="/prova/conosci/" data-menu-link data-transition-link>
+          <span>01</span>
+          Conosci
+        </a>
+        <a href="/prova/progetti/" data-menu-link data-transition-link>
+          <span>02</span>
+          Esperienze
+        </a>
+        <a href="/prova/contatti/" data-menu-link data-transition-link>
+          <span>03</span>
+          Contatti
+        </a>
+      </nav>
+      <a class="experimental-menu__mail" href="mailto:studio@placeholder.test">
+        studio@placeholder.test
+      </a>
+    </div>
+
+    <div class="experimental-menu__projects">
+      <div class="experimental-menu__preview">
+        <figure class="experimental-menu__preview-media exp-photo">
+          {
+            experimentalProjects.map((project, index) => (
+              <img
+                class:list={['experimental-menu__preview-image', index === 0 && 'is-active']}
+                src={project.image}
+                alt=""
+                width="1536"
+                height="1024"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                data-menu-preview-image={index}
+              />
+            ))
+          }
+        </figure>
+        <p data-menu-preview-name>{experimentalProjects[0]?.name}</p>
+      </div>
+
+      <div class="experimental-menu__project-list">
+        <div class="experimental-menu__project-heading">
+          <p class="experimental-kicker">Esperienze</p>
+          <a href="/prova/progetti/" data-transition-link>Vedi tutti</a>
+        </div>
+        {
+          experimentalProjects.map((project) => (
+            <a
+              class:list={[
+                'experimental-menu__project',
+                project.status === 'coming-soon' && 'is-disabled'
+              ]}
+              href={
+                project.status === 'available'
+                  ? `/prova/progetto/${project.slug}/`
+                  : '/prova/progetti/'
+              }
+              data-menu-project={project.name}
+              data-transition-link
+            >
+              <span>{project.index}</span>
+              <strong>{project.name}</strong>
+              <em>{project.location}</em>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <ExperimentalMark class="experimental-header__mark" />
+</header>

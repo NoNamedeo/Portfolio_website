@@ -1,0 +1,76 @@
+---
+import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
+
+export const legalPages = [
+  {
+    slug: 'privacy',
+    title: 'Privacy',
+    introduction:
+      'Questa pagina è un contenuto dimostrativo e non costituisce un’informativa legale reale.'
+  },
+  {
+    slug: 'cookie',
+    title: 'Cookie',
+    introduction:
+      'Questa esperienza dimostrativa non installa cookie di profilazione o strumenti di analisi.'
+  },
+  {
+    slug: 'note-legali',
+    title: 'Note legali',
+    introduction:
+      'Nomi, progetti, indirizzi e recapiti presenti nella sezione /prova/ sono interamente fittizi.'
+  }
+] as const;
+
+export const getStaticPaths = () =>
+  legalPages.map((page) => ({
+    params: { legal: page.slug },
+    props: { page }
+  }));
+
+interface Props {
+  page: (typeof legalPages)[number];
+}
+
+const { page } = Astro.props;
+---
+
+<ExperimentalLayout
+  title={`${page.title} — Atelier Ordinarie`}
+  description={page.introduction}
+  canonicalPath={`/prova/${page.slug}/`}
+  page="experimental-legal"
+>
+  <article class="exp-legal-page" data-header-tone="light">
+    <header>
+      <p class="experimental-kicker">(Informazioni)</p>
+      <h1 data-reveal>{page.title}</h1>
+      <p>{page.introduction}</p>
+    </header>
+    <div class="exp-legal-page__content">
+      <section>
+        <h2>01 — Ambito</h2>
+        <p>
+          Il contenuto di questa sezione serve esclusivamente a mostrare la struttura grafica di una
+          pagina informativa. Prima di pubblicare un sito reale è necessario sostituirlo con testi
+          preparati da un professionista qualificato.
+        </p>
+      </section>
+      <section>
+        <h2>02 — Dati</h2>
+        <p>
+          I moduli presenti sono dimostrativi: gli invii vengono gestiti nel browser e non
+          raggiungono alcun server. Non inserire informazioni personali reali.
+        </p>
+      </section>
+      <section>
+        <h2>03 — Contatti</h2>
+        <p>
+          Anche gli indirizzi email e i nomi mostrati sono placeholder. Puoi sostituirli quando
+          saranno disponibili le informazioni definitive del progetto.
+        </p>
+      </section>
+    </div>
+    <a class="experimental-button" href="/prova/" data-transition-link>Torna alla home</a>
+  </article>
+</ExperimentalLayout>
