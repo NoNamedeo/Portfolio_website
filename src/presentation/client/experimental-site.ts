@@ -15,8 +15,19 @@ const initializePreloader = (): void => {
   const progress = preloader?.querySelector<HTMLElement>('[data-preloader-progress]');
   if (!preloader || !progress) return;
 
+  try {
+    if (window.sessionStorage.getItem('alejandro-intro-seen') === 'true') {
+      preloader.remove();
+      window.dispatchEvent(new CustomEvent('experimental:ready'));
+      return;
+    }
+    window.sessionStorage.setItem('alejandro-intro-seen', 'true');
+  } catch {
+    // L'esperienza resta completa anche quando lo storage del browser non è disponibile.
+  }
+
   pageBody.classList.add('is-experimental-loading');
-  const duration = prefersReducedMotion.matches ? 80 : 1_250;
+  const duration = prefersReducedMotion.matches ? 80 : 680;
   const startedAt = performance.now();
 
   const update = (now: number): void => {
@@ -37,7 +48,7 @@ const initializePreloader = (): void => {
         preloader.remove();
         window.dispatchEvent(new CustomEvent('experimental:ready'));
       },
-      prefersReducedMotion.matches ? 20 : 780
+      prefersReducedMotion.matches ? 20 : 520
     );
   };
 
@@ -115,7 +126,7 @@ const initializePageTransitions = (): void => {
         () => {
           window.location.href = link.href;
         },
-        prefersReducedMotion.matches ? 20 : 620
+        prefersReducedMotion.matches ? 20 : 480
       );
     });
   }
@@ -270,7 +281,7 @@ const initializeHorizontalHome = (): void => {
 
   const render = (): void => {
     animationFrame = 0;
-    renderedPosition += (targetPosition - renderedPosition) * 0.105;
+    renderedPosition += (targetPosition - renderedPosition) * 0.145;
 
     if (Math.abs(targetPosition - renderedPosition) < 0.08) {
       renderedPosition = targetPosition;
@@ -403,8 +414,8 @@ const initializeCursor = (): void => {
   });
 
   const render = (): void => {
-    cursorX += (pointerX - cursorX) * 0.18;
-    cursorY += (pointerY - cursorY) * 0.18;
+    cursorX += (pointerX - cursorX) * 0.22;
+    cursorY += (pointerY - cursorY) * 0.22;
     cursor.style.translate = `${cursorX}px ${cursorY}px`;
     requestAnimationFrame(render);
   };

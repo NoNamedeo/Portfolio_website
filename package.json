@@ -13,7 +13,7 @@
     "dev:status": "astro dev status",
     "dev:logs": "astro dev logs",
     "dev:stop": "astro dev stop",
-    "build": "astro build",
+    "build": "astro build && node scripts/prepare-sites.mjs",
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
     "lint": "eslint .",

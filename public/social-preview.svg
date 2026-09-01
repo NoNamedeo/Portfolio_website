@@ -1,7 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title">
-  <title id="title">Studio Prisma — Portfolio Store</title>
-  <rect width="1200" height="630" fill="#f3f0e8"/>
-  <circle cx="1020" cy="100" r="250" fill="#ff5a3d"/>
-  <text x="80" y="280" font-family="Arial, sans-serif" font-size="104" font-weight="700" fill="#171713">STUDIO PRISMA</text>
-  <text x="86" y="370" font-family="Arial, sans-serif" font-size="42" fill="#171713">Portfolio Store · struttura, contenuto, interazione</text>
+  <title id="title">Alejandro Innocenzi — Fisica, informatica e sistemi</title>
+  <rect width="1200" height="630" fill="#f1eee6"/>
+  <rect x="0" y="0" width="34" height="630" fill="#d9ff57"/>
+  <circle cx="1030" cy="108" r="230" fill="#b9c8ff"/>
+  <circle cx="1040" cy="115" r="86" fill="none" stroke="#10100f" stroke-width="5"/>
+  <path d="M996 154L1034 61L1085 158M1007 128C1037 108 1063 111 1081 126" fill="none" stroke="#10100f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="88" y="236" font-family="Arial, sans-serif" font-size="40" font-weight="600" letter-spacing="4" fill="#10100f">ALEJANDRO</text>
+  <text x="82" y="355" font-family="Georgia, serif" font-size="116" fill="#10100f">INNOCENZI</text>
+  <line x1="88" y1="413" x2="1112" y2="413" stroke="#10100f" stroke-width="2"/>
+  <text x="88" y="482" font-family="Arial, sans-serif" font-size="30" fill="#10100f">FISICA × INFORMATICA × SISTEMI</text>
+  <text x="88" y="540" font-family="Georgia, serif" font-size="27" font-style="italic" fill="#10100f">Rendere visibile l’invisibile.</text>
 </svg>

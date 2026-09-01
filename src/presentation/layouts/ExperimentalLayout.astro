@@ -23,11 +23,21 @@ const canonical = new URL(canonicalPath, siteConfig.canonicalUrl).toString();
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#eee6da" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#f1eee6" />
+    <link rel="icon" type="image/jpeg" href="/media/prova/alejandro-mark.jfif" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/social-preview.svg', siteConfig.canonicalUrl)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/social-preview.svg', siteConfig.canonicalUrl)} />
     <script is:inline>
       document.documentElement.classList.add('has-experimental-js');
     </script>
@@ -35,9 +45,9 @@ const canonical = new URL(canonicalPath, siteConfig.canonicalUrl).toString();
   <body class="experimental-body" data-experimental-page={page}>
     <ExperimentalPreloader />
     <div class="experimental-transition" data-page-transition aria-hidden="true">
-      <span>NORMAL</span>
-      <i>is</i>
-      <strong>BORING</strong>
+      <img src="/media/prova/alejandro-mark.jfif" alt="" width="240" height="240" />
+      <span>ALEJANDRO</span>
+      <strong>INNOCENZI</strong>
     </div>
     <div class="experimental-cursor" data-experimental-cursor aria-hidden="true">
       <span data-cursor-label></span>

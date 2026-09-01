@@ -9,9 +9,14 @@ const { class: className = '' } = Astro.props;
 <a
   class:list={['experimental-mark', className]}
   href="/prova/"
-  aria-label="Atelier Ordinarie, home"
+  aria-label="Alejandro Innocenzi, home"
 >
-  <span class="experimental-mark__is">is</span>
-  <span class="experimental-mark__word">BORING</span>
-  <span class="experimental-mark__registered">®</span>
+  <img
+    class="experimental-mark__image"
+    src="/media/prova/alejandro-mark.jfif"
+    alt=""
+    width="240"
+    height="240"
+  />
+  <span class="experimental-mark__label">Alejandro Innocenzi</span>
 </a>

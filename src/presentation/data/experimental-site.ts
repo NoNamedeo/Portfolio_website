@@ -27,35 +27,36 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     index: '01',
     name: 'Laurea in Fisica',
     shortName: 'Fisica',
-    location: 'Metodo e ricerca',
-    year: 'Laurea',
+    location: 'UNICAM',
+    year: '2023—2026',
     image: '/media/prova/experience-physics-v1.png',
     imageAlt: 'Banco ottico e quaderno di fisica illuminati da un prisma',
     status: 'available',
     accent: 'cream',
     intro:
-      'Un percorso costruito tra modelli, misura e verifica: la base scientifica con cui affronto problemi complessi senza perdere curiosità.',
+      'Tre anni di fisica portati avanti insieme alla laurea in Informatica, conclusi con 110/110 e lode e una tesi teorica sulla computazione topologica quantistica.',
     quote:
-      'Capire un fenomeno significa imparare a separare il rumore dal segnale, senza smettere di cercare ciò che ancora non torna.',
+      'Dalla fase geometrica al braiding degli anyoni: la topologia trasforma il modo in cui descriviamo l’informazione e immaginiamo un calcolo resistente agli errori.',
     features: [
       {
-        title: 'Metodo quantitativo',
-        text: 'Dalle ipotesi ai risultati: formalizzare un problema, misurarlo e controllare ogni passaggio.'
+        title: 'Computazione topologica quantistica',
+        text: 'Una tesi teorica costruita lungo il percorso fase geometrica → olonomie → topologia → anyoni → braiding → computazione quantistica.'
       },
       {
-        title: 'Modelli',
-        text: 'Tradurre sistemi reali in rappresentazioni utili, sapendo dove una semplificazione smette di funzionare.'
+        title: 'Due lauree, un metodo',
+        text: 'Fisica e informatica studiate in parallelo: formalismo matematico e pensiero algoritmico usati come prospettive complementari.'
       },
       {
-        title: 'Ricerca',
-        text: 'Tenere insieme rigore e curiosità, facendo delle domande giuste il primo vero strumento di lavoro.'
+        title: 'Verso la simulazione scientifica',
+        text: 'La base per esplorare AI, scientific machine learning e simulazioni di sistemi complessi in fisica, biologia e medicina.'
       }
     ],
     facts: [
-      { label: 'Ambito', value: 'Fisica' },
-      { label: 'Approccio', value: 'Sperimentale e quantitativo' },
-      { label: 'Competenze', value: 'Modellazione · Analisi · Misura' },
-      { label: 'Stato', value: 'Percorso completato' }
+      { label: 'Ateneo', value: 'Università degli Studi di Camerino' },
+      { label: 'Periodo', value: 'Settembre 2023 — luglio 2026' },
+      { label: 'Media', value: '29,4/30' },
+      { label: 'Laurea', value: '7 luglio 2026 · 110/110 e lode' },
+      { label: 'Tesi', value: 'Computazione Topologica Quantistica · PHYS-04/A' }
     ]
   },
   {
@@ -63,71 +64,73 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     index: '02',
     name: 'Laurea in Informatica',
     shortName: 'Informatica',
-    location: 'Software e sistemi',
-    year: 'Laurea',
+    location: 'UNICAM',
+    year: '2024—2026',
     image: '/media/prova/experience-computer-science-v1.png',
     imageAlt: 'Postazione di programmazione con diagrammi di algoritmi e sistemi',
     status: 'available',
     accent: 'grey',
     intro:
-      'La seconda prospettiva del mio percorso: progettare software chiaro, ragionare per astrazioni e trasformare idee in sistemi affidabili.',
+      'Un percorso completato in parallelo a Fisica con 110/110 e lode, dove architettura software, computer vision e analisi dei segnali sono diventati strumenti scientifici.',
     quote:
-      'Il codice migliore non si limita a funzionare: rende leggibile il pensiero che lo ha costruito.',
+      'Quando il software misura il mondo, modularità e osservabilità non sono soltanto qualità del codice: diventano parte del metodo sperimentale.',
     features: [
       {
-        title: 'Algoritmi',
-        text: 'Scomporre problemi, riconoscere strutture ricorrenti e scegliere soluzioni proporzionate.'
+        title: 'Computer vision scientifica',
+        text: 'Video ed elaborazione delle immagini usati per estrarre segnali di movimento e rendere leggibili micro-spostamenti quasi invisibili.'
       },
       {
-        title: 'Architettura',
-        text: 'Disegnare componenti con responsabilità chiare, confini solidi e dipendenze controllabili.'
+        title: 'Progetto SEF',
+        text: 'Il tirocinio con il Prof. Michele Loreti ha trasformato una pipeline sperimentale in un framework Python modulare ed estendibile.'
       },
       {
-        title: 'Qualità',
-        text: 'Test, leggibilità e manutenzione come parti del progetto, non come rifiniture finali.'
+        title: 'Informatica come lente',
+        text: 'Algoritmi, ML, signal processing e architetture software riuniti per costruire strumenti di analisi e simulazione scientifica.'
       }
     ],
     facts: [
-      { label: 'Ambito', value: 'Informatica' },
-      { label: 'Approccio', value: 'Progettazione e sviluppo' },
-      { label: 'Competenze', value: 'Algoritmi · Sistemi · Software' },
-      { label: 'Stato', value: 'Percorso completato' }
+      { label: 'Ateneo', value: 'Università degli Studi di Camerino' },
+      { label: 'Periodo', value: 'Settembre 2024 — luglio 2026' },
+      { label: 'Media', value: '28,6/30' },
+      { label: 'Laurea', value: '22 luglio 2026 · 110/110 e lode' },
+      { label: 'Tirocinio', value: 'Computer vision · Prof. Michele Loreti' }
     ]
   },
   {
     slug: 'sef-framework',
     index: '03',
-    name: 'SEF Framework',
+    name: 'SEF — Signal Extraction Framework',
     shortName: 'SEF',
-    location: 'Video processing',
-    year: 'Python',
+    location: 'Computer vision',
+    year: '2026',
     image: '/media/prova/experience-sef-v1.png',
     imageAlt: 'Pipeline modulare di monitor e dispositivi per elaborazione video',
     status: 'available',
     accent: 'blue',
     intro:
-      'Un framework Python per comporre pipeline di elaborazione video, separando acquisizione, trasformazioni e output in moduli riutilizzabili.',
+      'Un framework Python modulare che trasforma video di strutture in segnali spazio-temporali analizzabili, con SAM2 e tecniche di amplificazione dei micro-movimenti.',
     quote:
-      'Una pipeline diventa davvero utile quando ogni passaggio può essere osservato, sostituito e ricombinato senza spezzare il resto.',
+      'L’obiettivo non era scrivere un altro script OpenCV, ma costruire un linguaggio di pipeline in cui ogni algoritmo potesse essere osservato, sostituito e ricombinato.',
     features: [
       {
-        title: 'Pipeline modulari',
-        text: 'Blocchi indipendenti per costruire flussi di elaborazione leggibili e facilmente estendibili.'
+        title: 'Pipeline componibili',
+        text: 'Acquisizione, segmentazione, trasformazioni ed estrazione del segnale diventano blocchi indipendenti, testabili e intercambiabili.'
       },
       {
-        title: 'Video in Python',
-        text: 'Acquisizione, trasformazioni e output coordinati in un unico modello operativo.'
+        title: 'Segmentazione con SAM2',
+        text: 'Segment Anything Model 2 isola nel tempo le regioni strutturali rilevanti, mantenendo l’analisi focalizzata sull’oggetto osservato.'
       },
       {
-        title: 'Estendibilità',
-        text: 'Una struttura pensata per aggiungere nuovi processori senza modificare il cuore del framework.'
+        title: 'Micro-movimenti visibili',
+        text: 'Eulerian Video Magnification ed estrazione di segnali di moto aprono ad applicazioni di monitoraggio strutturale e sismico.'
       }
     ],
     facts: [
-      { label: 'Tipologia', value: 'Framework software' },
-      { label: 'Linguaggio', value: 'Python' },
-      { label: 'Dominio', value: 'Elaborazione video' },
-      { label: 'Focus', value: 'Modularità · Riutilizzo · Pipeline' }
+      { label: 'Nome', value: 'Signal Extraction Framework' },
+      { label: 'Stack', value: 'Python · Computer vision · Signal processing' },
+      { label: 'Modello', value: 'Segment Anything Model 2 (SAM2)' },
+      { label: 'Tecnica', value: 'Eulerian Video Magnification' },
+      { label: 'Applicazione', value: 'Monitoraggio strutturale e micro-movimenti' }
     ]
   },
   {
@@ -135,14 +138,14 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     index: '04',
     name: 'Laboratorio Elettronico',
     shortName: 'Elettronica',
-    location: 'Prototipi DIY',
-    year: 'Hobby',
+    location: 'Physical computing',
+    year: 'In evoluzione',
     image: '/media/prova/experience-electronics-v1.png',
     imageAlt: 'Banco maker con microcontrollori, sensori e strumenti elettronici',
     status: 'available',
     accent: 'coral',
     intro:
-      'Elettronica, sensori e microcontrollori sono il mio laboratorio personale: un luogo dove il software incontra oggetti reali.',
+      'Un laboratorio personale in cui firmware, elettronica di potenza, sensori e fabbricazione trasformano modelli astratti in sistemi fisici misurabili.',
     quote:
       'Saldare, misurare e correggere rende ogni idea concreta — e ogni errore finalmente osservabile.',
     features: [
@@ -156,7 +159,7 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
       },
       {
         title: 'Misura',
-        text: 'Oscilloscopio, multimetro e debug metodico per capire il comportamento reale del circuito.'
+        text: 'Oscilloscopio, multimetro e debug metodico per confrontare il comportamento reale del circuito con il modello previsto.'
       }
     ],
     facts: [
@@ -171,35 +174,36 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     index: '05',
     name: 'Matrice RGB 10×10',
     shortName: 'RGB 10×10',
-    location: 'Microcontrollori',
-    year: 'DIY',
+    location: 'Embedded systems',
+    year: '10×10 / 100 LED',
     image: '/media/prova/experience-rgb-matrix-v1.png',
     imageAlt: 'Matrice RGB dieci per dieci autocostruita con microcontrollore',
     status: 'available',
     accent: 'grey',
     intro:
-      'Una matrice luminosa 10×10 costruita da zero: struttura, diffusione, cablaggio e animazioni controllate via microcontrollore.',
+      'Una matrice 10×10 costruita davvero da zero con cento LED RGB tradizionali a catodo comune, ESP32, shift register e multiplexing.',
     quote:
       'Cento punti luminosi diventano un sistema solo quando elettronica, firmware e costruzione fisica trovano lo stesso ritmo.',
     features: [
       {
         title: 'Cento pixel',
-        text: 'Una griglia fisica 10×10 progettata per mantenere luce uniforme e geometria precisa.'
+        text: 'Una griglia fisica 10×10 di LED non indirizzabili: geometria, diffusione e cablaggio diventano parte dell’architettura.'
       },
       {
-        title: 'Controllo',
-        text: 'Animazioni, palette e timing coordinati dal firmware del microcontrollore.'
+        title: 'Multiplexing',
+        text: 'ESP32 e 74HCT595N coordinano righe e canali RGB, riducendo le linee di controllo senza perdere fluidità nelle animazioni.'
       },
       {
-        title: 'Costruzione DIY',
-        text: 'Cablaggio, alimentazione, diffusori e contenitore sviluppati come parti dello stesso oggetto.'
+        title: 'Potenza e timing',
+        text: 'IRLZ44N, alimentazione a 5 V e firmware lavorano insieme per gestire correnti, duty cycle e stabilità visiva.'
       }
     ],
     facts: [
       { label: 'Formato', value: 'Matrice RGB 10×10' },
-      { label: 'Pixel', value: '100 LED indirizzabili' },
-      { label: 'Controllo', value: 'Microcontrollore' },
-      { label: 'Realizzazione', value: 'DIY' }
+      { label: 'Pixel', value: '100 LED RGB tradizionali · catodo comune' },
+      { label: 'Controllo', value: 'ESP32 · 74HCT595N · multiplexing' },
+      { label: 'Potenza', value: 'IRLZ44N · alimentazione 5 V' },
+      { label: 'Approccio', value: 'Nessun LED indirizzabile · costruzione DIY' }
     ]
   }
 ] as const;

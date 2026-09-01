@@ -1,7 +1,7 @@
 {
-  "name": "Studio Prisma",
-  "tagline": "Portfolio da esplorare. Idee da mettere in moto.",
-  "description": "Un portfolio personale strutturato come uno store: progetti, competenze e servizi diventano articoli da conoscere e combinare.",
+  "name": "Alejandro Innocenzi",
+  "tagline": "Fisica, informatica e sistemi per rendere visibile l’invisibile.",
+  "description": "Portfolio personale tra fisica teorica, computer vision, signal processing, AI ed elettronica embedded.",
   "locale": "it-IT",
   "canonicalUrl": "https://alejandro-innocenzi.netlify.app",
   "socialPreview": "/social-preview.svg"

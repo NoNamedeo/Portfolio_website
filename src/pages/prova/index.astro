@@ -23,17 +23,17 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
 
             <h1 id="exp-home-title">
               <span>Idee</span>
-              <span>in movimento</span>
-              <span>che</span>
-              <span>sfidano</span>
-              <span>lo <em>ordinario</em></span>
+              <span>tra fisica e codice</span>
+              <span>per</span>
+              <span>rendere visibile</span>
+              <span><em>l’invisibile</em></span>
             </h1>
 
             <i class="experimental-dot" aria-hidden="true"></i>
 
             <p class="exp-hhero__intro">
-              Un percorso tra metodo scientifico, software e oggetti costruiti a mano. Discipline
-              diverse, unite dalla stessa curiosità.
+              Due lauree conseguite in parallelo, un framework di computer vision e sistemi
+              elettronici costruiti a mano. Un solo metodo: osservare, modellare, costruire.
             </p>
 
             <nav class="exp-hhero__nav" aria-label="Sezioni principali">
@@ -93,8 +93,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
               imparare
             </h2>
             <p>
-              La fisica mi ha insegnato a misurare. L’informatica a progettare sistemi. I prototipi
-              a confrontare ogni idea con il mondo reale.
+              La fisica mi ha insegnato a formalizzare. L’informatica a progettare sistemi. I
+              prototipi a verificare ogni intuizione contro il mondo reale.
             </p>
           </div>
         </section>
@@ -205,8 +205,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
             <p class="experimental-kicker">Esperienze</p>
             <h2 id="exp-hprojects-title" class="exp-visually-hidden">Esperienze selezionate</h2>
             <p>
-              Due percorsi accademici, un framework per il video e un laboratorio in continua
-              evoluzione, dove software ed elettronica diventano oggetti reali.
+              Dalla computazione topologica quantistica a SEF e alla matrice RGB 10×10: progetti
+              diversi, raccontati attraverso la domanda che li ha messi in moto.
             </p>
           </div>
 
@@ -238,6 +238,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
 
                 <p class="exp-hproject-card__index">{project.index}</p>
                 <h3>{project.name}</h3>
+                <p class="exp-hproject-card__summary">{project.intro}</p>
 
                 {project.status === 'available' ? (
                   <a
@@ -283,8 +284,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
               Ripetere.
             </h2>
             <p>
-              Lo stesso metodo attraversa scale diverse: una pipeline video, un algoritmo, un
-              sensore o cento LED. Ogni prototipo è una domanda resa concreta.
+              Lo stesso metodo attraversa scale diverse: l’olonomia di una connessione, una pipeline
+              video, un segnale di movimento o cento LED. Ogni progetto rende concreta una domanda.
             </p>
           </div>
 
@@ -367,10 +368,10 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
 
       <div>
         <p>
-          Mi interessano problemi che richiedono rigore, creatività e mani in pasta: dal primo
-          modello fino al test su un sistema reale.
+          Mi interessano AI, scientific machine learning e simulazioni capaci di collegare modelli,
+          dati e sistemi reali — dalla fisica alla biologia, medicina e farmacologia.
         </p>
-        <a href="mailto:studio@placeholder.test">studio@placeholder.test</a>
+        <a href="/prova/progetto/sef-framework/" data-transition-link>Scopri SEF →</a>
       </div>
 
       <a
