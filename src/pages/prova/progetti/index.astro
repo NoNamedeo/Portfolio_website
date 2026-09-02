@@ -26,8 +26,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
     </p>
     <figure class="exp-projects-hero__media exp-photo" data-parallax="-0.04">
       <img
-        src="/media/prova/experience-rgb-matrix-v1.png"
-        alt="Matrice RGB dieci per dieci autocostruita"
+        src="/media/prova/collaboration-workbench-v2.png"
+        alt="Banco interdisciplinare tra fisica, software e prototipazione"
         width="1536"
         height="1024"
       />
@@ -55,10 +55,10 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
                 loading="lazy"
               />
             </figure>
-            <figure class="exp-photo" aria-hidden="true">
+            <figure class="exp-photo">
               <img
-                src={experimentalProjects[(index + 2) % experimentalProjects.length]!.image}
-                alt=""
+                src={project.contextImage}
+                alt={project.contextImageAlt}
                 width="1536"
                 height="1024"
                 loading="lazy"
@@ -96,8 +96,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
   <section class="exp-projects-closing" data-header-tone="coral">
     <figure class="exp-photo">
       <img
-        src="/media/prova/experience-electronics-v1.png"
-        alt="Banco di prototipazione elettronica"
+        src="/media/prova/electronics-prototyping-v2.png"
+        alt="Dal prototipo su breadboard alla scheda elettronica stabile"
         width="1536"
         height="1024"
         loading="lazy"

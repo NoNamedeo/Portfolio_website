@@ -19,8 +19,6 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
           aria-labelledby="exp-home-title"
         >
           <div class="exp-hhero__copy">
-            <p class="exp-hhero__route">Home</p>
-
             <h1 id="exp-home-title">
               <span>Idee</span>
               <span>tra fisica e codice</span>
@@ -41,14 +39,12 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
               <a href="/prova/progetti/" data-transition-link>Esperienze</a>
               <a href="/prova/contatti/" data-transition-link>Contatti</a>
             </nav>
-
-            <small>PORTFOLIO PERSONALE ©2026</small>
           </div>
 
           <figure class="exp-photo exp-hhero__photo" data-scroll-image>
             <img
-              src="/media/prova/experience-rgb-matrix-v1.png"
-              alt="Matrice RGB dieci per dieci autocostruita"
+              src="/media/prova/collaboration-workbench-v2.png"
+              alt="Banco interdisciplinare tra fisica, software e prototipazione"
               width="1536"
               height="1024"
               loading="eager"
@@ -66,7 +62,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
           <div class="exp-hstudio__collage" aria-hidden="true">
             <figure class="exp-photo exp-hstudio__photo exp-hstudio__photo--one" data-scroll-image>
               <img
-                src="/media/prova/experience-physics-v1.png"
+                src="/media/prova/physics-topology-v2.png"
                 alt=""
                 width="1536"
                 height="1024"
@@ -75,7 +71,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
             </figure>
             <figure class="exp-photo exp-hstudio__photo exp-hstudio__photo--two" data-scroll-image>
               <img
-                src="/media/prova/experience-computer-science-v1.png"
+                src="/media/prova/computer-science-architecture-v2.png"
                 alt=""
                 width="1536"
                 height="1024"
@@ -110,8 +106,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
             data-horizontal-tone="dark"
           >
             <img
-              src="/media/prova/experience-sef-v1.png"
-              alt="Pipeline modulare per elaborazione video"
+              src="/media/prova/sef-structural-monitoring-v2.png"
+              alt="Monitoraggio video dei micro-spostamenti di una struttura"
               width="1536"
               height="1024"
               loading="lazy"
@@ -145,7 +141,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
               data-scroll-image
             >
               <img
-                src="/media/prova/experience-electronics-v1.png"
+                src="/media/prova/electronics-measurement-v2.png"
                 alt=""
                 width="1536"
                 height="1024"
@@ -157,7 +153,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
               data-scroll-image
             >
               <img
-                src="/media/prova/experience-rgb-matrix-v1.png"
+                src="/media/prova/rgb-matrix-wiring-v2.png"
                 alt=""
                 width="1536"
                 height="1024"
@@ -176,9 +172,9 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
           <p class="experimental-kicker">(Principi)</p>
           <h2 id="exp-hvalues-title" class="exp-visually-hidden">I miei principi</h2>
 
-          <p class="exp-hvalues__word exp-hvalues__word--one"><small>01</small> Metodo</p>
-          <p class="exp-hvalues__word exp-hvalues__word--two"><small>02</small> Curiosità</p>
-          <p class="exp-hvalues__word exp-hvalues__word--three"><small>03</small> Prototipi</p>
+          <p class="exp-hvalues__word exp-hvalues__word--one">Metodo</p>
+          <p class="exp-hvalues__word exp-hvalues__word--two">Curiosità</p>
+          <p class="exp-hvalues__word exp-hvalues__word--three">Prototipi</p>
 
           <p class="exp-hvalues__description">
             Comprendere prima di semplificare, rendere visibili i passaggi e imparare costruendo:
@@ -187,8 +183,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
 
           <figure class="exp-photo exp-hvalues__photo" data-scroll-image>
             <img
-              src="/media/prova/experience-computer-science-v1.png"
-              alt="Postazione di programmazione e diagrammi di algoritmi"
+              src="/media/prova/scientific-ml-v2.png"
+              alt="Modelli matematici e machine learning applicati a sistemi biologici"
               width="1536"
               height="1024"
               loading="lazy"
@@ -237,7 +233,7 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
                 </div>
 
                 <p class="exp-hproject-card__index">{project.index}</p>
-                <h3>{project.name}</h3>
+                <h3>{project.shortName}</h3>
                 <p class="exp-hproject-card__summary">{project.intro}</p>
 
                 {project.status === 'available' ? (
@@ -296,8 +292,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
           >
             <figure class="exp-photo" data-scroll-image>
               <img
-                src="/media/prova/experience-electronics-v1.png"
-                alt="Prototipo elettronico su banco maker"
+                src="/media/prova/electronics-prototyping-v2.png"
+                alt="Dal prototipo su breadboard alla scheda elettronica stabile"
                 width="1536"
                 height="1024"
                 loading="lazy"
@@ -305,8 +301,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
             </figure>
             <figure class="exp-photo" data-scroll-image>
               <img
-                src="/media/prova/experience-sef-v1.png"
-                alt="Sistema modulare per elaborazione video"
+                src="/media/prova/sef-modular-pipeline-v2.png"
+                alt="Pipeline modulare dal video al segnale estratto"
                 width="1536"
                 height="1024"
                 loading="lazy"
@@ -314,8 +310,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
             </figure>
             <figure class="exp-photo" data-scroll-image>
               <img
-                src="/media/prova/experience-rgb-matrix-v1.png"
-                alt="Matrice RGB dieci per dieci illuminata"
+                src="/media/prova/rgb-matrix-multiplexing-v2.png"
+                alt="Test dei segnali di multiplexing della matrice RGB"
                 width="1536"
                 height="1024"
                 loading="lazy"
@@ -342,8 +338,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
     <div class="exp-contact-band__collage">
       <figure class="exp-photo exp-contact-band__photo exp-contact-band__photo--large">
         <img
-          src="/media/prova/experience-computer-science-v1.png"
-          alt="Strumenti di informatica e progettazione software"
+          src="/media/prova/physics-research-process-v2.png"
+          alt="Appunti teorici su fase geometrica e intrecci topologici"
           width="1536"
           height="1024"
           loading="lazy"
@@ -351,8 +347,8 @@ import ExperimentalLayout from '@presentation/layouts/ExperimentalLayout.astro';
       </figure>
       <figure class="exp-photo exp-contact-band__photo exp-contact-band__photo--small">
         <img
-          src="/media/prova/experience-physics-v1.png"
-          alt="Esperimento di ottica e quaderno di fisica"
+          src="/media/prova/computer-vision-motion-v2.png"
+          alt="Computer vision applicata all’estrazione di micro-movimenti"
           width="1536"
           height="1024"
           loading="lazy"

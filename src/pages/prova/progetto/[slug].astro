@@ -19,8 +19,6 @@ const { project } = Astro.props;
 const projectIndex = availableExperimentalProjects.findIndex((item) => item.slug === project.slug);
 const nextProject =
   availableExperimentalProjects[(projectIndex + 1) % availableExperimentalProjects.length]!;
-const companionProject =
-  availableExperimentalProjects[(projectIndex + 2) % availableExperimentalProjects.length]!;
 ---
 
 <ExperimentalLayout
@@ -50,12 +48,18 @@ const companionProject =
 
     <section class="exp-detail-place" data-header-tone="light">
       <figure class="exp-photo" data-parallax="0.03">
-        <img src={project.image} alt={project.imageAlt} width="1536" height="1024" loading="lazy" />
+        <img
+          src={project.contextImage}
+          alt={project.contextImageAlt}
+          width="1536"
+          height="1024"
+          loading="lazy"
+        />
       </figure>
       <figure class="exp-photo" data-parallax="-0.025">
         <img
-          src={companionProject.image}
-          alt={companionProject.imageAlt}
+          src={project.processImage}
+          alt={project.processImageAlt}
           width="1536"
           height="1024"
           loading="lazy"
@@ -78,74 +82,23 @@ const companionProject =
       </dl>
     </section>
 
-    <section class="exp-detail-full-media" data-header-tone="light">
-      <figure class="exp-photo">
-        <img src={project.image} alt={project.imageAlt} width="1536" height="1024" loading="lazy" />
-      </figure>
-    </section>
-
     <section class="exp-detail-quote" data-header-tone="dark">
       <p data-reveal>{project.quote}</p>
       <i class="experimental-dot experimental-dot--coral"></i>
     </section>
 
-    <section class="exp-detail-features" data-header-tone="dark">
+    <section class="exp-detail-features exp-detail-features--text-only" data-header-tone="dark">
       {
-        project.features.map((feature, index) => {
-          const featureProject =
-            availableExperimentalProjects[
-              (projectIndex + index + 2) % availableExperimentalProjects.length
-            ]!;
-
-          return (
-            <article class:list={['exp-detail-feature', index % 2 === 1 && 'is-reversed']}>
-              <figure class="exp-photo" data-parallax={index % 2 === 0 ? 0.03 : -0.03}>
-                <img
-                  src={featureProject.image}
-                  alt={featureProject.imageAlt}
-                  width="1536"
-                  height="1024"
-                  loading="lazy"
-                />
-              </figure>
-              <div>
-                <span>0{index + 1}</span>
-                <h2 data-reveal>{feature.title}</h2>
-                <p>{feature.text}</p>
-              </div>
-            </article>
-          );
-        })
+        project.features.map((feature, index) => (
+          <article class="exp-detail-feature">
+            <div>
+              <span>0{index + 1}</span>
+              <h2 data-reveal>{feature.title}</h2>
+              <p>{feature.text}</p>
+            </div>
+          </article>
+        ))
       }
-    </section>
-
-    <section class="exp-detail-gallery" data-header-tone="light">
-      <div class="exp-detail-gallery__heading">
-        <p class="experimental-kicker">(Galleria)</p>
-        <h2 data-reveal>Un ritmo di<br /><em>idee e materia.</em></h2>
-        <p>Seleziona un’immagine per osservarne il dettaglio.</p>
-      </div>
-      <div class="gallery-grid">
-        {
-          availableExperimentalProjects.map((galleryProject) => (
-            <button
-              class="gallery-grid__item exp-photo"
-              type="button"
-              aria-label={`Apri ${galleryProject.name}`}
-              data-gallery-item
-              data-cursor="Apri"
-            >
-              <img
-                src={galleryProject.image}
-                alt={galleryProject.imageAlt}
-                width="1536"
-                height="1024"
-                loading="lazy"
-              />
-            </button>
-          ))
-        }
-      </div>
     </section>
 
     <section class="exp-detail-facts" data-header-tone="coral">
@@ -176,7 +129,7 @@ const companionProject =
       <p class="experimental-kicker">(Esperienza successiva)</p>
       <a href={`/prova/progetto/${nextProject.slug}/`} data-transition-link data-cursor="Avanti">
         <span>{nextProject.index}</span>
-        <strong>{nextProject.name}</strong>
+        <strong>{nextProject.shortName}</strong>
         <figure class="exp-photo">
           <img
             src={nextProject.image}
@@ -189,9 +142,4 @@ const companionProject =
       </a>
     </section>
   </article>
-
-  <dialog class="experimental-dialog" data-gallery-dialog>
-    <button type="button" data-gallery-close>Chiudi</button>
-    <div class="experimental-dialog__media" data-gallery-dialog-media></div>
-  </dialog>
 </ExperimentalLayout>

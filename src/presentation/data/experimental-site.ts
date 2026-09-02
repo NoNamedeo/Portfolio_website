@@ -7,6 +7,10 @@ export interface ExperimentalProject {
   readonly year: string;
   readonly image: string;
   readonly imageAlt: string;
+  readonly contextImage: string;
+  readonly contextImageAlt: string;
+  readonly processImage: string;
+  readonly processImageAlt: string;
   readonly status: 'available' | 'coming-soon';
   readonly accent: 'cream' | 'blue' | 'coral' | 'grey';
   readonly intro: string;
@@ -31,6 +35,10 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     year: '2023—2026',
     image: '/media/prova/experience-physics-v1.png',
     imageAlt: 'Banco ottico e quaderno di fisica illuminati da un prisma',
+    contextImage: '/media/prova/physics-topology-v2.png',
+    contextImageAlt: 'Percorsi intrecciati che visualizzano topologia e braiding degli anyoni',
+    processImage: '/media/prova/physics-research-process-v2.png',
+    processImageAlt: 'Appunti teorici su fase geometrica, olonomie e intrecci topologici',
     status: 'available',
     accent: 'cream',
     intro:
@@ -68,6 +76,10 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     year: '2024—2026',
     image: '/media/prova/experience-computer-science-v1.png',
     imageAlt: 'Postazione di programmazione con diagrammi di algoritmi e sistemi',
+    contextImage: '/media/prova/computer-science-architecture-v2.png',
+    contextImageAlt: 'Architettura software modulare rappresentata tra diagrammi e componenti',
+    processImage: '/media/prova/computer-vision-motion-v2.png',
+    processImageAlt: 'Sistema di computer vision che estrae micro-movimenti da una facciata',
     status: 'available',
     accent: 'grey',
     intro:
@@ -105,6 +117,10 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     year: '2026',
     image: '/media/prova/experience-sef-v1.png',
     imageAlt: 'Pipeline modulare di monitor e dispositivi per elaborazione video',
+    contextImage: '/media/prova/sef-structural-monitoring-v2.png',
+    contextImageAlt: 'Monitoraggio video dei micro-spostamenti di una struttura ad arco',
+    processImage: '/media/prova/sef-modular-pipeline-v2.png',
+    processImageAlt: 'Pipeline SEF dal video grezzo alla maschera e al segnale estratto',
     status: 'available',
     accent: 'blue',
     intro:
@@ -142,6 +158,10 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     year: 'In evoluzione',
     image: '/media/prova/experience-electronics-v1.png',
     imageAlt: 'Banco maker con microcontrollori, sensori e strumenti elettronici',
+    contextImage: '/media/prova/electronics-measurement-v2.png',
+    contextImageAlt: 'Circuito verificato con oscilloscopio, multimetro e sonde',
+    processImage: '/media/prova/electronics-prototyping-v2.png',
+    processImageAlt: 'Evoluzione di un prototipo dalla breadboard alla scheda stabile',
     status: 'available',
     accent: 'coral',
     intro:
@@ -178,6 +198,10 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
     year: '10×10 / 100 LED',
     image: '/media/prova/experience-rgb-matrix-v1.png',
     imageAlt: 'Matrice RGB dieci per dieci autocostruita con microcontrollore',
+    contextImage: '/media/prova/rgb-matrix-wiring-v2.png',
+    contextImageAlt: 'Cablaggio posteriore e driver della matrice RGB dieci per dieci',
+    processImage: '/media/prova/rgb-matrix-multiplexing-v2.png',
+    processImageAlt: 'Test di multiplexing della matrice RGB con ESP32 e segnali temporali',
     status: 'available',
     accent: 'grey',
     intro:
