@@ -191,6 +191,10 @@
     bottom: var(--exp-gutter);
   }
 
+  .experimental-body[data-experimental-page='experimental-home'] .experimental-header__mark {
+    display: none;
+  }
+
   .experimental-header[data-tone='dark'] .experimental-header__brand,
   .experimental-header[data-tone='dark'] .experimental-header__mark {
     color: var(--exp-white);
@@ -203,7 +207,7 @@
 
   .experimental-header[data-tone='coral'] .experimental-header__brand,
   .experimental-header[data-tone='coral'] .experimental-header__mark {
-    color: var(--exp-teal);
+    color: var(--exp-ink);
   }
 
   .experimental-header[data-tone='coral'] .experimental-header__menu-button {
@@ -225,28 +229,20 @@
     display: block;
     width: clamp(3.8rem, 5vw, 4.8rem);
     aspect-ratio: 1;
-    overflow: hidden;
-    border: 1px solid currentcolor;
-    border-radius: 50%;
-    background: var(--exp-white);
-    box-shadow: 0 0.8rem 2.4rem rgb(16 16 15 / 12%);
+    color: var(--exp-ink);
     transition:
       transform 400ms var(--exp-ease),
-      box-shadow 400ms var(--exp-ease),
-      filter 350ms ease;
+      color 350ms ease;
   }
 
   .experimental-mark:hover {
     transform: rotate(-8deg) scale(1.06);
-    box-shadow: 0 1.1rem 3rem rgb(16 16 15 / 18%);
   }
 
   .experimental-mark__image {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    mix-blend-mode: multiply;
   }
 
   .experimental-mark__label {
@@ -259,14 +255,13 @@
     white-space: nowrap;
   }
 
-  .experimental-header[data-tone='dark'] .experimental-header__mark,
-  .experimental-header[data-mark-tone='dark'] .experimental-header__mark {
-    border-color: var(--exp-white);
-    filter: invert(1);
+  .experimental-header[data-mark-tone='light'] .experimental-header__mark,
+  .experimental-header[data-mark-tone='coral'] .experimental-header__mark {
+    color: var(--exp-ink);
   }
 
-  .is-experimental-menu-open .experimental-header__mark {
-    filter: none !important;
+  .experimental-header[data-mark-tone='dark'] .experimental-header__mark {
+    color: var(--exp-white);
   }
 
   .experimental-menu {
@@ -3971,7 +3966,7 @@
   }
 
   .experimental-header[data-mark-tone='coral'] .experimental-header__mark {
-    color: var(--exp-teal);
+    color: var(--exp-ink);
   }
 }
 
