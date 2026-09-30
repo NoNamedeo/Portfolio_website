@@ -6,6 +6,12 @@
   NODE_VERSION = "24"
   PNPM_VERSION = "11.15.1"
 
+[[redirects]]
+  from = "/"
+  to = "/prova/"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]

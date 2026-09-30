@@ -189,47 +189,6 @@ export const experimentalProjects: readonly ExperimentalProject[] = [
       { label: 'Stato', value: 'Laboratorio in evoluzione' }
     ]
   },
-  {
-    slug: 'matrice-rgb-10x10',
-    index: '05',
-    name: 'Matrice RGB 10×10',
-    shortName: 'RGB 10×10',
-    location: 'Embedded systems',
-    year: '10×10 / 100 LED',
-    image: '/media/prova/experience-rgb-matrix-v1.png',
-    imageAlt: 'Matrice RGB dieci per dieci autocostruita con microcontrollore',
-    contextImage: '/media/prova/rgb-matrix-wiring-v2.png',
-    contextImageAlt: 'Cablaggio posteriore e driver della matrice RGB dieci per dieci',
-    processImage: '/media/prova/rgb-matrix-multiplexing-v2.png',
-    processImageAlt: 'Test di multiplexing della matrice RGB con ESP32 e segnali temporali',
-    status: 'available',
-    accent: 'grey',
-    intro:
-      'Una matrice 10×10 costruita davvero da zero con cento LED RGB tradizionali a catodo comune, ESP32, shift register e multiplexing.',
-    quote:
-      'Cento punti luminosi diventano un sistema solo quando elettronica, firmware e costruzione fisica trovano lo stesso ritmo.',
-    features: [
-      {
-        title: 'Cento pixel',
-        text: 'Una griglia fisica 10×10 di LED non indirizzabili: geometria, diffusione e cablaggio diventano parte dell’architettura.'
-      },
-      {
-        title: 'Multiplexing',
-        text: 'ESP32 e 74HCT595N coordinano righe e canali RGB, riducendo le linee di controllo senza perdere fluidità nelle animazioni.'
-      },
-      {
-        title: 'Potenza e timing',
-        text: 'IRLZ44N, alimentazione a 5 V e firmware lavorano insieme per gestire correnti, duty cycle e stabilità visiva.'
-      }
-    ],
-    facts: [
-      { label: 'Formato', value: 'Matrice RGB 10×10' },
-      { label: 'Pixel', value: '100 LED RGB tradizionali · catodo comune' },
-      { label: 'Controllo', value: 'ESP32 · 74HCT595N · multiplexing' },
-      { label: 'Potenza', value: 'IRLZ44N · alimentazione 5 V' },
-      { label: 'Approccio', value: 'Nessun LED indirizzabile · costruzione DIY' }
-    ]
-  }
 ] as const;
 
 export const availableExperimentalProjects = experimentalProjects.filter(

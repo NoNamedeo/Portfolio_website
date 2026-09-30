@@ -22,7 +22,7 @@ test.describe('sito sperimentale /prova/', () => {
 
     await page.goto('/prova/progetti/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Esperienze');
-    await expect(page.locator('.exp-project-showcase')).toHaveCount(5);
+    await expect(page.locator('.exp-project-showcase')).toHaveCount(4);
     await page.getByRole('link', { name: 'L’esperienza' }).first().click();
     await expect(page).toHaveURL(/\/prova\/progetto\/laurea-fisica\/$/);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Laurea in Fisica');
@@ -37,7 +37,6 @@ test.describe('sito sperimentale /prova/', () => {
       '/prova/progetto/laurea-informatica/',
       '/prova/progetto/sef-framework/',
       '/prova/progetto/laboratorio-elettronico/',
-      '/prova/progetto/matrice-rgb-10x10/',
       '/prova/contatti/',
       '/prova/privacy/',
       '/prova/cookie/',
@@ -98,7 +97,7 @@ test.describe('sito sperimentale /prova/', () => {
     }));
     expect(synchronizedMotion.photos.length).toBeGreaterThan(10);
     expect(synchronizedMotion.photos.every(Boolean)).toBe(true);
-    expect(synchronizedMotion.cards).toHaveLength(5);
+    expect(synchronizedMotion.cards).toHaveLength(4);
     expect(synchronizedMotion.cards.every(Boolean)).toBe(true);
 
     await page.evaluate((top) => window.scrollTo(0, top), geometry.valuesLeft + 300);

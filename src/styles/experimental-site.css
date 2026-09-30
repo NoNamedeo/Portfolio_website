@@ -3766,7 +3766,7 @@
     overflow: hidden;
     background:
       linear-gradient(rgb(200 217 235 / 25%), rgb(200 217 235 / 25%)),
-      url('/media/prova/experience-rgb-matrix-v1.png') center 34% / 112% 76% no-repeat,
+      url('/media/prova/electronics-prototyping-v2.png') center 34% / 112% 76% no-repeat,
       var(--exp-blue);
     font-family: var(--exp-serif);
     font-size: clamp(2.2rem, 4vw, 5rem);
